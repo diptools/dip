@@ -1,7 +1,7 @@
 <div align="center">
     <h1>bevy_dioxus</h1>
     <p>Dioxus Plugin for Bevy</p>
-    <p>Write Cross-platform application with React like decralative UI framework and scalable ECS architecture, purely in Rust.</p>
+    <p>Write Cross-platform application with React like decralative UI framework and scalable ECS architecture all in Rust.</p>
 </div>
 
 <br/>
