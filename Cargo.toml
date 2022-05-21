@@ -1,0 +1,29 @@
+[package]
+name = "bevy_dioxus"
+version = "0.0.1"
+authors = ["Junichi Sugiura"]
+edition = "2021"
+description = ""
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/JunichiSugiura/bevy_dioxus/"
+homepage = ""
+documentation = ""
+keywords = ["ui", "ecs", "bevy", "dioxus", "react", "cross-platform", "framework", "desktop", "macOS", "linux", "windows"]
+rust-version = "1.56.0"
+
+[dependencies]
+bevy = { version = "0.7", default-features = false }
+bevy_dioxus_desktop = { path = "./packages/desktop", optional = true }
+
+[dev-dependencies]
+leafwing-input-manager = { version = "0.3", default-features = false }
+dioxus = "0.2"
+
+[features]
+default = ["desktop"]
+desktop = ["bevy_dioxus_desktop"]
+
+[workspace]
+members = [
+    "packages/desktop",
+]
