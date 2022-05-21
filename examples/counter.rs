@@ -16,6 +16,11 @@ fn main() {
         .run();
 }
 
+// Bevy Components
+#[derive(Component, Default)]
+struct Count(u32);
+
+// Core <-> UI
 #[derive(Clone, Debug)]
 enum CoreCommand {
     Increment,
@@ -28,6 +33,7 @@ enum UiCommand {
     CountChanged(u32),
 }
 
+// App Component
 fn app(cx: Scope) -> Element {
     let window = use_window::<CoreCommand, UiCommand>(&cx);
     let count = use_state(&cx, || 0);
@@ -66,9 +72,7 @@ fn app(cx: Scope) -> Element {
     })
 }
 
-#[derive(Component, Default)]
-struct Count(u32);
-
+// Systems
 fn spawn_count(mut commands: Commands) {
     info!("Core: Spawn count");
     commands.spawn().insert(Count::default());
@@ -76,7 +80,7 @@ fn spawn_count(mut commands: Commands) {
 
 fn notify_counter_change(query: Query<&Count, Changed<Count>>, mut ui: EventWriter<UiCommand>) {
     for count in query.iter() {
-        info!("Core: Notify counter change: {}", count.0);
+        info!("Core: Counter Changed: {}", count.0);
         ui.send(UiCommand::CountChanged(count.0));
     }
 }
