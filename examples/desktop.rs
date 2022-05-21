@@ -82,7 +82,7 @@ fn log_keyboard_event(
 }
 
 fn app(cx: Scope) -> Element {
-    let window = use_bevy_window::<CoreCommand, UiCommand>(&cx);
+    let window = use_window::<CoreCommand, UiCommand>(&cx);
     let input = use_state(&cx, || None);
     let state = use_state(&cx, || None);
 
