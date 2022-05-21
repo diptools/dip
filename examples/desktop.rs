@@ -109,7 +109,7 @@ fn app(cx: Scope) -> Element {
             div {
                 h1 { "Bevy Dioxus Plugin Example" }
                 div {
-                    p {"Test CoreCommand chanel"}
+                    p {"Test CoreCommand channel"}
                     button {
                         onclick: |_e| window.send(CoreCommand::Test),
                         "Test",
