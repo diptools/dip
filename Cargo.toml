@@ -12,7 +12,7 @@ keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
 [dependencies]
 bevy = { version = "0.7", default-features = false }
-bevy_dioxus_desktop = { path = "./packages/desktop", optional = true }
+bevy_dioxus_desktop = { version = "0.1", path = "./packages/desktop", optional = true }
 
 [dev-dependencies]
 leafwing-input-manager = { version = "0.3", default-features = false }
