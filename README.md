@@ -8,6 +8,8 @@
 
 <br/>
 
+> WARNING: `bevy_dioxus` is still in the very early stages of development.
+
 ```rust
 fn main() {
     App::new()
@@ -35,3 +37,4 @@ cargo run --example counter
 ```
 
 More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy_dioxus/tree/main/examples) directory.
+
