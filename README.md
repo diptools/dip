@@ -1,10 +1,13 @@
 <div align="center">
     <h1>bevy_dioxus</h1>
     <p align="center">
-        <a href="https://docs.rs/bevy_dioxus/latest/bevy_dioxus/" alt="API Docs" target="_blank">
+        <a href="https://github.com/JunichiSugiura/bevy_dioxus/actions/workflows/rust.yml" alt="Github Actions">
+            <img src="https://img.shields.io/github/workflow/status/JunichiSugiura/bevy_dioxus/Rust?style=for-the-badge&logo=github" />
+        </>
+        <a href="https://docs.rs/bevy_dioxus/latest/bevy_dioxus/" alt="API Docs">
             <img src="https://img.shields.io/docsrs/bevy_dioxus?style=for-the-badge" />
         </a>
-        <a href="https://crates.io/crates/bevy_dioxus" alt="Crates.io Page" target="_blank">
+        <a href="https://crates.io/crates/bevy_dioxus" alt="Crates.io Page">
             <img src="https://img.shields.io/crates/v/bevy_dioxus?style=for-the-badge" />
         </a>
         <img src="https://img.shields.io/crates/d/bevy_dioxus?style=for-the-badge" />
