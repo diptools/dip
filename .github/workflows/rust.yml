@@ -13,16 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: cargo build --verbose
+        run: cargo build
   build-examples:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - name: Build Examples
-        run: cargo build --examples --verbose
+        run: cargo build --examples
   test:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test
