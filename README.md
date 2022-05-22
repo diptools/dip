@@ -13,7 +13,7 @@ fn main() {
             title: "Bevy Dioxus Plugin Example".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(app, ()));
+        .add_plugin(DioxusPlugin::<(), ()>::new(app, ()))
         .run();
 }
 
