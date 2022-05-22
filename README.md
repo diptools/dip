@@ -42,7 +42,7 @@ fn Root(cx: Scope) -> Element {
 }
 ```
 
-### Try examples
+## Try examples
 
 ```sh
 gh repo clone JunichiSugiura/bevy_dioxus
