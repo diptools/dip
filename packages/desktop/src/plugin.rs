@@ -1,7 +1,8 @@
 use crate::{
     converter,
     event::{
-        DomUpdated, MaximizeToggled, UiEvent, WindowDragged, WindowMaximized, WindowMinimized,
+        DomUpdated, KeyboardEvent, MaximizeToggled, UiEvent, WindowDragged, WindowMaximized,
+        WindowMinimized,
     },
     runner::runner,
     setting::DioxusSettings,
@@ -52,8 +53,9 @@ where
 
         let event_loop = EventLoop::<UiEvent<CoreCommand>>::with_user_event();
 
-        app.add_plugin(InputPlugin)
-            .add_plugin(WindowPlugin::default())
+        app.add_plugin(WindowPlugin::default())
+            .add_plugin(InputPlugin)
+            .add_event::<KeyboardEvent>()
             .add_event::<CoreCommand>()
             .add_event::<UiCommand>()
             .add_event::<DomUpdated>()

@@ -1,7 +1,7 @@
 use crate::{
     event::{
-        DomUpdated, MaximizeToggled, UiEvent, WindowDragged, WindowEvent, WindowMaximized,
-        WindowMinimized,
+        DomUpdated, KeyboardEvent, MaximizeToggled, UiEvent, WindowDragged, WindowEvent,
+        WindowMaximized, WindowMinimized,
     },
     setting::{DioxusSettings, UpdateMode},
     window::DioxusWindows,
@@ -367,6 +367,11 @@ where
                         events.send(cmd);
                     }
                     UiEvent::KeyboardEvent(event) => {
+                        let mut keyboard_events = app
+                            .world
+                            .get_resource_mut::<Events<KeyboardEvent>>()
+                            .unwrap();
+                        keyboard_events.send(event.clone());
                         let mut keyboard_input_events = app
                             .world
                             .get_resource_mut::<Events<KeyboardInput>>()
