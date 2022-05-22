@@ -11,7 +11,7 @@ use wry::{
     Result as WryResult,
 };
 
-pub struct DioxusSettings {
+pub struct DioxusSettings<Props> {
     pub focused_mode: UpdateMode,
     pub unfocused_mode: UpdateMode,
 
@@ -23,6 +23,7 @@ pub struct DioxusSettings {
     pub resource_dir: Option<PathBuf>,
     pub custom_head: Option<String>,
     pub custom_index: Option<String>,
+    pub props: Option<Props>,
 }
 
 pub type WryProtocol = (
@@ -32,7 +33,7 @@ pub type WryProtocol = (
 
 pub type DynEventHandlerFn = dyn Fn(&mut EventLoop<()>, &mut WebView);
 
-impl Debug for DioxusSettings {
+impl<Props> Debug for DioxusSettings<Props> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("DioxusWindows")
             .field("focused_mode", &self.focused_mode)
@@ -41,7 +42,10 @@ impl Debug for DioxusSettings {
     }
 }
 
-impl DioxusSettings {
+impl<Props> DioxusSettings<Props>
+where
+    Props: Default,
+{
     pub fn game() -> Self {
         DioxusSettings {
             focused_mode: UpdateMode::Continuous,
@@ -107,7 +111,10 @@ impl DioxusSettings {
     }
 }
 
-impl Default for DioxusSettings {
+impl<Props> Default for DioxusSettings<Props>
+where
+    Props: Default,
+{
     fn default() -> Self {
         DioxusSettings {
             focused_mode: UpdateMode::Reactive {
@@ -125,6 +132,7 @@ impl Default for DioxusSettings {
             resource_dir: None,
             custom_head: None,
             custom_index: None,
+            props: Some(Props::default()),
         }
     }
 }

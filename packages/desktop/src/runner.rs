@@ -35,7 +35,7 @@ pub fn runner<CoreCommand, UiCommand, Props>(mut app: App)
 where
     CoreCommand: 'static + Send + Sync + Clone + Debug,
     UiCommand: 'static + Send + Sync + Clone + Debug,
-    Props: 'static + Send + Sync + Copy,
+    Props: 'static + Send + Sync + Clone + Default,
 {
     let event_loop = app
         .world
@@ -62,7 +62,7 @@ where
               control_flow: &mut ControlFlow| {
             match event {
                 Event::NewEvents(start) => {
-                    let dioxus_settings = app.world.non_send_resource::<DioxusSettings>();
+                    let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
                     let windows = app.world.resource::<Windows>();
                     let focused = windows.iter().any(|w| w.is_focused());
                     let auto_timeout_reached =
@@ -407,7 +407,7 @@ where
                 }
                 Event::MainEventsCleared => {
                     handle_create_window_events::<CoreCommand, UiCommand, Props>(&mut app.world);
-                    let dioxus_settings = app.world.non_send_resource::<DioxusSettings>();
+                    let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
                     let update = if tao_state.active {
                         let windows = app.world.resource::<Windows>();
                         let focused = windows.iter().any(|w| w.is_focused());
@@ -430,7 +430,8 @@ where
                 }
                 Event::RedrawEventsCleared => {
                     {
-                        let dioxus_settings = app.world.non_send_resource::<DioxusSettings>();
+                        let dioxus_settings =
+                            app.world.non_send_resource::<DioxusSettings<Props>>();
                         let windows = app.world.non_send_resource::<Windows>();
                         let focused = windows.iter().any(|w| w.is_focused());
                         let now = Instant::now();
@@ -471,7 +472,7 @@ fn handle_create_window_events<CoreCommand, UiCommand, Props>(world: &mut World)
 where
     CoreCommand: 'static + Send + Sync + Clone + Debug,
     UiCommand: 'static + Send + Sync + Clone + Debug,
-    Props: 'static + Send + Sync + Copy,
+    Props: 'static + Send + Sync + Clone,
 {
     let world = world.cell();
     let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();

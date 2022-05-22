@@ -30,7 +30,7 @@ use wry::application::{
 
 pub struct DioxusPlugin<CoreCommand, UiCommand, Props = ()> {
     pub root: DioxusComponent<Props>,
-    pub props: Props,
+    // pub props: Props,
     core_cmd_type: PhantomData<CoreCommand>,
     ui_cmd_type: PhantomData<UiCommand>,
 }
@@ -39,7 +39,7 @@ impl<CoreCommand, UiCommand, Props> Plugin for DioxusPlugin<CoreCommand, UiComma
 where
     CoreCommand: 'static + Send + Sync + Clone + Debug,
     UiCommand: 'static + Send + Sync + Clone + Debug,
-    Props: 'static + Send + Sync + Copy,
+    Props: 'static + Send + Sync + Clone + Default,
 {
     fn build(&self, app: &mut App) {
         let runtime = Runtime::new().unwrap();
@@ -48,11 +48,10 @@ where
         let (ui_tx, ui_rx) = channel::<UiCommand>(8);
         let settings = app
             .world
-            .remove_non_send_resource::<DioxusSettings>()
+            .remove_non_send_resource::<DioxusSettings<Props>>()
             .unwrap_or_default();
 
         let event_loop = EventLoop::<UiEvent<CoreCommand>>::with_user_event();
-
         app.add_plugin(WindowPlugin::default())
             .add_plugin(InputPlugin)
             .add_event::<KeyboardEvent>()
@@ -69,7 +68,6 @@ where
             .insert_resource(ui_rx)
             .insert_resource(runtime)
             .insert_resource(self.root)
-            .insert_resource(self.props)
             .insert_non_send_resource(settings)
             .init_non_send_resource::<DioxusWindows>()
             .set_runner(|app| runner::<CoreCommand, UiCommand, Props>(app))
@@ -85,11 +83,19 @@ where
 }
 
 impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props> {
+    pub fn new(root: DioxusComponent<Props>) -> Self {
+        Self {
+            root,
+            core_cmd_type: PhantomData,
+            ui_cmd_type: PhantomData,
+        }
+    }
+
     fn handle_initial_window_events(world: &mut World)
     where
         CoreCommand: 'static + Send + Sync + Clone + Debug,
         UiCommand: 'static + Send + Sync + Clone + Debug,
-        Props: 'static + Send + Sync + Copy,
+        Props: 'static + Send + Sync + Clone,
     {
         let world = world.cell();
         let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
@@ -107,17 +113,6 @@ impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props> 
             window_created_events.send(WindowCreated {
                 id: create_window_event.id,
             });
-        }
-    }
-}
-
-impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props> {
-    pub fn new(root: DioxusComponent<Props>, props: Props) -> Self {
-        Self {
-            root,
-            props,
-            core_cmd_type: PhantomData,
-            ui_cmd_type: PhantomData,
         }
     }
 }

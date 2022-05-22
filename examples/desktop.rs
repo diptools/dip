@@ -40,7 +40,7 @@ fn main() {
             title: "Bevy Dioxus Plugin Demo".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(app, ()))
+        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(app))
         .add_plugin(LogPlugin)
         .add_system(send_keyboard_input)
         .add_system(handle_core_command)

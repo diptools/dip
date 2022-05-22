@@ -9,7 +9,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(app, ()))
+        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(app))
         .add_startup_system(spawn_count)
         .add_system(handle_core_cmd)
         .add_system_to_stage(CoreStage::PostUpdate, notify_counter_change)
