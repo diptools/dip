@@ -35,7 +35,7 @@ enum Action {
 fn app(cx: Scope) -> Element {
     cx.render(rsx! {
         h1 { "Key Bindings Example" }
-        p { "Press \"Ecs\" or \"Ctrl-C\" to close window" }
+        p { "💡 Press \"Ecs\" or \"Ctrl-C\" to close window" }
     })
 }
 

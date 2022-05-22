@@ -47,7 +47,7 @@ fn app(cx: Scope) -> Element {
     use EventType::*;
     cx.render(rsx! {
         h1 { "Keyboard Event Example" }
-        p { "Type any keys and checkout console. (TODO: You might need to click screen to focus.)" }
+        p { "💡 Type any keys and checkout console. (TODO: You might need to click screen to focus.)" }
 
         div {
             input {
