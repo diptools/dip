@@ -14,16 +14,19 @@ fn main() {
         .run();
 }
 
+// UI -> Core
 #[derive(Debug, Clone)]
 enum CoreCommand {
     Ping,
 }
 
+// Core -> UI
 #[derive(Debug, Clone)]
 enum UiCommand {
     Pong,
 }
 
+// UI Component
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
     let window = use_window::<CoreCommand, UiCommand>(&cx);
