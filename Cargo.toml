@@ -9,7 +9,6 @@ repository = "https://github.com/JunichiSugiura/bevy_dioxus/"
 homepage = "https://github.com/JunichiSugiura/bevy_dioxus/"
 documentation = "https://docs.rs/bevy_dioxus/latest/bevy_dioxus/"
 keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "react", "cross-platform", "framework", "desktop", "macOS", "linux", "windows"]
-rust-version = "1.56.0"
 
 [dependencies]
 bevy = { version = "0.7", default-features = false }
