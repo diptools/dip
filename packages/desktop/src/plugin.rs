@@ -30,7 +30,6 @@ use wry::application::{
 
 pub struct DioxusPlugin<CoreCommand, UiCommand, Props = ()> {
     pub root: DioxusComponent<Props>,
-    // pub props: Props,
     core_cmd_type: PhantomData<CoreCommand>,
     ui_cmd_type: PhantomData<UiCommand>,
 }
