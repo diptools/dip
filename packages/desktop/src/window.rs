@@ -82,7 +82,7 @@ impl DioxusWindows {
     where
         CoreCommand: 'static + Send + Sync + Clone + Debug,
         UiCommand: 'static + Send + Sync + Clone + Debug,
-        Props: 'static + Send + Sync + Copy,
+        Props: 'static + Send + Sync + Clone,
     {
         let event_loop = world
             .get_non_send_mut::<EventLoop<UiEvent<CoreCommand>>>()
@@ -95,8 +95,13 @@ impl DioxusWindows {
         let bevy_window = Self::create_bevy_window(window_id, &tao_window, &window_descriptor);
         let (dom_tx, edit_queue) =
             Self::spawn_virtual_dom::<CoreCommand, UiCommand, Props>(world, proxy.clone());
-        let (webview, is_ready) =
-            Self::create_webview(world, window_descriptor, tao_window, proxy, dom_tx.clone());
+        let (webview, is_ready) = Self::create_webview::<CoreCommand, Props>(
+            world,
+            window_descriptor,
+            tao_window,
+            proxy,
+            dom_tx.clone(),
+        );
 
         self.windows.insert(
             tao_window_id,
@@ -268,13 +273,14 @@ impl DioxusWindows {
     where
         CoreCommand: 'static + Send + Sync + Clone + Debug,
         UiCommand: 'static + Send + Sync + Clone + Debug,
-        Props: 'static + Send + Sync + Copy,
+        Props: 'static + Send + Sync + Clone,
     {
         let root = world
             .get_resource::<DioxusComponent<Props>>()
             .unwrap()
             .clone();
-        let props = world.get_resource::<Props>().unwrap().clone();
+        let settings = world.get_non_send::<DioxusSettings<Props>>().unwrap();
+        let props = settings.props.as_ref().unwrap().clone();
         let core_tx = world.get_resource::<Sender<CoreCommand>>().unwrap().clone();
         let ui_rx = world.get_resource::<Receiver<UiCommand>>().unwrap().clone();
 
@@ -323,7 +329,7 @@ impl DioxusWindows {
         (dom_tx, edit_queue)
     }
 
-    fn create_webview<CoreCommand>(
+    fn create_webview<CoreCommand, Props>(
         world: &WorldCell,
         window_descriptor: &WindowDescriptor,
         tao_window: TaoWindow,
@@ -332,8 +338,9 @@ impl DioxusWindows {
     ) -> (WebView, Arc<AtomicBool>)
     where
         CoreCommand: 'static + Send + Sync + Clone + Debug,
+        Props: 'static,
     {
-        let mut settings = world.get_non_send_mut::<DioxusSettings>().unwrap();
+        let mut settings = world.get_non_send_mut::<DioxusSettings<Props>>().unwrap();
         let is_ready = Arc::new(AtomicBool::new(false));
 
         let file_drop_handler = settings.file_drop_handler.take();

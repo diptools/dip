@@ -9,13 +9,18 @@ fn main() {
             ..Default::default()
         })
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(app, ()))
+        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(Root))
         .add_startup_system(spawn_count)
         .add_system(handle_core_cmd)
         .add_system_to_stage(CoreStage::PostUpdate, notify_counter_change)
         .run();
 }
 
+// Bevy Components
+#[derive(Component, Default)]
+struct Count(u32);
+
+// Core <-> UI
 #[derive(Clone, Debug)]
 enum CoreCommand {
     Increment,
@@ -28,7 +33,9 @@ enum UiCommand {
     CountChanged(u32),
 }
 
-fn app(cx: Scope) -> Element {
+// UI Component
+#[allow(non_snake_case)]
+fn Root(cx: Scope) -> Element {
     let window = use_window::<CoreCommand, UiCommand>(&cx);
     let count = use_state(&cx, || 0);
     let disabled = *count == 0;
@@ -66,17 +73,15 @@ fn app(cx: Scope) -> Element {
     })
 }
 
-#[derive(Component, Default)]
-struct Count(u32);
-
+// Systems
 fn spawn_count(mut commands: Commands) {
-    info!("Core: Spawn count");
+    info!("🧠 Spawn count");
     commands.spawn().insert(Count::default());
 }
 
 fn notify_counter_change(query: Query<&Count, Changed<Count>>, mut ui: EventWriter<UiCommand>) {
     for count in query.iter() {
-        info!("Core: Notify counter change: {}", count.0);
+        info!("🧠 Counter Changed: {}", count.0);
         ui.send(UiCommand::CountChanged(count.0));
     }
 }
@@ -86,17 +91,17 @@ fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut C
         let mut count = query.single_mut();
         match cmd {
             CoreCommand::Increment => {
-                info!("Core: Increment");
+                info!("🧠 Increment");
                 count.0 += 1;
             }
             CoreCommand::Decrement => {
-                info!("Core: Decrement");
+                info!("🧠 Decrement");
                 if count.0 > 0 {
                     count.0 -= 1;
                 }
             }
             CoreCommand::Reset => {
-                info!("Core: Reset");
+                info!("🧠 Reset");
                 if count.0 != 0 {
                     count.0 = 0;
                 }
