@@ -9,7 +9,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<CoreCommand, ()>::new(app))
+        .add_plugin(DioxusPlugin::<CoreCommand, ()>::new(Root))
         .add_startup_system(setup)
         .add_system(handle_core_cmd)
         .add_system(log_keyboard_event)
@@ -39,8 +39,9 @@ impl Default for EventType {
     }
 }
 
-// App Component
-fn app(cx: Scope) -> Element {
+// UI Component
+#[allow(non_snake_case)]
+fn Root(cx: Scope) -> Element {
     let event_type = use_state(&cx, || EventType::default());
     let window = use_window::<CoreCommand, ()>(&cx);
 

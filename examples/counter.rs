@@ -9,7 +9,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(app))
+        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(Root))
         .add_startup_system(spawn_count)
         .add_system(handle_core_cmd)
         .add_system_to_stage(CoreStage::PostUpdate, notify_counter_change)
@@ -33,8 +33,9 @@ enum UiCommand {
     CountChanged(u32),
 }
 
-// App Component
-fn app(cx: Scope) -> Element {
+// UI Component
+#[allow(non_snake_case)]
+fn Root(cx: Scope) -> Element {
     let window = use_window::<CoreCommand, UiCommand>(&cx);
     let count = use_state(&cx, || 0);
     let disabled = *count == 0;

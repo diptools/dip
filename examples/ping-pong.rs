@@ -8,7 +8,7 @@ fn main() {
             title: "Ping-Pong Example".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(app))
+        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(Root))
         .add_plugin(LogPlugin)
         .add_system(pong)
         .run();
@@ -24,7 +24,8 @@ enum UiCommand {
     Pong,
 }
 
-fn app(cx: Scope) -> Element {
+#[allow(non_snake_case)]
+fn Root(cx: Scope) -> Element {
     let window = use_window::<CoreCommand, UiCommand>(&cx);
 
     use_future(&cx, (), |_| {
@@ -42,7 +43,7 @@ fn app(cx: Scope) -> Element {
     });
 
     cx.render(rsx! {
-        h1 { "Hello, World !" }
+        h1 { "Ping Pong Example" }
         p { "💡 Press \"Ping\" and see console." }
         button {
             onclick: move |_| window.send(CoreCommand::Ping),

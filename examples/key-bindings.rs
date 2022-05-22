@@ -16,7 +16,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<(), ()>::new(app))
+        .add_plugin(DioxusPlugin::<(), ()>::new(Root))
         .add_plugin(CorePlugin)
         .add_plugin(InputManagerPlugin::<Action>::default())
         .add_startup_system(setup)
@@ -32,7 +32,8 @@ enum Action {
     CloseWindow,
 }
 
-fn app(cx: Scope) -> Element {
+#[allow(non_snake_case)]
+fn Root(cx: Scope) -> Element {
     cx.render(rsx! {
         h1 { "Key Bindings Example" }
         p { "💡 Press \"Ecs\" or \"Ctrl-C\" to close window. (TODO: You might need to click screen to focus.)" }

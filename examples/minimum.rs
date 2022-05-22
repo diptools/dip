@@ -8,11 +8,12 @@ fn main() {
             title: "Minimum Example".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<(), ()>::new(app))
+        .add_plugin(DioxusPlugin::<(), ()>::new(Root))
         .run();
 }
 
-fn app(cx: Scope) -> Element {
+#[allow(non_snake_case)]
+fn Root(cx: Scope) -> Element {
     cx.render(rsx! {
         h1 { "Hello, World !" }
     })

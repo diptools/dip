@@ -40,7 +40,7 @@ fn main() {
             title: "Bevy Dioxus Plugin Demo".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(app))
+        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(Root))
         .add_plugin(LogPlugin)
         .add_system(send_keyboard_input)
         .add_system(handle_core_command)
@@ -81,7 +81,8 @@ fn log_keyboard_event(
     }
 }
 
-fn app(cx: Scope) -> Element {
+#[allow(non_snake_case)]
+fn Root(cx: Scope) -> Element {
     let window = use_window::<CoreCommand, UiCommand>(&cx);
     let input = use_state(&cx, || None);
     let state = use_state(&cx, || None);
