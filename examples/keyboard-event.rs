@@ -123,21 +123,21 @@ fn log_keyboard_event(
     query: Query<&SelectedType>,
 ) {
     let selected = query.single();
-    if selected.0 == EventType::KeyboardEvent {
-        for event in keyboard_events.iter() {
-            info!("🧠 {:?}", event.clone());
+    match selected.0 {
+        EventType::KeyboardEvent => {
+            for event in keyboard_events.iter() {
+                info!("🧠 {:?}", event.clone());
+            }
         }
-    }
-
-    if selected.0 == EventType::KeyboardInput {
-        for input in keyboard_input_events.iter() {
-            info!("🧠 {:?}", input.clone());
+        EventType::KeyboardInput => {
+            for input in keyboard_input_events.iter() {
+                info!("🧠 {:?}", input.clone());
+            }
         }
-    }
-
-    if selected.0 == EventType::ReceivedCharacter {
-        for received_char in received_character_events.iter() {
-            info!("🧠 {:?}", received_char.clone());
+        EventType::ReceivedCharacter => {
+            for received_char in received_character_events.iter() {
+                info!("🧠 {:?}", received_char.clone());
+            }
         }
     }
 }
