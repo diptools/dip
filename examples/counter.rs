@@ -74,13 +74,13 @@ fn app(cx: Scope) -> Element {
 
 // Systems
 fn spawn_count(mut commands: Commands) {
-    info!("Core: Spawn count");
+    info!("🧠 Spawn count");
     commands.spawn().insert(Count::default());
 }
 
 fn notify_counter_change(query: Query<&Count, Changed<Count>>, mut ui: EventWriter<UiCommand>) {
     for count in query.iter() {
-        info!("Core: Counter Changed: {}", count.0);
+        info!("🧠 Counter Changed: {}", count.0);
         ui.send(UiCommand::CountChanged(count.0));
     }
 }
@@ -90,17 +90,17 @@ fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut C
         let mut count = query.single_mut();
         match cmd {
             CoreCommand::Increment => {
-                info!("Core: Increment");
+                info!("🧠 Increment");
                 count.0 += 1;
             }
             CoreCommand::Decrement => {
-                info!("Core: Decrement");
+                info!("🧠 Decrement");
                 if count.0 > 0 {
                     count.0 -= 1;
                 }
             }
             CoreCommand::Reset => {
-                info!("Core: Reset");
+                info!("🧠 Reset");
                 if count.0 != 0 {
                     count.0 = 0;
                 }

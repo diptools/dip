@@ -44,6 +44,7 @@ fn app(cx: Scope) -> Element {
     let event_type = use_state(&cx, || EventType::default());
     let window = use_window::<CoreCommand, ()>(&cx);
 
+    use EventType::*;
     cx.render(rsx! {
         h1 { "Keyboard Event Example" }
         p { "Type any keys and checkout console. (TODO: You might need to click screen to focus.)" }
@@ -52,10 +53,10 @@ fn app(cx: Scope) -> Element {
             input {
                 r#type: "radio",
                 id: "keyboard-event",
-                checked: format_args!("{}", *event_type == EventType::KeyboardEvent),
+                checked: format_args!("{}", *event_type == KeyboardEvent),
                 onchange: |_e| {
-                    event_type.modify(|_| EventType::KeyboardEvent);
-                    window.send(CoreCommand::NewEventType(EventType::KeyboardEvent));
+                    event_type.modify(|_| KeyboardEvent);
+                    window.send(CoreCommand::NewEventType(KeyboardEvent));
                 },
                 style: "margin: 0.5rem;",
             }
@@ -67,10 +68,10 @@ fn app(cx: Scope) -> Element {
             input {
                 r#type: "radio",
                 id: "keyboard-input",
-                checked: format_args!("{}", *event_type == EventType::KeyboardInput),
+                checked: format_args!("{}", *event_type == KeyboardInput),
                 onchange: |_e| {
-                    event_type.modify(|_| EventType::KeyboardInput);
-                    window.send(CoreCommand::NewEventType(EventType::KeyboardInput));
+                    event_type.modify(|_| KeyboardInput);
+                    window.send(CoreCommand::NewEventType(KeyboardInput));
                 },
                 style: "margin: 0.5rem;",
             }
@@ -82,10 +83,10 @@ fn app(cx: Scope) -> Element {
             input {
                 r#type: "radio",
                 id: "received-character",
-                checked: format_args!("{}", *event_type == EventType::ReceivedCharacter),
+                checked: format_args!("{}", *event_type == ReceivedCharacter),
                 onchange: |_e| {
-                    event_type.modify(|_| EventType::ReceivedCharacter);
-                    window.send(CoreCommand::NewEventType(EventType::ReceivedCharacter));
+                    event_type.modify(|_| ReceivedCharacter);
+                    window.send(CoreCommand::NewEventType(ReceivedCharacter));
                 },
                 style: "margin: 0.5rem;",
             }
@@ -108,7 +109,7 @@ fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut S
         let mut selected = query.single_mut();
         match cmd {
             CoreCommand::NewEventType(e) => {
-                info!("EventType changed: {:?}", e);
+                info!("🧠 NewEventType: {:?}", e);
                 selected.0 = e.clone();
             }
         }
