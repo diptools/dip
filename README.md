@@ -1,7 +1,9 @@
 <div align="center">
     <h1>bevy_dioxus</h1>
-    <p>Dioxus Plugin for Bevy</p>
-    <p>Write Cross-platform application with React like decralative UI framework<br/>and scalable ECS architecture all in Rust.</p>
+    <p>
+        <a href="https://github.com/DioxusLabs/dioxus/" target="_blank"> Dioxus </a> Plugin for <a href="https://github.com/bevyengine/bevy" target="_blank">Bevy</a>
+    </p>
+    <p>Write Cross-platform application with React-like decralative UI framework<br/>and scalable ECS architecture all in Rust.</p>
 </div>
 
 <br/>
@@ -23,3 +25,13 @@ fn Root(cx: Scope) -> Element {
     })
 }
 ```
+
+### Try examples
+
+```sh
+gh repo clone JunichiSugiura/bevy_dioxus
+
+cargo run --example counter
+```
+
+More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy_dioxus/tree/main/examples) directory.
