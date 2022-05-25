@@ -95,14 +95,14 @@ fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut C
                 count.0 += 1;
             }
             CoreCommand::Decrement => {
-                info!("🧠 Decrement");
                 if count.0 > 0 {
+                    info!("🧠 Decrement");
                     count.0 -= 1;
                 }
             }
             CoreCommand::Reset => {
-                info!("🧠 Reset");
                 if count.0 != 0 {
+                    info!("🧠 Reset");
                     count.0 = 0;
                 }
             }

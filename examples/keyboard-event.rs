@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {
-            title: "Counter".to_string(),
+            title: "Keyboard Event".to_string(),
             ..Default::default()
         })
         .add_plugin(LogPlugin)
