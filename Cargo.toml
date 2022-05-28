@@ -26,3 +26,7 @@ desktop = ["bevy_dioxus_desktop"]
 members = [
     "packages/desktop",
 ]
+
+[[example]]
+name = "window-settings"
+path = "examples/window/window-settings.rs"
