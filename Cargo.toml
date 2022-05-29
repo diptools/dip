@@ -32,9 +32,9 @@ name = "window-settings"
 path = "examples/window/settings.rs"
 
 [[example]]
-name = "window-update-mode"
+name = "update-mode"
 path = "examples/window/update-mode.rs"
 
 [[example]]
-name = "window-multiple-windows"
+name = "multiple-windows"
 path = "examples/window/multiple-windows.rs"
