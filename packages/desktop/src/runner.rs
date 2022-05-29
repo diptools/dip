@@ -18,8 +18,8 @@ use bevy::{
     utils::Instant,
     window::{
         CreateWindow, FileDragAndDrop, ReceivedCharacter, RequestRedraw,
-        WindowBackendScaleFactorChanged, WindowCloseRequested, WindowCreated, WindowFocused,
-        WindowId, WindowMode, WindowMoved, WindowResized, WindowScaleFactorChanged, Windows,
+        WindowBackendScaleFactorChanged, WindowCloseRequested, WindowFocused, WindowId, WindowMode,
+        WindowMoved, WindowResized, WindowScaleFactorChanged, Windows,
     },
 };
 use futures_intrusive::channel::shared::{Receiver, Sender};
@@ -480,22 +480,23 @@ where
     Props: 'static + Send + Sync + Clone,
 {
     let world = world.cell();
-    let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
-    let mut windows = world.get_resource_mut::<Windows>().unwrap();
+    // let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
+    // let mut windows = world.get_resource_mut::<Windows>().unwrap();
     let create_window_events = world.get_resource::<Events<CreateWindow>>().unwrap();
     let mut create_window_events_reader = ManualEventReader::<CreateWindow>::default();
-    let mut window_created_events = world.get_resource_mut::<Events<WindowCreated>>().unwrap();
+    // let mut window_created_events = world.get_resource_mut::<Events<WindowCreated>>().unwrap();
 
-    for create_window_event in create_window_events_reader.iter(&create_window_events) {
-        let window = dioxus_windows.create::<CoreCommand, UiCommand, Props>(
-            &world,
-            create_window_event.id,
-            &create_window_event.descriptor,
-        );
-        windows.add(window);
-        window_created_events.send(WindowCreated {
-            id: create_window_event.id,
-        });
+    for _create_window_event in create_window_events_reader.iter(&create_window_events) {
+        warn!("Multiple Windows isn't supported yet!");
+        //     let window = dioxus_windows.create::<CoreCommand, UiCommand, Props>(
+        //         &world,
+        //         create_window_event.id,
+        //         &create_window_event.descriptor,
+        //     );
+        //     windows.add(window);
+        //     window_created_events.send(WindowCreated {
+        //         id: create_window_event.id,
+        //     });
     }
 }
 

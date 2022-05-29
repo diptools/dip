@@ -34,3 +34,7 @@ path = "examples/window/settings.rs"
 [[example]]
 name = "window-update-mode"
 path = "examples/window/update-mode.rs"
+
+[[example]]
+name = "window-multiple-windows"
+path = "examples/window/multiple-windows.rs"
