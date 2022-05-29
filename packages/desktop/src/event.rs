@@ -101,6 +101,9 @@ pub enum WindowEvent {
 }
 
 #[derive(Debug, Clone)]
+pub struct UpdateDom;
+
+#[derive(Debug, Clone)]
 pub struct DomUpdated {
     pub id: WindowId,
 }

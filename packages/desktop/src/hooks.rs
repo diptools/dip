@@ -9,5 +9,5 @@ where
 {
     cx.use_hook(|_| cx.consume_context::<UiContext<CoreCommand, UiCommand>>())
         .as_ref()
-        .unwrap()
+        .expect("Failed to find UiContext, check CoreCommand and UiCommand type parameter")
 }

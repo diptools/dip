@@ -46,6 +46,7 @@ fn Root(cx: Scope) -> Element {
 
 ```sh
 gh repo clone JunichiSugiura/bevy_dioxus
+cd bevy_dioxus
 
 cargo run --example counter
 ```

@@ -10,6 +10,9 @@ mod window;
 
 pub mod prelude {
     pub use crate::{
-        event::KeyboardEvent, hooks::*, plugin::DioxusPlugin, setting::DioxusSettings,
+        event::*,
+        hooks::*,
+        plugin::DioxusPlugin,
+        setting::{DioxusSettings, UpdateMode},
     };
 }

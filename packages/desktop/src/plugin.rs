@@ -1,8 +1,8 @@
 use crate::{
     converter,
     event::{
-        DomUpdated, KeyboardEvent, MaximizeToggled, UiEvent, WindowDragged, WindowMaximized,
-        WindowMinimized,
+        DomUpdated, KeyboardEvent, MaximizeToggled, UiEvent, UpdateDom, WindowDragged,
+        WindowMaximized, WindowMinimized,
     },
     runner::runner,
     setting::DioxusSettings,
@@ -19,7 +19,10 @@ use bevy::{
     },
 };
 use dioxus_core::Component as DioxusComponent;
-use futures_intrusive::channel::shared::{channel, Sender};
+use futures_intrusive::channel::{
+    shared::{channel, Sender},
+    TrySendError,
+};
 use std::{fmt::Debug, marker::PhantomData};
 use tokio::runtime::Runtime;
 use wry::application::{
@@ -45,6 +48,7 @@ where
 
         let (core_tx, core_rx) = channel::<CoreCommand>(8);
         let (ui_tx, ui_rx) = channel::<UiCommand>(8);
+        let (dom_update_tx, dom_update_rx) = channel::<UpdateDom>(8);
         let settings = app
             .world
             .remove_non_send_resource::<DioxusSettings<Props>>()
@@ -65,6 +69,8 @@ where
             .insert_resource(core_rx)
             .insert_resource(ui_tx)
             .insert_resource(ui_rx)
+            .insert_resource(dom_update_tx)
+            .insert_resource(dom_update_rx)
             .insert_resource(runtime)
             .insert_resource(self.root)
             .insert_non_send_resource(settings)
@@ -118,12 +124,23 @@ impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props> 
 
 fn send_ui_commands<UiCommand>(mut events: EventReader<UiCommand>, tx: Res<Sender<UiCommand>>)
 where
-    UiCommand: 'static + Send + Sync + Clone,
+    UiCommand: 'static + Send + Sync + Clone + Debug,
 {
     for e in events.iter() {
-        if let Err(_) = tx.try_send(e.clone()) {
-            error!("Failed to send UiCommand");
-        };
+        match tx.try_send(e.clone()) {
+            Ok(()) => {}
+            Err(e) => match e {
+                TrySendError::Full(e) => {
+                    error!("Failed to send UiCommand: channel is full: event: {:?}", e);
+                }
+                TrySendError::Closed(e) => {
+                    error!(
+                        "Failed to send UiCommand: channel is closed: event: {:?}",
+                        e
+                    );
+                }
+            },
+        }
     }
 }
 

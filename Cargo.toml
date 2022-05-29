@@ -30,3 +30,7 @@ members = [
 [[example]]
 name = "window-settings"
 path = "examples/window/window-settings.rs"
+
+[[example]]
+name = "window-update-mode"
+path = "examples/window/window-update-mode.rs"
