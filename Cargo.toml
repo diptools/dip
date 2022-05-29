@@ -29,8 +29,8 @@ members = [
 
 [[example]]
 name = "window-settings"
-path = "examples/window/window-settings.rs"
+path = "examples/window/settings.rs"
 
 [[example]]
 name = "window-update-mode"
-path = "examples/window/window-update-mode.rs"
+path = "examples/window/update-mode.rs"

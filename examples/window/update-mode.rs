@@ -116,7 +116,8 @@ fn Root(cx: Scope) -> Element {
     cx.render(rsx! {
         h1 { "Window: Update Mode" }
         p { "💡 Press \"Space\" to toggle mode. (TODO: You might need to click screen to focus.)" }
-        p { "The frame gets updated only when input event occurs or timeout on Application mode." }
+        p { "The frame gets updated only when user event occurs or with max timeout on Application mode." }
+        p { "Try press any keys or change window size to see frame increments." }
         div {
             style: "background: #ddd; padding: 1rem;",
             p { [format_args!("Mode: {:?}", mode)] }
