@@ -26,3 +26,19 @@ desktop = ["bevy_dioxus_desktop"]
 members = [
     "packages/desktop",
 ]
+
+[[example]]
+name = "window-settings"
+path = "examples/window/settings.rs"
+
+[[example]]
+name = "update-mode"
+path = "examples/window/update-mode.rs"
+
+[[example]]
+name = "multiple-windows"
+path = "examples/window/multiple-windows.rs"
+
+[[example]]
+name = "scale-factor-override"
+path = "examples/window/scale-factor-override.rs"

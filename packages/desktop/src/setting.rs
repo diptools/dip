@@ -54,6 +54,27 @@ where
         }
     }
 
+    pub fn desktop_app() -> Self {
+        DioxusSettings {
+            focused_mode: UpdateMode::Reactive {
+                max_wait: Duration::from_secs(5),
+            },
+            unfocused_mode: UpdateMode::ReactiveLowPower {
+                max_wait: Duration::from_secs(60),
+            },
+
+            protocols: Vec::new(),
+            file_drop_handler: None,
+            pre_rendered: None,
+            event_handler: None,
+            disable_context_menu: !cfg!(debug_assertions),
+            resource_dir: None,
+            custom_head: None,
+            custom_index: None,
+            props: Some(Props::default()),
+        }
+    }
+
     pub fn update_mode(&self, focused: bool) -> &UpdateMode {
         match focused {
             true => &self.focused_mode,
@@ -116,30 +137,39 @@ where
     Props: Default,
 {
     fn default() -> Self {
-        DioxusSettings {
-            focused_mode: UpdateMode::Reactive {
-                max_wait: Duration::from_secs(5),
-            },
-            unfocused_mode: UpdateMode::ReactiveLowPower {
-                max_wait: Duration::from_secs(60),
-            },
-
-            protocols: Vec::new(),
-            file_drop_handler: None,
-            pre_rendered: None,
-            event_handler: None,
-            disable_context_menu: !cfg!(debug_assertions),
-            resource_dir: None,
-            custom_head: None,
-            custom_index: None,
-            props: Some(Props::default()),
-        }
+        Self::desktop_app()
     }
 }
 
-#[derive(Debug)]
+/// Configure how the tao event loop should update.
+#[derive(Clone, Debug)]
 pub enum UpdateMode {
+    /// The event loop will update continuously, running as fast as possible.
     Continuous,
+    /// The event loop will only update if there is a tao event, a redraw is requested, or the
+    /// maximum wait time has elapsed.
+    ///
+    /// ## Note
+    ///
+    /// Once the app has executed all bevy systems and reaches the end of the event loop, there is
+    /// no way to force the app to wake and update again, unless a `tao` event (such as user
+    /// input, or the window being resized) is received or the time limit is reached.
     Reactive { max_wait: Duration },
+    /// The event loop will only update if there is a tao event from direct interaction with the
+    /// window (e.g. mouseover), a redraw is requested, or the maximum wait time has elapsed.
+    ///
+    /// ## Note
+    ///
+    /// Once the app has executed all bevy systems and reaches the end of the event loop, there is
+    /// no way to force the app to wake and update again, unless a `tao` event (such as user
+    /// input, or the window being resized) is received or the time limit is reached.
+    ///
+    /// ## Differences from [`UpdateMode::Reactive`]
+    ///
+    /// Unlike [`UpdateMode::Reactive`], this mode will ignore tao events that aren't directly
+    /// caused by interaction with the window. For example, you might want to use this mode when the
+    /// window is not focused, to only re-draw your bevy app when the cursor is over the window, but
+    /// not when the mouse moves somewhere else on the screen. This helps to significantly reduce
+    /// power consumption by only updated the app when absolutely necessary.
     ReactiveLowPower { max_wait: Duration },
 }

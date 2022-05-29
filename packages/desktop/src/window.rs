@@ -1,6 +1,6 @@
 use crate::{
     context::{ProxyType, UiContext},
-    event::{trigger_from_serialized, IpcMessage, KeyboardEvent, UiEvent, WindowEvent},
+    event::{trigger_from_serialized, IpcMessage, KeyboardEvent, UiEvent, UpdateDom, WindowEvent},
     protocol,
     setting::DioxusSettings,
 };
@@ -283,6 +283,7 @@ impl DioxusWindows {
         let props = settings.props.as_ref().unwrap().clone();
         let core_tx = world.get_resource::<Sender<CoreCommand>>().unwrap().clone();
         let ui_rx = world.get_resource::<Receiver<UiCommand>>().unwrap().clone();
+        let dom_update_rx = world.get_resource::<Receiver<UpdateDom>>().unwrap().clone();
 
         let (dom_tx, dom_rx) = mpsc::unbounded::<SchedulerMsg>();
         let context = UiContext::<CoreCommand, UiCommand>::new(proxy.clone(), (core_tx, ui_rx));
@@ -309,7 +310,7 @@ impl DioxusWindows {
                     .send_event(UiEvent::WindowEvent(WindowEvent::Update))
                     .unwrap();
 
-                loop {
+                while let Some(_) = dom_update_rx.receive().await {
                     dom.wait_for_work().await;
 
                     let muts = dom.work_with_deadline(|| false);
@@ -458,7 +459,7 @@ impl Window {
         &self.webview.window()
     }
 
-    pub fn try_load_ready_webview(&mut self) {
+    pub fn update(&mut self) {
         if self.is_ready.load(std::sync::atomic::Ordering::Relaxed) {
             let mut queue = self.edit_queue.lock().unwrap();
 

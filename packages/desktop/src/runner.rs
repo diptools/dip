@@ -1,6 +1,6 @@
 use crate::{
     event::{
-        DomUpdated, KeyboardEvent, MaximizeToggled, UiEvent, WindowDragged, WindowEvent,
+        DomUpdated, KeyboardEvent, MaximizeToggled, UiEvent, UpdateDom, WindowDragged, WindowEvent,
         WindowMaximized, WindowMinimized,
     },
     setting::{DioxusSettings, UpdateMode},
@@ -18,11 +18,11 @@ use bevy::{
     utils::Instant,
     window::{
         CreateWindow, FileDragAndDrop, ReceivedCharacter, RequestRedraw,
-        WindowBackendScaleFactorChanged, WindowCloseRequested, WindowCreated, WindowFocused,
-        WindowId, WindowMode, WindowMoved, WindowResized, WindowScaleFactorChanged, Windows,
+        WindowBackendScaleFactorChanged, WindowCloseRequested, WindowFocused, WindowId, WindowMode,
+        WindowMoved, WindowResized, WindowScaleFactorChanged, Windows,
     },
 };
-use futures_intrusive::channel::shared::Receiver;
+use futures_intrusive::channel::shared::{Receiver, Sender};
 use std::fmt::Debug;
 use tokio::runtime::Runtime;
 use wry::application::{
@@ -256,7 +256,7 @@ where
                         match window_event {
                             WindowEvent::Update => {
                                 let dioxus_window = dioxus_windows.get_mut(id).unwrap();
-                                dioxus_window.try_load_ready_webview();
+                                dioxus_window.update();
 
                                 let mut events =
                                     world.get_resource_mut::<Events<DomUpdated>>().unwrap();
@@ -377,6 +377,8 @@ where
                             .get_resource_mut::<Events<KeyboardInput>>()
                             .unwrap();
                         keyboard_input_events.send(event.to_input());
+                        let mut request_redraw = app.world.resource_mut::<Events<RequestRedraw>>();
+                        request_redraw.send(RequestRedraw);
 
                         match event.try_to_char() {
                             Some(c) => {
@@ -412,8 +414,8 @@ where
                         let windows = app.world.resource::<Windows>();
                         let focused = windows.iter().any(|w| w.is_focused());
                         match dioxus_settings.update_mode(focused) {
-                            UpdateMode::Continuous | UpdateMode::Reactive { .. } => true,
-                            UpdateMode::ReactiveLowPower { .. } => {
+                            UpdateMode::Continuous { .. } => true,
+                            UpdateMode::Reactive { .. } | UpdateMode::ReactiveLowPower { .. } => {
                                 tao_state.low_power_event
                                     || tao_state.redraw_request_sent
                                     || tao_state.timeout_reached
@@ -422,9 +424,12 @@ where
                     } else {
                         false
                     };
+                    let dom_update_tx = app.world.resource::<Sender<UpdateDom>>();
 
                     if update {
                         tao_state.last_update = Instant::now();
+
+                        let _ = dom_update_tx.try_send(UpdateDom);
                         app.update();
                     }
                 }
@@ -475,22 +480,23 @@ where
     Props: 'static + Send + Sync + Clone,
 {
     let world = world.cell();
-    let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
-    let mut windows = world.get_resource_mut::<Windows>().unwrap();
+    // let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
+    // let mut windows = world.get_resource_mut::<Windows>().unwrap();
     let create_window_events = world.get_resource::<Events<CreateWindow>>().unwrap();
     let mut create_window_events_reader = ManualEventReader::<CreateWindow>::default();
-    let mut window_created_events = world.get_resource_mut::<Events<WindowCreated>>().unwrap();
+    // let mut window_created_events = world.get_resource_mut::<Events<WindowCreated>>().unwrap();
 
-    for create_window_event in create_window_events_reader.iter(&create_window_events) {
-        let window = dioxus_windows.create::<CoreCommand, UiCommand, Props>(
-            &world,
-            create_window_event.id,
-            &create_window_event.descriptor,
-        );
-        windows.add(window);
-        window_created_events.send(WindowCreated {
-            id: create_window_event.id,
-        });
+    for _create_window_event in create_window_events_reader.iter(&create_window_events) {
+        warn!("Multiple Windows isn't supported yet!");
+        //     let window = dioxus_windows.create::<CoreCommand, UiCommand, Props>(
+        //         &world,
+        //         create_window_event.id,
+        //         &create_window_event.descriptor,
+        //     );
+        //     windows.add(window);
+        //     window_created_events.send(WindowCreated {
+        //         id: create_window_event.id,
+        //     });
     }
 }
 
