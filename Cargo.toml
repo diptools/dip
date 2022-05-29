@@ -38,3 +38,7 @@ path = "examples/window/update-mode.rs"
 [[example]]
 name = "multiple-windows"
 path = "examples/window/multiple-windows.rs"
+
+[[example]]
+name = "scale-factor-override"
+path = "examples/window/scale-factor-override.rs"
