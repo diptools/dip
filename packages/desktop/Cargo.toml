@@ -17,6 +17,7 @@ core-foundation = "0.9"
 dioxus-core = { version = "0.2", features = ["serialize"] }
 dioxus-hooks = "0.2"
 dioxus-html = { version = "0.2", features = ["serialize"] }
+dioxus-interpreter-js = "0.2"
 dunce = "1.0"
 futures-channel = "0.3.21"
 futures-intrusive = "0.4"
