@@ -102,6 +102,7 @@ impl DioxusWindows {
             proxy,
             dom_tx.clone(),
         );
+        webview.focus();
 
         self.windows.insert(
             tao_window_id,
@@ -314,7 +315,6 @@ impl DioxusWindows {
                     dom.wait_for_work().await;
 
                     let muts = dom.work_with_deadline(|| false);
-
                     for edit in muts {
                         edit_queue_clone
                             .lock()
@@ -427,6 +427,54 @@ impl DioxusWindows {
         } else {
             // in debug, we are okay with the reload menu showing and dev tool
             webview = webview.with_devtools(true);
+        }
+
+        if settings.keyboard_event {
+            webview = webview.with_initialization_script(
+                r#"
+                    function serializeIpcMessage(method, params = {}) {
+                      return JSON.stringify({ method, params });
+                    }
+
+                    function serialize_keyboard_event(e) {
+                      let {
+                        charCode,
+                        key,
+                        altKey,
+                        ctrlKey,
+                        metaKey,
+                        keyCode,
+                        shiftKey,
+                        location,
+                        repeat,
+                        which,
+                        type,
+                      } = event;
+                      return {
+                        char_code: charCode,
+                        key,
+                        alt_key: altKey,
+                        ctrl_key: ctrlKey,
+                        meta_key: metaKey,
+                        key_code: keyCode,
+                        shift_key: shiftKey,
+                        location,
+                        repeat,
+                        which,
+                        type,
+                        locale: "locale",
+                      };
+                    }
+
+                    function handleKeyEvent(e) {
+                      e.preventDefault();
+                      window.ipc.postMessage(serializeIpcMessage("keyboard_event", serialize_keyboard_event(e)))
+                    }
+
+                    document.addEventListener('keydown', handleKeyEvent);
+                    document.addEventListener('keyup', handleKeyEvent);
+                "#
+            );
         }
 
         (webview.build().unwrap(), is_ready)

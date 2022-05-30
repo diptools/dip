@@ -154,36 +154,32 @@ fn change_window(
 
     for bevy_window in windows.iter_mut() {
         let id = bevy_window.id();
+        let window = dioxus_windows.get_tao_window(id).unwrap();
+
         for command in bevy_window.drain_commands() {
             match command {
                 WindowCommand::SetWindowMode {
                     mode,
                     resolution: (width, height),
-                } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
-                    match mode {
-                        WindowMode::BorderlessFullscreen => {
-                            window.set_fullscreen(Some(Fullscreen::Borderless(None)));
-                        }
-                        WindowMode::Fullscreen => {
-                            window.set_fullscreen(Some(Fullscreen::Exclusive(
-                                DioxusWindows::get_best_videomode(
-                                    &window.current_monitor().unwrap(),
-                                ),
-                            )));
-                        }
-                        WindowMode::SizedFullscreen => window.set_fullscreen(Some(
-                            Fullscreen::Exclusive(DioxusWindows::get_fitting_videomode(
-                                &window.current_monitor().unwrap(),
-                                width,
-                                height,
-                            )),
-                        )),
-                        WindowMode::Windowed => window.set_fullscreen(None),
+                } => match mode {
+                    WindowMode::BorderlessFullscreen => {
+                        window.set_fullscreen(Some(Fullscreen::Borderless(None)));
                     }
-                }
+                    WindowMode::Fullscreen => {
+                        window.set_fullscreen(Some(Fullscreen::Exclusive(
+                            DioxusWindows::get_best_videomode(&window.current_monitor().unwrap()),
+                        )));
+                    }
+                    WindowMode::SizedFullscreen => window.set_fullscreen(Some(
+                        Fullscreen::Exclusive(DioxusWindows::get_fitting_videomode(
+                            &window.current_monitor().unwrap(),
+                            width,
+                            height,
+                        )),
+                    )),
+                    WindowMode::Windowed => window.set_fullscreen(None),
+                },
                 WindowCommand::SetTitle { title } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     window.set_title(&title);
                 }
                 WindowCommand::SetScaleFactor { scale_factor } => {
@@ -193,36 +189,29 @@ fn change_window(
                     logical_resolution: (width, height),
                     scale_factor,
                 } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     window.set_inner_size(
                         LogicalSize::new(width, height).to_physical::<f64>(scale_factor),
                     );
                 }
                 WindowCommand::SetPresentMode { .. } => (),
                 WindowCommand::SetResizable { resizable } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     window.set_resizable(resizable);
                 }
                 WindowCommand::SetDecorations { decorations } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     window.set_decorations(decorations);
                 }
                 WindowCommand::SetCursorIcon { icon } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     window.set_cursor_icon(converter::convert_cursor_icon(icon));
                 }
                 WindowCommand::SetCursorLockMode { locked } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     window
                         .set_cursor_grab(locked)
                         .unwrap_or_else(|e| error!("Unable to un/grab cursor: {}", e));
                 }
                 WindowCommand::SetCursorVisibility { visible } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     window.set_cursor_visible(visible);
                 }
                 WindowCommand::SetCursorPosition { position } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     let inner_size = window.inner_size().to_logical::<f32>(window.scale_factor());
                     window
                         .set_cursor_position(LogicalPosition::new(
@@ -232,22 +221,18 @@ fn change_window(
                         .unwrap_or_else(|e| error!("Unable to set cursor position: {}", e));
                 }
                 WindowCommand::SetMaximized { maximized } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     window.set_maximized(maximized);
                 }
                 WindowCommand::SetMinimized { minimized } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     window.set_minimized(minimized);
                 }
                 WindowCommand::SetPosition { position } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     window.set_outer_position(PhysicalPosition {
                         x: position[0],
                         y: position[1],
                     });
                 }
                 WindowCommand::SetResizeConstraints { resize_constraints } => {
-                    let window = dioxus_windows.get_tao_window(id).unwrap();
                     let constraints = resize_constraints.check_constraints();
                     let min_inner_size = LogicalSize {
                         width: constraints.min_width,

@@ -4,8 +4,8 @@ use dioxus::prelude::*;
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor {
-            title: "Keyboard Event".to_string(),
+        .insert_non_send_resource(DioxusSettings::<()> {
+            keyboard_event: true,
             ..Default::default()
         })
         .add_plugin(LogPlugin)

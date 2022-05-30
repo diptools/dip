@@ -24,6 +24,8 @@ pub struct DioxusSettings<Props> {
     pub custom_head: Option<String>,
     pub custom_index: Option<String>,
     pub props: Option<Props>,
+
+    pub keyboard_event: bool,
 }
 
 pub type WryProtocol = (
@@ -72,6 +74,8 @@ where
             custom_head: None,
             custom_index: None,
             props: Some(Props::default()),
+
+            keyboard_event: false,
         }
     }
 

@@ -3,15 +3,7 @@ export function main() {
   if (root != null) {
     window.interpreter = new Interpreter(root);
 
-    document.addEventListener('keydown', handleKeyEvent);
-    document.addEventListener('keyup', handleKeyEvent);
-
     window.ipc.postMessage(serializeIpcMessage("initialize"));
-
-    function handleKeyEvent(e) {
-      e.preventDefault();
-      window.ipc.postMessage(serializeIpcMessage("keyboard_event", serialize_event(e)))
-    }
   }
 }
 

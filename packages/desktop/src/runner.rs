@@ -356,6 +356,10 @@ where
                                     .webview
                                     .evaluate_script(code.as_str())
                                     .expect("eval shouldn't panic");
+
+                                let mut request_redraw =
+                                    world.get_resource_mut::<Events<RequestRedraw>>().unwrap();
+                                request_redraw.send(RequestRedraw);
                             }
                         };
                     }
