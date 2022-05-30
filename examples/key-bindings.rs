@@ -11,6 +11,10 @@ use leafwing_input_manager::prelude::*;
 
 fn main() {
     App::new()
+        .insert_non_send_resource(DioxusSettings::<()> {
+            keyboard_event: true,
+            ..Default::default()
+        })
         .insert_resource(WindowDescriptor {
             title: "Key Bindings".to_string(),
             ..Default::default()
