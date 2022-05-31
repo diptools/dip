@@ -1,3 +1,4 @@
+use dioxus_interpreter_js::INTERPRETER_JS;
 use std::path::{Path, PathBuf};
 use wry::{
     http::{status::StatusCode, Request, Response, ResponseBuilder},
@@ -11,8 +12,6 @@ const MODULE_LOADER: &str = r#"
     });
 </script>
 "#;
-
-pub static INTERPRETER_JS: &str = include_str!("./interpreter.js");
 
 pub fn handler(
     request: &Request,

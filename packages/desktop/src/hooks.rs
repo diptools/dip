@@ -11,3 +11,14 @@ where
         .as_ref()
         .expect("Failed to find UiContext, check CoreCommand and UiCommand type parameter")
 }
+
+/// Get a closure that executes any JavaScript in the WebView context.
+pub fn use_eval<CoreCommand, UiCommand, S: std::string::ToString>(cx: &ScopeState) -> &dyn Fn(S)
+where
+    CoreCommand: Debug + Clone + 'static,
+    UiCommand: Clone + 'static + Debug,
+{
+    let window = use_window::<CoreCommand, UiCommand>(cx).clone();
+
+    cx.use_hook(|_| move |script| window.eval(script))
+}
