@@ -36,6 +36,10 @@ struct User;
 
 fn main() {
     App::new()
+        .insert_non_send_resource(DioxusSettings::<()> {
+            keyboard_event: true,
+            ..Default::default()
+        })
         .insert_resource(WindowDescriptor {
             title: "Bevy Dioxus Plugin Demo".to_string(),
             ..Default::default()
