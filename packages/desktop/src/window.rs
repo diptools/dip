@@ -102,7 +102,6 @@ impl DioxusWindows {
             proxy,
             dom_tx.clone(),
         );
-        webview.focus();
 
         self.windows.insert(
             tao_window_id,
