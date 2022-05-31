@@ -470,8 +470,8 @@ impl DioxusWindows {
                       window.ipc.postMessage(serializeIpcMessage("keyboard_event", serialize_keyboard_event(e)))
                     }
 
-                    document.addEventListener('keydown', handleKeyEvent);
-                    document.addEventListener('keyup', handleKeyEvent);
+                    document.addEventListener('keydown', handleKeyEvent, true);
+                    document.addEventListener('keyup', handleKeyEvent, true);
                 "#
             );
         }
