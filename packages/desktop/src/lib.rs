@@ -3,16 +3,16 @@
 
 mod context;
 mod converter;
-mod event;
-mod hooks;
+pub mod event;
+pub mod hooks;
 mod plugin;
 mod protocol;
 mod runner;
-mod setting;
+pub mod setting;
 mod window;
 
-/// This module includes plugin, settings, events, and hooks.
 pub mod prelude {
+    //! This module includes plugin, settings, events, and hooks.
     pub use crate::{
         event::*,
         hooks::*,
