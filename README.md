@@ -17,6 +17,12 @@
         <a href="https://github.com/DioxusLabs/dioxus/" target="_blank"> Dioxus </a> Plugin for <a href="https://github.com/bevyengine/bevy" target="_blank">Bevy</a>
     </p>
     <p>Write Cross-platform application with React-like decralative UI framework<br/>and scalable ECS architecture all in Rust.</p>
+    <p align="center">
+     <a href="https://docs.rs/bevy_dioxus/latest/bevy_dioxus/" alt="API Refenrence">
+        <img src="https://img.shields.io/badge/API Reference-000?style=for-the-badge" />
+     </a>
+     <!-- Link to Guide -->
+    </p>
 </div>
 
 <br/>
@@ -64,7 +70,8 @@ More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy
 # serve doc locally
 cargo doc --open --no-deps
 
-# watch file changes
+# watch file changes and serve doc locally
+cargo install watch https # <- install deps
 cargo watch -s 'cargo doc && http target/doc'
 ```
 
