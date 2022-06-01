@@ -5,7 +5,7 @@ mod context;
 mod converter;
 pub mod event;
 pub mod hooks;
-mod plugin;
+pub mod plugin;
 mod protocol;
 mod runner;
 pub mod setting;
