@@ -1,3 +1,6 @@
+#![warn(missing_docs)]
+//! Build desktop app
+
 mod context;
 mod converter;
 mod event;
@@ -8,6 +11,7 @@ mod runner;
 mod setting;
 mod window;
 
+/// This module includes plugin, settings, events, and hooks.
 pub mod prelude {
     pub use crate::{
         event::*,

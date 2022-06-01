@@ -1,4 +1,4 @@
-#![warn(missing_docs)]
+#![deny(missing_docs)]
 #![doc = include_str!("../README.md")]
 
 #[cfg(feature = "desktop")]
