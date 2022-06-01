@@ -1,5 +1,6 @@
-#![warn(missing_docs)]
 //! Build desktop app
+
+#![deny(missing_docs)]
 
 mod context;
 mod converter;

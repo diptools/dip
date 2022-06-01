@@ -1,8 +1,5 @@
 use crate::{
-    event::{
-        DomUpdated, KeyboardEvent, MaximizeToggled, UiEvent, UpdateDom, WindowDragged, WindowEvent,
-        WindowMaximized, WindowMinimized,
-    },
+    event::{KeyboardEvent, UiEvent, UpdateDom, WindowEvent},
     setting::{DioxusSettings, UpdateMode},
     window::DioxusWindows,
 };
@@ -257,10 +254,6 @@ where
                             WindowEvent::Update => {
                                 let dioxus_window = dioxus_windows.get_mut(id).unwrap();
                                 dioxus_window.update();
-
-                                let mut events =
-                                    world.get_resource_mut::<Events<DomUpdated>>().unwrap();
-                                events.send(DomUpdated { id });
                             }
                             WindowEvent::CloseWindow => {
                                 let mut events = world
@@ -270,13 +263,7 @@ where
                             }
                             WindowEvent::DragWindow => {
                                 if tao_window.fullscreen().is_none() {
-                                    if let Ok(()) = tao_window.drag_window() {
-                                        let mut events = world
-                                            .get_resource_mut::<Events<WindowDragged>>()
-                                            .unwrap();
-
-                                        events.send(WindowDragged { id });
-                                    }
+                                    tao_window.drag_window().unwrap();
                                 }
                             }
                             WindowEvent::Visible(visible) => {
@@ -284,25 +271,13 @@ where
                             }
                             WindowEvent::Minimize(minimized) => {
                                 window.set_minimized(minimized);
-
-                                let mut events =
-                                    world.get_resource_mut::<Events<WindowMinimized>>().unwrap();
-                                events.send(WindowMinimized { id, minimized });
                             }
                             WindowEvent::Maximize(maximized) => {
                                 window.set_maximized(maximized);
-
-                                let mut events =
-                                    world.get_resource_mut::<Events<WindowMaximized>>().unwrap();
-                                events.send(WindowMaximized { id, maximized });
                             }
                             WindowEvent::MaximizeToggle => {
                                 let maximized = !tao_window.is_maximized();
                                 tao_window.set_maximized(maximized);
-
-                                let mut events =
-                                    world.get_resource_mut::<Events<MaximizeToggled>>().unwrap();
-                                events.send(MaximizeToggled { id, maximized });
                             }
                             WindowEvent::Fullscreen(_fullscreen) => {
                                 let mode = match window.mode() {

@@ -2,10 +2,7 @@
 
 use crate::{
     converter,
-    event::{
-        DomUpdated, KeyboardEvent, MaximizeToggled, UiEvent, UpdateDom, WindowDragged,
-        WindowMaximized, WindowMinimized,
-    },
+    event::{KeyboardEvent, UiEvent, UpdateDom},
     runner::runner,
     setting::DioxusSettings,
     window::DioxusWindows,
@@ -64,11 +61,6 @@ where
             .add_event::<KeyboardEvent>()
             .add_event::<CoreCommand>()
             .add_event::<UiCommand>()
-            .add_event::<DomUpdated>()
-            .add_event::<WindowDragged>()
-            .add_event::<WindowMinimized>()
-            .add_event::<WindowMaximized>()
-            .add_event::<MaximizeToggled>()
             .insert_resource(core_tx)
             .insert_resource(core_rx)
             .insert_resource(ui_tx)
