@@ -25,6 +25,10 @@
 > WARNING: `bevy_dioxus` is still in the very early stages of development.
 
 ```rust
+use bevy::prelude::*;
+use bevy_dioxus::desktop::prelude::*;
+use dioxus::prelude::*;
+
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {
@@ -52,4 +56,15 @@ cargo run --example counter
 ```
 
 More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy_dioxus/tree/main/examples) directory.
+
+
+## Development
+
+```sh
+# serve doc locally
+cargo doc --open --no-deps
+
+# watch file changes
+cargo watch -s 'cargo doc && http target/doc'
+```
 
