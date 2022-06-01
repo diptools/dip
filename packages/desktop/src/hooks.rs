@@ -1,7 +1,10 @@
+//! Provides utility hooks
+
 use crate::context::UiContext;
 use dioxus_core::*;
 use std::fmt::Debug;
 
+/// Get an imperative handle to the current window
 pub fn use_window<CoreCommand, UiCommand>(cx: &ScopeState) -> &UiContext<CoreCommand, UiCommand>
 where
     CoreCommand: Debug + Clone,
