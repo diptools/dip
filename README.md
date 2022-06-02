@@ -30,7 +30,7 @@
 
 > WARNING: `bevy_dioxus` is still in the very early stages of development.
 
-```rust
+```rust, no_run
 use bevy::prelude::*;
 use bevy_dioxus::desktop::prelude::*;
 use dioxus::prelude::*;
