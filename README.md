@@ -24,7 +24,7 @@
 
 > WARNING: `bevy_dioxus` is still in the very early stages of development.
 
-```rust
+```rust, no_run
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {
