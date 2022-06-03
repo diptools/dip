@@ -1,9 +1,8 @@
+//! Dioxus Plugin for Bevy
+
 use crate::{
     converter,
-    event::{
-        DomUpdated, KeyboardEvent, MaximizeToggled, UiEvent, UpdateDom, WindowDragged,
-        WindowMaximized, WindowMinimized,
-    },
+    event::{KeyboardEvent, UiEvent, UpdateDom},
     runner::runner,
     setting::DioxusSettings,
     window::DioxusWindows,
@@ -31,7 +30,9 @@ use wry::application::{
     window::Fullscreen,
 };
 
+/// Dioxus Plugin for Bevy
 pub struct DioxusPlugin<CoreCommand, UiCommand, Props = ()> {
+    /// Root component
     pub root: DioxusComponent<Props>,
     core_cmd_type: PhantomData<CoreCommand>,
     ui_cmd_type: PhantomData<UiCommand>,
@@ -60,11 +61,6 @@ where
             .add_event::<KeyboardEvent>()
             .add_event::<CoreCommand>()
             .add_event::<UiCommand>()
-            .add_event::<DomUpdated>()
-            .add_event::<WindowDragged>()
-            .add_event::<WindowMinimized>()
-            .add_event::<WindowMaximized>()
-            .add_event::<MaximizeToggled>()
             .insert_resource(core_tx)
             .insert_resource(core_rx)
             .insert_resource(ui_tx)
@@ -88,6 +84,27 @@ where
 }
 
 impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props> {
+    /// Initialize DioxusPlugin with root component and channel types
+    /// ```
+    /// use bevy_dioxus::desktop::prelude::*;
+    /// use dioxus::prelude::*;
+    ///
+    /// // DioxusPlugin accepts any types as command. Pass empty tuple if channel is not necessary.
+    /// type CoreCommand = ();
+    /// type UiCommand = ();
+    ///
+    /// fn main() {
+    ///    App::new()
+    ///         .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(Root))
+    ///         .run();
+    /// }
+    ///
+    /// fn Root(cx: Scope) -> Element {
+    ///    cx.render(rsx! {
+    ///    h1 { "<Root /> Component" }
+    ///        })
+    /// }
+    /// ```
     pub fn new(root: DioxusComponent<Props>) -> Self {
         Self {
             root,

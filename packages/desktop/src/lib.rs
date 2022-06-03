@@ -1,14 +1,19 @@
+//! Build desktop app
+
+#![deny(missing_docs)]
+
 mod context;
 mod converter;
-mod event;
-mod hooks;
-mod plugin;
+pub mod event;
+pub mod hooks;
+pub mod plugin;
 mod protocol;
 mod runner;
-mod setting;
+pub mod setting;
 mod window;
 
 pub mod prelude {
+    //! This module includes plugin, settings, events, and hooks.
     pub use crate::{
         event::*,
         hooks::*,

@@ -17,6 +17,12 @@
         <a href="https://github.com/DioxusLabs/dioxus/" target="_blank"> Dioxus </a> Plugin for <a href="https://github.com/bevyengine/bevy" target="_blank">Bevy</a>
     </p>
     <p>Write Cross-platform application with React-like decralative UI framework<br/>and scalable ECS architecture all in Rust.</p>
+    <p align="center">
+     <a href="https://docs.rs/bevy_dioxus/latest/bevy_dioxus/" alt="API Refenrence">
+        <img src="https://img.shields.io/badge/API Reference-000?style=for-the-badge" />
+     </a>
+     <!-- Link to Guide -->
+    </p>
 </div>
 
 <br/>
@@ -25,6 +31,10 @@
 > WARNING: `bevy_dioxus` is still in the very early stages of development.
 
 ```rust, no_run
+use bevy::prelude::*;
+use bevy_dioxus::desktop::prelude::*;
+use dioxus::prelude::*;
+
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {
@@ -53,3 +63,21 @@ cargo run --example counter
 
 More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy_dioxus/tree/main/examples) directory.
 
+
+## Development
+
+```sh
+# serve doc locally
+cargo doc --open --no-deps
+
+# watch file changes and serve doc locally
+cargo install watch https # <- install deps
+cargo watch -s 'cargo doc && http target/doc'
+```
+
+## Why Dioxus and Bevy
+### Dioxus
+Dioxus is a cross-platform decralative UI framework. It provides familiar features that React developer expects such as component, hooks, and global state. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
+
+### Bevy
+Bevy is not only known as a game engine but it's also a great general purpose Entity Component System(ECS) framework. Bevy is also extensible.
