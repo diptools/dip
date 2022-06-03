@@ -30,7 +30,7 @@
 
 > WARNING: `bevy_dioxus` is still in the very early stages of development.
 
-```rust
+```rust, no_run
 use bevy::prelude::*;
 use bevy_dioxus::desktop::prelude::*;
 use dioxus::prelude::*;
@@ -75,3 +75,9 @@ cargo install watch https # <- install deps
 cargo watch -s 'cargo doc && http target/doc'
 ```
 
+## Why Dioxus and Bevy
+### Dioxus
+Dioxus is a cross-platform decralative UI framework. It provides familiar features that React developer expects such as component, hooks, and global state. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
+
+### Bevy
+Bevy is not only known as a game engine but it's also a great general purpose Entity Component System(ECS) framework. Bevy is also extensible.
