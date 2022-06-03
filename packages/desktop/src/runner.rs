@@ -322,7 +322,9 @@ where
                                 }
                             }
                             WindowEvent::DevTool => {
+                                #[cfg(any(debug_assertions, feature = "devtools"))]
                                 let dioxus_window = dioxus_windows.get_mut(id).unwrap();
+                                #[cfg(any(debug_assertions, feature = "devtools"))]
                                 dioxus_window.webview.open_devtools();
                             }
                             WindowEvent::Eval(code) => {
