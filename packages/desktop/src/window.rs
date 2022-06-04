@@ -5,18 +5,20 @@ use crate::{
     setting::DioxusSettings,
 };
 use bevy::{
-    ecs::world::WorldCell,
+    ecs::{component::Component, world::WorldCell},
     math::IVec2,
     utils::HashMap,
     window::{Window as BevyWindow, WindowDescriptor, WindowId, WindowMode},
 };
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg, VirtualDom};
+use fermi::{Atom, AtomRoot, Readable};
 use futures_channel::mpsc;
 use futures_intrusive::channel::shared::{Receiver, Sender};
 use raw_window_handle::HasRawWindowHandle;
 use std::{
     fmt::{self, Debug},
     marker::PhantomData,
+    rc::Rc,
     sync::{atomic::AtomicBool, Arc, Mutex},
 };
 use tokio::runtime::Runtime;
@@ -30,6 +32,13 @@ use wry::{
     },
     webview::{WebView, WebViewBuilder},
 };
+
+/// TODO: move to example side
+#[derive(Component, Default)]
+pub struct Count(pub u32);
+
+/// TODO: should be derived by macro
+pub static COUNT: Atom<Count> = |_| Count::default();
 
 #[derive(Default)]
 pub struct DioxusWindows {
@@ -305,6 +314,17 @@ impl DioxusWindows {
                     .lock()
                     .unwrap()
                     .push(serde_json::to_string(&edits.edits).unwrap());
+
+                let cx = dom.base_scope();
+                let root = match cx.consume_context::<Rc<AtomRoot>>() {
+                    Some(root) => root,
+                    None => {
+                        cx.provide_root_context(Rc::new(AtomRoot::new(cx.schedule_update_any())))
+                    }
+                };
+                let id = COUNT.unique_id();
+                root.initialize(COUNT);
+                root.set(id, Count(100));
 
                 proxy
                     .send_event(UiEvent::WindowEvent(WindowEvent::Update))

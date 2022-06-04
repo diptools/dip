@@ -19,5 +19,6 @@ pub mod prelude {
         hooks::*,
         plugin::DioxusPlugin,
         setting::{DioxusSettings, UpdateMode},
+        window::{Count, COUNT},
     };
 }

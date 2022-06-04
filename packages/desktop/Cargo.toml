@@ -19,6 +19,7 @@ dioxus-hooks = "0.2"
 dioxus-html = { version = "0.2", features = ["serialize"] }
 dioxus-interpreter-js = "0.2"
 dunce = "1.0"
+fermi = "0.2"
 futures-channel = "0.3.21"
 futures-intrusive = "0.4"
 log = "0.4"

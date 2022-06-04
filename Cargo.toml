@@ -16,7 +16,7 @@ bevy_dioxus_desktop = { version = "0.1", path = "./packages/desktop", optional =
 
 [dev-dependencies]
 leafwing-input-manager = { version = "0.3", default-features = false }
-dioxus = "0.2"
+dioxus = { version = "0.2", features = ["fermi"] }
 
 [features]
 default = ["desktop"]
