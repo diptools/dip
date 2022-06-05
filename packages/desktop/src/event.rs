@@ -9,7 +9,7 @@ use dioxus_core::{ElementId, EventPriority, UserEvent};
 use serde::Deserialize;
 use serde_json::Value;
 use serde_repr::*;
-use std::fmt::Debug;
+use std::{any::Any, fmt::Debug};
 
 /// Tao events that emit from UI side
 #[derive(Debug)]
@@ -127,9 +127,35 @@ pub enum WindowEvent {
     Eval(String),
 }
 
-/// Event which lets VirtualDom to apply all edits
-#[derive(Debug, Clone)]
-pub struct UpdateDom;
+/// Event to control VirtualDom from outside
+#[derive(Debug)]
+pub enum VDomCommand {
+    /// Apply all edits
+    UpdateDom,
+
+    /// Set global state
+    GlobalState(GlobalState),
+}
+
+#[derive(Debug)]
+/// Set global state
+pub struct GlobalState {
+    /// AtomId of target global state to modify
+    pub id: usize,
+    /// new value to set as global state
+    pub value: Box<dyn Any + Send + Sync>,
+}
+
+impl GlobalState {
+    /// Instanciate new GlobalState
+    pub fn new(id: usize, value: Box<dyn Any + Send + Sync>) -> Self {
+        Self { id, value }
+    }
+}
+
+// /// Event which lets VirtualDom to apply all edits
+// #[derive(Debug, Clone)]
+// pub struct UpdateDom;
 
 /// Rust representation of web KeyboardEvent
 #[derive(Debug, Clone, Deserialize)]

@@ -1,5 +1,5 @@
 use crate::{
-    event::{KeyboardEvent, UiEvent, UpdateDom, WindowEvent},
+    event::{KeyboardEvent, UiEvent, VDomCommand, WindowEvent},
     setting::{DioxusSettings, UpdateMode},
     window::DioxusWindows,
 };
@@ -240,139 +240,142 @@ where
                         _ => {}
                     }
                 }
-                Event::UserEvent(user_event) => match user_event {
-                    UiEvent::WindowEvent(window_event) => {
-                        let world = app.world.cell();
-                        let mut windows = world.get_non_send_mut::<Windows>().unwrap();
-                        let window = windows.get_primary_mut().unwrap();
-                        let id = WindowId::primary();
+                Event::UserEvent(user_event) => {
+                    match user_event {
+                        UiEvent::WindowEvent(window_event) => {
+                            let world = app.world.cell();
+                            let mut windows = world.get_non_send_mut::<Windows>().unwrap();
+                            let window = windows.get_primary_mut().unwrap();
+                            let id = WindowId::primary();
 
-                        let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
-                        let tao_window = dioxus_windows.get_tao_window(id).unwrap();
+                            let mut dioxus_windows =
+                                world.get_non_send_mut::<DioxusWindows>().unwrap();
+                            let tao_window = dioxus_windows.get_tao_window(id).unwrap();
 
-                        match window_event {
-                            WindowEvent::Update => {
-                                let dioxus_window = dioxus_windows.get_mut(id).unwrap();
-                                dioxus_window.update();
-                            }
-                            WindowEvent::CloseWindow => {
-                                let mut events = world
-                                    .get_resource_mut::<Events<WindowCloseRequested>>()
-                                    .unwrap();
-                                events.send(WindowCloseRequested { id });
-                            }
-                            WindowEvent::DragWindow => {
-                                if tao_window.fullscreen().is_none() {
-                                    tao_window.drag_window().unwrap();
+                            match window_event {
+                                WindowEvent::Update => {
+                                    let dioxus_window = dioxus_windows.get_mut(id).unwrap();
+                                    dioxus_window.update();
                                 }
-                            }
-                            WindowEvent::Visible(visible) => {
-                                tao_window.set_visible(visible);
-                            }
-                            WindowEvent::Minimize(minimized) => {
-                                window.set_minimized(minimized);
-                            }
-                            WindowEvent::Maximize(maximized) => {
-                                window.set_maximized(maximized);
-                            }
-                            WindowEvent::MaximizeToggle => {
-                                let maximized = !tao_window.is_maximized();
-                                tao_window.set_maximized(maximized);
-                            }
-                            WindowEvent::Fullscreen(_fullscreen) => {
-                                let mode = match window.mode() {
-                                    WindowMode::Windowed => WindowMode::Fullscreen,
-                                    _ => WindowMode::Windowed,
-                                };
-                                window.set_mode(mode);
-                            }
-                            WindowEvent::FocusWindow => {
-                                window.update_focused_status_from_backend(true);
-
-                                let mut events =
-                                    world.get_resource_mut::<Events<WindowFocused>>().unwrap();
-                                events.send(WindowFocused { id, focused: true });
-                            }
-                            WindowEvent::Resizable(resizable) => {
-                                window.set_resizable(resizable);
-                            }
-                            WindowEvent::AlwaysOnTop(allways_on_top) => {
-                                tao_window.set_always_on_top(allways_on_top);
-                            }
-                            WindowEvent::CursorVisible(visible) => {
-                                tao_window.set_cursor_visible(visible);
-                            }
-                            WindowEvent::CursorGrab(grab) => {
-                                let _ = tao_window.set_cursor_grab(grab);
-                            }
-                            WindowEvent::SetTitle(title) => {
-                                tao_window.set_title(&title);
-                            }
-                            WindowEvent::SetDecorations(decorations) => {
-                                tao_window.set_decorations(decorations);
-                            }
-                            WindowEvent::SetZoomLevel(scale_factor) => {
-                                let dioxus_window = dioxus_windows.get_mut(id).unwrap();
-                                dioxus_window.webview.zoom(scale_factor);
-                            }
-                            WindowEvent::Print => {
-                                let dioxus_window = dioxus_windows.get_mut(id).unwrap();
-                                if let Err(e) = dioxus_window.webview.print() {
-                                    log::warn!("Open print modal failed: {e}");
+                                WindowEvent::CloseWindow => {
+                                    let mut events = world
+                                        .get_resource_mut::<Events<WindowCloseRequested>>()
+                                        .unwrap();
+                                    events.send(WindowCloseRequested { id });
                                 }
-                            }
-                            WindowEvent::DevTool => {
-                                #[cfg(any(debug_assertions, feature = "devtools"))]
-                                let dioxus_window = dioxus_windows.get_mut(id).unwrap();
-                                #[cfg(any(debug_assertions, feature = "devtools"))]
-                                dioxus_window.webview.open_devtools();
-                            }
-                            WindowEvent::Eval(code) => {
-                                let dioxus_window = dioxus_windows.get_mut(id).unwrap();
-                                dioxus_window
-                                    .webview
-                                    .evaluate_script(code.as_str())
-                                    .expect("eval shouldn't panic");
-                            }
-                        };
+                                WindowEvent::DragWindow => {
+                                    if tao_window.fullscreen().is_none() {
+                                        tao_window.drag_window().unwrap();
+                                    }
+                                }
+                                WindowEvent::Visible(visible) => {
+                                    tao_window.set_visible(visible);
+                                }
+                                WindowEvent::Minimize(minimized) => {
+                                    window.set_minimized(minimized);
+                                }
+                                WindowEvent::Maximize(maximized) => {
+                                    window.set_maximized(maximized);
+                                }
+                                WindowEvent::MaximizeToggle => {
+                                    let maximized = !tao_window.is_maximized();
+                                    tao_window.set_maximized(maximized);
+                                }
+                                WindowEvent::Fullscreen(_fullscreen) => {
+                                    let mode = match window.mode() {
+                                        WindowMode::Windowed => WindowMode::Fullscreen,
+                                        _ => WindowMode::Windowed,
+                                    };
+                                    window.set_mode(mode);
+                                }
+                                WindowEvent::FocusWindow => {
+                                    window.update_focused_status_from_backend(true);
 
-                        let mut request_redraw =
-                            world.get_resource_mut::<Events<RequestRedraw>>().unwrap();
-                        request_redraw.send(RequestRedraw);
-                    }
-                    UiEvent::CoreCommand(cmd) => {
-                        let mut events = app
-                            .world
-                            .get_resource_mut::<Events<CoreCommand>>()
-                            .expect("Provide CoreCommand event to bevy");
-                        events.send(cmd);
-                    }
-                    UiEvent::KeyboardEvent(event) => {
-                        let mut keyboard_events = app
-                            .world
-                            .get_resource_mut::<Events<KeyboardEvent>>()
-                            .unwrap();
-                        keyboard_events.send(event.clone());
-                        let mut keyboard_input_events = app
-                            .world
-                            .get_resource_mut::<Events<KeyboardInput>>()
-                            .unwrap();
-                        keyboard_input_events.send(event.to_input());
-                        let mut request_redraw = app.world.resource_mut::<Events<RequestRedraw>>();
-                        request_redraw.send(RequestRedraw);
-
-                        match event.try_to_char() {
-                            Some(c) => {
-                                let mut received_character_events = app
-                                    .world
-                                    .get_resource_mut::<Events<ReceivedCharacter>>()
-                                    .unwrap();
-                                received_character_events.send(c);
-                            }
-                            None => {}
+                                    let mut events =
+                                        world.get_resource_mut::<Events<WindowFocused>>().unwrap();
+                                    events.send(WindowFocused { id, focused: true });
+                                }
+                                WindowEvent::Resizable(resizable) => {
+                                    window.set_resizable(resizable);
+                                }
+                                WindowEvent::AlwaysOnTop(allways_on_top) => {
+                                    tao_window.set_always_on_top(allways_on_top);
+                                }
+                                WindowEvent::CursorVisible(visible) => {
+                                    tao_window.set_cursor_visible(visible);
+                                }
+                                WindowEvent::CursorGrab(grab) => {
+                                    let _ = tao_window.set_cursor_grab(grab);
+                                }
+                                WindowEvent::SetTitle(title) => {
+                                    tao_window.set_title(&title);
+                                }
+                                WindowEvent::SetDecorations(decorations) => {
+                                    tao_window.set_decorations(decorations);
+                                }
+                                WindowEvent::SetZoomLevel(scale_factor) => {
+                                    let dioxus_window = dioxus_windows.get_mut(id).unwrap();
+                                    dioxus_window.webview.zoom(scale_factor);
+                                }
+                                WindowEvent::Print => {
+                                    let dioxus_window = dioxus_windows.get_mut(id).unwrap();
+                                    if let Err(e) = dioxus_window.webview.print() {
+                                        log::warn!("Open print modal failed: {e}");
+                                    }
+                                }
+                                WindowEvent::DevTool => {
+                                    #[cfg(any(debug_assertions, feature = "devtools"))]
+                                    let dioxus_window = dioxus_windows.get_mut(id).unwrap();
+                                    #[cfg(any(debug_assertions, feature = "devtools"))]
+                                    dioxus_window.webview.open_devtools();
+                                }
+                                WindowEvent::Eval(code) => {
+                                    let dioxus_window = dioxus_windows.get_mut(id).unwrap();
+                                    dioxus_window
+                                        .webview
+                                        .evaluate_script(code.as_str())
+                                        .expect("eval shouldn't panic");
+                                }
+                            };
                         }
-                    }
-                },
+                        UiEvent::CoreCommand(cmd) => {
+                            let mut events = app
+                                .world
+                                .get_resource_mut::<Events<CoreCommand>>()
+                                .expect("Provide CoreCommand event to bevy");
+                            events.send(cmd);
+                        }
+                        UiEvent::KeyboardEvent(event) => {
+                            let mut keyboard_events = app
+                                .world
+                                .get_resource_mut::<Events<KeyboardEvent>>()
+                                .unwrap();
+                            keyboard_events.send(event.clone());
+                            let mut keyboard_input_events = app
+                                .world
+                                .get_resource_mut::<Events<KeyboardInput>>()
+                                .unwrap();
+                            keyboard_input_events.send(event.to_input());
+
+                            match event.try_to_char() {
+                                Some(c) => {
+                                    let mut received_character_events = app
+                                        .world
+                                        .get_resource_mut::<Events<ReceivedCharacter>>()
+                                        .unwrap();
+                                    received_character_events.send(c);
+                                }
+                                None => {}
+                            }
+                        }
+                    };
+
+                    let mut request_redraw = app
+                        .world
+                        .get_resource_mut::<Events<RequestRedraw>>()
+                        .unwrap();
+                    request_redraw.send(RequestRedraw);
+                }
                 Event::DeviceEvent {
                     event: DeviceEvent::MouseMotion { delta, .. },
                     ..
@@ -405,12 +408,13 @@ where
                     } else {
                         false
                     };
-                    let dom_update_tx = app.world.resource::<Sender<UpdateDom>>();
+                    let vdom_cmd_tx = app.world.get_resource::<Sender<VDomCommand>>().unwrap();
 
                     if update {
                         tao_state.last_update = Instant::now();
 
-                        let _ = dom_update_tx.try_send(UpdateDom);
+                        let _ = vdom_cmd_tx.try_send(VDomCommand::UpdateDom);
+                        println!("update");
                         app.update();
                     }
                 }

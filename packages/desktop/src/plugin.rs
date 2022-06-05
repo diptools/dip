@@ -1,8 +1,9 @@
 //! Dioxus Plugin for Bevy
 
 use crate::{
+    context::UiContext,
     converter,
-    event::{KeyboardEvent, UiEvent, UpdateDom},
+    event::{KeyboardEvent, UiEvent, VDomCommand, WindowEvent},
     runner::runner,
     setting::DioxusSettings,
     window::DioxusWindows,
@@ -17,12 +18,19 @@ use bevy::{
         WindowScaleFactorChanged, Windows,
     },
 };
-use dioxus_core::Component as DioxusComponent;
+use dioxus_core::{Component as DioxusComponent, SchedulerMsg, VirtualDom};
+use fermi::{AtomId, AtomRoot};
+use futures_channel::mpsc;
 use futures_intrusive::channel::{
     shared::{channel, Sender},
     TrySendError,
 };
-use std::{fmt::Debug, marker::PhantomData};
+use std::{
+    fmt::Debug,
+    marker::PhantomData,
+    rc::Rc,
+    sync::{Arc, Mutex},
+};
 use tokio::runtime::Runtime;
 use wry::application::{
     dpi::{LogicalPosition, LogicalSize, PhysicalPosition},
@@ -49,31 +57,93 @@ where
 
         let (core_tx, core_rx) = channel::<CoreCommand>(8);
         let (ui_tx, ui_rx) = channel::<UiCommand>(8);
-        let (dom_update_tx, dom_update_rx) = channel::<UpdateDom>(8);
+        let (vdom_cmd_tx, vdom_cmd_rx) = channel::<VDomCommand>(8);
         let settings = app
             .world
             .remove_non_send_resource::<DioxusSettings<Props>>()
             .unwrap_or_default();
+        let props = settings.props.as_ref().unwrap().clone();
 
         let event_loop = EventLoop::<UiEvent<CoreCommand>>::with_user_event();
+        let proxy = event_loop.create_proxy();
+        let (dom_tx, dom_rx) = mpsc::unbounded::<SchedulerMsg>();
+        let context = UiContext::<CoreCommand, UiCommand>::new(proxy.clone(), (core_tx, ui_rx));
+        let edit_queue = Arc::new(Mutex::new(Vec::new()));
+
+        let dom_tx_clone = dom_tx.clone();
+        let edit_queue_clone = edit_queue.clone();
+        let root = self.root.clone();
+
+        std::thread::spawn(move || {
+            Runtime::new().unwrap().block_on(async move {
+                let mut dom =
+                    VirtualDom::new_with_props_and_scheduler(root, props, (dom_tx_clone, dom_rx));
+
+                dom.base_scope().provide_context(context.clone());
+
+                let edits = dom.rebuild();
+
+                edit_queue_clone
+                    .lock()
+                    .unwrap()
+                    .push(serde_json::to_string(&edits.edits).unwrap());
+
+                let cx = dom.base_scope();
+                let root = match cx.consume_context::<Rc<AtomRoot>>() {
+                    Some(root) => root,
+                    None => {
+                        cx.provide_root_context(Rc::new(AtomRoot::new(cx.schedule_update_any())))
+                    }
+                };
+
+                proxy
+                    .send_event(UiEvent::WindowEvent(WindowEvent::Update))
+                    .unwrap();
+
+                while let Some(cmd) = vdom_cmd_rx.receive().await {
+                    match cmd {
+                        VDomCommand::UpdateDom => {}
+                        VDomCommand::GlobalState(state) => {
+                            println!("set: {}", state.id);
+                            root.set(state.id as AtomId, state.value);
+                        }
+                    }
+
+                    // println!("dom wait for work");
+                    // dom.wait_for_work().await;
+
+                    let muts = dom.work_with_deadline(|| false);
+                    for edit in muts {
+                        edit_queue_clone
+                            .lock()
+                            .unwrap()
+                            .push(serde_json::to_string(&edit.edits).unwrap());
+                    }
+
+                    // proxy
+                    //     .send_event(UiEvent::WindowEvent(WindowEvent::Update))
+                    //     .unwrap();
+                }
+            });
+        });
+
         app.add_plugin(WindowPlugin::default())
             .add_plugin(InputPlugin)
             .add_event::<KeyboardEvent>()
             .add_event::<CoreCommand>()
             .add_event::<UiCommand>()
-            .insert_resource(core_tx)
             .insert_resource(core_rx)
             .insert_resource(ui_tx)
-            .insert_resource(ui_rx)
-            .insert_resource(dom_update_tx)
-            .insert_resource(dom_update_rx)
+            .insert_resource(dom_tx)
             .insert_resource(runtime)
-            .insert_resource(self.root)
+            .insert_resource(edit_queue)
+            .insert_resource(vdom_cmd_tx)
             .insert_non_send_resource(settings)
             .init_non_send_resource::<DioxusWindows>()
             .set_runner(|app| runner::<CoreCommand, UiCommand, Props>(app))
             .insert_non_send_resource(event_loop)
-            .add_system_to_stage(CoreStage::Last, send_ui_commands::<UiCommand>)
+            .add_system_to_stage(CoreStage::PostUpdate, send_ui_commands::<UiCommand>)
+            // .add_system_to_stage(CoreStage::PostUpdate, send_vdom_commands)
             .add_system_to_stage(
                 CoreStage::PostUpdate,
                 change_window, /* TODO.label(ModifiesWindows) // is recentry introduced ( > 0.7 ) */
@@ -116,7 +186,6 @@ impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props> 
     fn handle_initial_window_events(world: &mut World)
     where
         CoreCommand: 'static + Send + Sync + Clone + Debug,
-        UiCommand: 'static + Send + Sync + Clone + Debug,
         Props: 'static + Send + Sync + Clone,
     {
         let world = world.cell();
@@ -126,7 +195,7 @@ impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props> 
         let mut window_created_events = world.get_resource_mut::<Events<WindowCreated>>().unwrap();
 
         for create_window_event in create_window_events.drain() {
-            let window = dioxus_windows.create::<CoreCommand, UiCommand, Props>(
+            let window = dioxus_windows.create::<CoreCommand, Props>(
                 &world,
                 create_window_event.id,
                 &create_window_event.descriptor,
@@ -139,12 +208,34 @@ impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props> 
     }
 }
 
+// fn send_vdom_commands(mut events: EventReader<GlobalState>, tx: Res<Sender<VDomCommand>>) {
+//     for state in events.iter() {
+//         match tx.try_send(VDomCommand::GlobalState(state.clone())) {
+//             Ok(()) => {}
+//             Err(e) => match e {
+//                 TrySendError::Full(e) => {
+//                     error!(
+//                         "Failed to send VDomCommand: channel is full: event: {:?}",
+//                         e
+//                     );
+//                 }
+//                 TrySendError::Closed(e) => {
+//                     error!(
+//                         "Failed to send VDomCommand: channel is closed: event: {:?}",
+//                         e
+//                     );
+//                 }
+//             },
+//         }
+//     }
+// }
+
 fn send_ui_commands<UiCommand>(mut events: EventReader<UiCommand>, tx: Res<Sender<UiCommand>>)
 where
     UiCommand: 'static + Send + Sync + Clone + Debug,
 {
-    for e in events.iter() {
-        match tx.try_send(e.clone()) {
+    for cmd in events.iter() {
+        match tx.try_send(cmd.clone()) {
             Ok(()) => {}
             Err(e) => match e {
                 TrySendError::Full(e) => {

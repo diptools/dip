@@ -1,6 +1,6 @@
 use bevy::{log::LogPlugin, prelude::*};
 use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
+use dioxus::{fermi::Readable, prelude::*};
 
 fn main() {
     App::new()
@@ -11,10 +11,15 @@ fn main() {
         .add_plugin(LogPlugin)
         .add_plugin(DioxusPlugin::<CoreCommand, ()>::new(Root))
         .add_startup_system(setup)
-        .add_system(handle_core_cmd)
-        .add_system(update_count_atom)
+        .add_system(handle_core_cmd.label("handle-core-cmd"))
+        .add_system(update_count_atom.after("handle-core-cmd"))
         .run();
 }
+
+#[derive(Component, Default, Clone)]
+pub struct Count(pub u32);
+
+pub static COUNT: Atom<Count> = |_| Count::default();
 
 #[derive(Clone, Debug)]
 enum CoreCommand {
@@ -29,10 +34,31 @@ fn setup(mut commands: Commands) {
 }
 
 // TODO: should be derived by macro
-fn update_count_atom(query: Query<&Count, Changed<Count>>) {
+fn update_count_atom(query: Query<&Count, Changed<Count>>, vdom_tx: Res<Sender<VDomCommand>>) {
     for count in query.iter() {
         info!("🧠 Counter Changed: {}", count.0);
-        // ui.send(UiCommand::CountChanged(count.0));
+        match vdom_tx.try_send(VDomCommand::GlobalState(GlobalState::new(
+            COUNT.unique_id() as usize,
+            Box::new(count.clone()),
+        ))) {
+            Ok(()) => {
+                println!("send ok");
+            }
+            Err(e) => match e {
+                TrySendError::Full(e) => {
+                    error!(
+                        "Failed to send VDomCommand: channel is full: event: {:?}",
+                        e
+                    );
+                }
+                TrySendError::Closed(e) => {
+                    error!(
+                        "Failed to send VDomCommand: channel is closed: event: {:?}",
+                        e
+                    );
+                }
+            },
+        }
     }
 }
 

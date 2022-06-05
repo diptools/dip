@@ -14,11 +14,12 @@ mod window;
 
 pub mod prelude {
     //! This module includes plugin, settings, events, and hooks.
+
     pub use crate::{
         event::*,
         hooks::*,
         plugin::DioxusPlugin,
         setting::{DioxusSettings, UpdateMode},
-        window::{Count, COUNT},
     };
+    pub use futures_intrusive::channel::{shared::Sender, TrySendError};
 }
