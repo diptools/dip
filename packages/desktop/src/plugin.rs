@@ -1,4 +1,5 @@
 //! Dioxus Plugin for Bevy
+#![allow(non_snake_case)]
 
 use crate::{
     context::UiContext,
@@ -31,7 +32,7 @@ use std::{
     rc::Rc,
     sync::{Arc, Mutex},
 };
-use tokio::runtime::Runtime;
+use tokio::{runtime::Runtime, select};
 use wry::application::{
     dpi::{LogicalPosition, LogicalSize, PhysicalPosition},
     event_loop::EventLoop,
@@ -41,7 +42,7 @@ use wry::application::{
 /// Dioxus Plugin for Bevy
 pub struct DioxusPlugin<CoreCommand, UiCommand, Props = ()> {
     /// Root component
-    pub root: DioxusComponent<Props>,
+    pub Root: DioxusComponent<Props>,
     core_cmd_type: PhantomData<CoreCommand>,
     ui_cmd_type: PhantomData<UiCommand>,
 }
@@ -76,7 +77,7 @@ where
             .insert_non_send_resource(EventLoop::<UiEvent<CoreCommand>>::with_user_event())
             .set_runner(|app| runner::<CoreCommand, UiCommand, Props>(app))
             .add_system_to_stage(CoreStage::PostUpdate, send_ui_commands::<UiCommand>)
-            // .add_system_to_stage(CoreStage::PostUpdate, send_vdom_commands)
+            // .add_system_to_stage(CoreStage::PostUpdate, rerender_dom)
             .add_system_to_stage(
                 CoreStage::PostUpdate,
                 change_window, /* TODO.label(ModifiesWindows) // is recentry introduced ( > 0.7 ) */
@@ -114,9 +115,9 @@ where
     ///        })
     /// }
     /// ```
-    pub fn new(root: DioxusComponent<Props>) -> Self {
+    pub fn new(Root: DioxusComponent<Props>) -> Self {
         Self {
-            root,
+            Root,
             core_cmd_type: PhantomData,
             ui_cmd_type: PhantomData,
         }
@@ -128,12 +129,13 @@ where
         (core_tx, ui_rx): (Sender<CoreCommand>, Receiver<UiCommand>),
         vdom_cmd_rx: Receiver<VDomCommand>,
     ) {
+        println!("spawn_virtual_dom");
         let (dom_tx, dom_rx) = mpsc::unbounded::<SchedulerMsg>();
         let edit_queue = Arc::new(Mutex::new(Vec::new()));
         let settings = world
             .get_non_send_resource::<DioxusSettings<Props>>()
             .unwrap();
-        let root = self.root.clone();
+        let Root = self.Root.clone();
         let props = settings.props.as_ref().unwrap().clone();
         let event_loop = world
             .get_non_send_resource::<EventLoop<UiEvent<CoreCommand>>>()
@@ -145,51 +147,57 @@ where
         world.insert_resource(edit_queue.clone());
 
         std::thread::spawn(move || {
+            // initialize vdom
+            let mut vdom = VirtualDom::new_with_props_and_scheduler(Root, props, (dom_tx, dom_rx));
+
+            // set UI context
+            vdom.base_scope().provide_context(context.clone());
+
+            // apply initial edit
+            let initial_muts = vdom.rebuild();
+            edit_queue
+                .lock()
+                .unwrap()
+                .push(serde_json::to_string(&initial_muts.edits).unwrap());
+            proxy
+                .send_event(UiEvent::WindowEvent(WindowEvent::Update))
+                .unwrap();
+
             Runtime::new().unwrap().block_on(async move {
-                let mut dom =
-                    VirtualDom::new_with_props_and_scheduler(root, props, (dom_tx, dom_rx));
+                loop {
+                    select! {
+                        () = vdom.wait_for_work() => {
+                            let muts = vdom.work_with_deadline(|| false);
+                            for edit in muts {
+                                edit_queue
+                                    .lock()
+                                    .unwrap()
+                                    .push(serde_json::to_string(&edit.edits).unwrap());
+                            }
 
-                dom.base_scope().provide_context(context.clone());
-
-                let muts = dom.rebuild();
-                edit_queue
-                    .lock()
-                    .unwrap()
-                    .push(serde_json::to_string(&muts.edits).unwrap());
-
-                let cx = dom.base_scope();
-                let root = match cx.consume_context::<Rc<AtomRoot>>() {
-                    Some(root) => root,
-                    None => {
-                        cx.provide_root_context(Rc::new(AtomRoot::new(cx.schedule_update_any())))
-                    }
-                };
-
-                proxy
-                    .send_event(UiEvent::WindowEvent(WindowEvent::Update))
-                    .unwrap();
-
-                while let Some(cmd) = vdom_cmd_rx.receive().await {
-                    match cmd {
-                        VDomCommand::UpdateDom => {}
-                        VDomCommand::GlobalState(state) => {
-                            root.set(state.id as AtomId, state.value);
+                            proxy
+                                .send_event(UiEvent::WindowEvent(WindowEvent::Update))
+                                .unwrap();
+                        }
+                        cmd = vdom_cmd_rx.receive() => {
+                            if let Some(cmd) = cmd {
+                                match cmd {
+                                    VDomCommand::UpdateDom => {}
+                                    VDomCommand::GlobalState(state) => {
+                                        let cx = vdom.base_scope();
+                                        let _root = match cx.consume_context::<Rc<AtomRoot>>() {
+                                            Some(root) => root,
+                                            None => cx.provide_root_context(Rc::new(AtomRoot::new(
+                                                cx.schedule_update_any(),
+                                            ))),
+                                        };
+                                        println!("set value: {:?}", state.value);
+                                        // root.set(state.id as AtomId, state.value);
+                                    }
+                                }
+                            }
                         }
                     }
-
-                    dom.wait_for_work().await;
-
-                    let muts = dom.work_with_deadline(|| false);
-                    for edit in muts {
-                        edit_queue
-                            .lock()
-                            .unwrap()
-                            .push(serde_json::to_string(&edit.edits).unwrap());
-                    }
-
-                    proxy
-                        .send_event(UiEvent::WindowEvent(WindowEvent::Update))
-                        .unwrap();
                 }
             });
         });
@@ -200,6 +208,7 @@ where
         CoreCommand: 'static + Send + Sync + Clone + Debug,
         Props: 'static + Send + Sync + Clone,
     {
+        println!("handle_initial_window_events");
         let world = world.cell();
         let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
         let mut bevy_windows = world.get_resource_mut::<Windows>().unwrap();
@@ -220,27 +229,25 @@ where
     }
 }
 
-// fn send_vdom_commands(mut events: EventReader<GlobalState>, tx: Res<Sender<VDomCommand>>) {
-//     for state in events.iter() {
-//         match tx.try_send(VDomCommand::GlobalState(state.clone())) {
-//             Ok(()) => {}
-//             Err(e) => match e {
-//                 TrySendError::Full(e) => {
-//                     error!(
-//                         "Failed to send VDomCommand: channel is full: event: {:?}",
-//                         e
-//                     );
-//                 }
-//                 TrySendError::Closed(e) => {
-//                     error!(
-//                         "Failed to send VDomCommand: channel is closed: event: {:?}",
-//                         e
-//                     );
-//                 }
-//             },
-//         }
-//     }
-// }
+fn rerender_dom(tx: Res<Sender<VDomCommand>>) {
+    match tx.try_send(VDomCommand::UpdateDom) {
+        Ok(()) => {}
+        Err(e) => match e {
+            TrySendError::Full(e) => {
+                error!(
+                    "Failed to send VDomCommand: channel is full: event: {:?}",
+                    e
+                );
+            }
+            TrySendError::Closed(e) => {
+                error!(
+                    "Failed to send VDomCommand: channel is closed: event: {:?}",
+                    e
+                );
+            }
+        },
+    }
+}
 
 fn send_ui_commands<UiCommand>(mut events: EventReader<UiCommand>, tx: Res<Sender<UiCommand>>)
 where

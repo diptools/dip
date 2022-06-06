@@ -1,5 +1,5 @@
 use crate::{
-    event::{KeyboardEvent, UiEvent, VDomCommand, WindowEvent},
+    event::{KeyboardEvent, UiEvent, WindowEvent},
     setting::{DioxusSettings, UpdateMode},
     window::DioxusWindows,
 };
@@ -19,7 +19,7 @@ use bevy::{
         WindowMoved, WindowResized, WindowScaleFactorChanged, Windows,
     },
 };
-use futures_intrusive::channel::shared::{Receiver, Sender};
+use futures_intrusive::channel::shared::Receiver;
 use std::fmt::Debug;
 use tokio::runtime::Runtime;
 use wry::application::{
@@ -34,6 +34,7 @@ where
     UiCommand: 'static + Send + Sync + Clone + Debug,
     Props: 'static + Send + Sync + Clone + Default,
 {
+    println!("runner");
     let event_loop = app
         .world
         .remove_non_send_resource::<EventLoop<UiEvent<CoreCommand>>>()
@@ -57,6 +58,7 @@ where
         move |event: Event<UiEvent<CoreCommand>>,
               _event_loop: &EventLoopWindowTarget<UiEvent<CoreCommand>>,
               control_flow: &mut ControlFlow| {
+            log::debug!("{event:?}");
             match event {
                 Event::NewEvents(start) => {
                     let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
@@ -408,12 +410,10 @@ where
                     } else {
                         false
                     };
-                    let vdom_cmd_tx = app.world.get_resource::<Sender<VDomCommand>>().unwrap();
 
                     if update {
                         tao_state.last_update = Instant::now();
-
-                        let _ = vdom_cmd_tx.try_send(VDomCommand::UpdateDom);
+                        log::debug!("app.update()");
                         app.update();
                     }
                 }

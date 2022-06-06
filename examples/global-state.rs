@@ -1,4 +1,4 @@
-use bevy::{log::LogPlugin, prelude::*};
+use bevy::{log::LogPlugin, prelude::*, window::RequestRedraw};
 use bevy_dioxus::desktop::prelude::*;
 use dioxus::{fermi::Readable, prelude::*};
 
@@ -19,7 +19,7 @@ fn main() {
 #[derive(Component, Default, Clone)]
 pub struct Count(pub u32);
 
-pub static COUNT: Atom<Count> = |_| Count::default();
+pub static COUNT: Atom<Count> = |_| Count(100);
 
 #[derive(Clone, Debug)]
 enum CoreCommand {
@@ -62,6 +62,7 @@ fn update_count_atom(query: Query<&Count, Changed<Count>>, vdom_tx: Res<Sender<V
 
 fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut Count>) {
     for cmd in events.iter() {
+        info!("core cmd");
         let mut count = query.single_mut();
         match cmd {
             CoreCommand::Increment => {
