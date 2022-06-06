@@ -18,7 +18,7 @@ pub mod prelude {
     pub use crate::{
         event::*,
         hooks::*,
-        plugin::DioxusPlugin,
+        plugin::{DioxusPlugin, Count},
         setting::{DioxusSettings, UpdateMode},
     };
     pub use futures_intrusive::channel::{shared::Sender, TrySendError};

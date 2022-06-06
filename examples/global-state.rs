@@ -12,10 +12,7 @@ fn main() {
         .run();
 }
 
-#[derive(Component, Default, Clone)]
-pub struct Count(pub u32);
-
-pub static COUNT: Atom<Count> = |_| Count(100);
+pub static COUNT: Atom<Count> = |_| Count(0);
 
 #[derive(Clone, Debug)]
 enum CoreCommand {

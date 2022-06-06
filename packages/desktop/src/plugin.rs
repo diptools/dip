@@ -47,6 +47,10 @@ pub struct DioxusPlugin<CoreCommand, UiCommand, Props = ()> {
     ui_cmd_type: PhantomData<UiCommand>,
 }
 
+#[derive(Component, Default, Clone)]
+///
+pub struct Count(pub u32);
+
 impl<CoreCommand, UiCommand, Props> Plugin for DioxusPlugin<CoreCommand, UiCommand, Props>
 where
     CoreCommand: 'static + Send + Sync + Clone + Debug,
@@ -164,6 +168,7 @@ where
                 .unwrap();
 
             Runtime::new().unwrap().block_on(async move {
+                let mut count = 0;
                 loop {
                     select! {
                         () = vdom.wait_for_work() => {
@@ -186,13 +191,15 @@ where
                                     }
                                     VDomCommand::GlobalState(state) => {
                                         let cx = vdom.base_scope();
-                                        let _root = match cx.consume_context::<Rc<AtomRoot>>() {
+                                        let root = match cx.consume_context::<Rc<AtomRoot>>() {
                                             Some(root) => root,
                                             None => cx.provide_root_context(Rc::new(AtomRoot::new(
                                                 cx.schedule_update_any(),
                                             ))),
                                         };
-                                        println!("set atom id: {:?}, value: {:?}",state.id as AtomId, state.value);
+                                        println!("set atom id: {:?}, value: {:?}", state.id as AtomId, state.value);
+                                        root.set(state.id as AtomId, Count(count));
+                                        count += 1;
                                     }
                                 }
 
