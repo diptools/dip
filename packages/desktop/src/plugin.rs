@@ -40,27 +40,25 @@ use wry::application::{
 };
 
 /// Dioxus Plugin for Bevy
-pub struct DioxusPlugin<CoreCommand, UiCommand, Props = ()> {
+pub struct DioxusPlugin<CoreCommand, UiCommand, V, Props = ()> {
     /// Root component
     pub Root: DioxusComponent<Props>,
     core_cmd_type: PhantomData<CoreCommand>,
     ui_cmd_type: PhantomData<UiCommand>,
+    v_type: PhantomData<V>,
 }
 
-#[derive(Component, Default, Clone)]
-///
-pub struct Count(pub u32);
-
-impl<CoreCommand, UiCommand, Props> Plugin for DioxusPlugin<CoreCommand, UiCommand, Props>
+impl<CoreCommand, UiCommand, V, Props> Plugin for DioxusPlugin<CoreCommand, UiCommand, V, Props>
 where
     CoreCommand: 'static + Send + Sync + Clone + Debug,
     UiCommand: 'static + Send + Sync + Clone + Debug,
     Props: 'static + Send + Sync + Clone + Default,
+    V: 'static + Send + Sync,
 {
     fn build(&self, app: &mut App) {
         let (core_tx, core_rx) = channel::<CoreCommand>(8);
         let (ui_tx, ui_rx) = channel::<UiCommand>(8);
-        let (vdom_cmd_tx, vdom_cmd_rx) = channel::<VDomCommand>(8);
+        let (vdom_cmd_tx, vdom_cmd_rx) = channel::<VDomCommand<V>>(8);
 
         let settings = app
             .world
@@ -91,10 +89,11 @@ where
     }
 }
 
-impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props>
+impl<CoreCommand, UiCommand, V, Props> DioxusPlugin<CoreCommand, UiCommand, V, Props>
 where
     CoreCommand: Clone + Debug + Send + Sync,
     UiCommand: Clone + Debug + Send + Sync,
+    V: Send + Sync,
     Props: Send + Sync + Clone + 'static,
 {
     /// Initialize DioxusPlugin with root component and channel types
@@ -123,6 +122,7 @@ where
             Root,
             core_cmd_type: PhantomData,
             ui_cmd_type: PhantomData,
+            v_type: PhantomData,
         }
     }
 
@@ -130,9 +130,8 @@ where
         &self,
         world: &mut World,
         (core_tx, ui_rx): (Sender<CoreCommand>, Receiver<UiCommand>),
-        vdom_cmd_rx: Receiver<VDomCommand>,
+        vdom_cmd_rx: Receiver<VDomCommand<V>>,
     ) {
-        println!("spawn_virtual_dom");
         let (dom_tx, dom_rx) = mpsc::unbounded::<SchedulerMsg>();
         let edit_queue = Arc::new(Mutex::new(Vec::new()));
         let settings = world
@@ -168,54 +167,37 @@ where
             let cx = vdom.base_scope();
             let root = match cx.consume_context::<Rc<AtomRoot>>() {
                 Some(root) => root,
-                None => cx.provide_root_context(Rc::new(AtomRoot::new(
-                    cx.schedule_update_any(),
-                ))),
-                };
+                None => cx.provide_root_context(Rc::new(AtomRoot::new(cx.schedule_update_any()))),
+            };
 
             Runtime::new().unwrap().block_on(async move {
-                let mut count = 0;
                 loop {
                     select! {
-                        () = vdom.wait_for_work() => {
-                            let muts = vdom.work_with_deadline(|| false);
-                            for edit in muts {
-                                edit_queue
-                                    .lock()
-                                    .unwrap()
-                                    .push(serde_json::to_string(&edit.edits).unwrap());
-                            }
-
-                            proxy
-                                .send_event(UiEvent::WindowEvent(WindowEvent::Update))
-                                .unwrap();
-                        }
+                        () = vdom.wait_for_work() => {}
                         cmd = vdom_cmd_rx.receive() => {
                             if let Some(cmd) = cmd {
                                 match cmd {
                                     VDomCommand::UpdateDom => {
                                     }
                                     VDomCommand::GlobalState(state) => {
-                                        println!("set atom id: {:?}, value: {:?}", state.id as AtomId, state.value);
-                                        root.set(state.id as AtomId, Count(count));
-                                        count += 1;
+                                        root.set(state.id as AtomId, state.value);
                                     }
                                 }
-
-                                let muts = vdom.work_with_deadline(|| false);
-                                for edit in muts {
-                                    edit_queue
-                                        .lock()
-                                        .unwrap()
-                                        .push(serde_json::to_string(&edit.edits).unwrap());
-                                }
-
-                                proxy
-                                    .send_event(UiEvent::WindowEvent(WindowEvent::Update))
-                                    .unwrap();
                             }
                         }
                     }
+
+                    let muts = vdom.work_with_deadline(|| false);
+                    for edit in muts {
+                        edit_queue
+                            .lock()
+                            .unwrap()
+                            .push(serde_json::to_string(&edit.edits).unwrap());
+                    }
+
+                    proxy
+                        .send_event(UiEvent::WindowEvent(WindowEvent::Update))
+                        .unwrap();
                 }
             });
         });
@@ -226,7 +208,6 @@ where
         CoreCommand: 'static + Send + Sync + Clone + Debug,
         Props: 'static + Send + Sync + Clone,
     {
-        println!("handle_initial_window_events");
         let world = world.cell();
         let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
         let mut bevy_windows = world.get_resource_mut::<Windows>().unwrap();

@@ -9,7 +9,7 @@ use dioxus_core::{ElementId, EventPriority, UserEvent};
 use serde::Deserialize;
 use serde_json::Value;
 use serde_repr::*;
-use std::{any::Any, fmt::Debug};
+use std::fmt::Debug;
 
 /// Tao events that emit from UI side
 #[derive(Debug)]
@@ -129,26 +129,26 @@ pub enum WindowEvent {
 
 /// Event to control VirtualDom from outside
 #[derive(Debug)]
-pub enum VDomCommand {
+pub enum VDomCommand<V> {
     /// Apply all edits
     UpdateDom,
 
     /// Set global state
-    GlobalState(GlobalState),
+    GlobalState(GlobalState<V>),
 }
 
-#[derive(Debug)]
 /// Set global state
-pub struct GlobalState {
+#[derive(Debug)]
+pub struct GlobalState<V> {
     /// AtomId of target global state to modify
     pub id: usize,
     /// new value to set as global state
-    pub value: Box<dyn Any + Send + Sync>,
+    pub value: V,
 }
 
-impl GlobalState {
+impl<V> GlobalState<V> {
     /// Instanciate new GlobalState
-    pub fn new(id: usize, value: Box<dyn Any + Send + Sync>) -> Self {
+    pub fn new(id: usize, value: V) -> Self {
         Self { id, value }
     }
 }

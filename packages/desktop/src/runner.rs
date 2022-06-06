@@ -34,7 +34,6 @@ where
     UiCommand: 'static + Send + Sync + Clone + Debug,
     Props: 'static + Send + Sync + Clone + Default,
 {
-    println!("runner");
     let event_loop = app
         .world
         .remove_non_send_resource::<EventLoop<UiEvent<CoreCommand>>>()
