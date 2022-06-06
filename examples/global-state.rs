@@ -1,13 +1,9 @@
-use bevy::{log::LogPlugin, prelude::*, window::RequestRedraw};
+use bevy::{log::LogPlugin, prelude::*};
 use bevy_dioxus::desktop::prelude::*;
 use dioxus::{fermi::Readable, prelude::*};
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor {
-            title: "Counter".to_string(),
-            ..Default::default()
-        })
         .add_plugin(LogPlugin)
         .add_plugin(DioxusPlugin::<CoreCommand, ()>::new(Root))
         .add_startup_system(setup)

@@ -77,7 +77,7 @@ where
             .insert_non_send_resource(EventLoop::<UiEvent<CoreCommand>>::with_user_event())
             .set_runner(|app| runner::<CoreCommand, UiCommand, Props>(app))
             .add_system_to_stage(CoreStage::PostUpdate, send_ui_commands::<UiCommand>)
-            // .add_system_to_stage(CoreStage::PostUpdate, rerender_dom)
+            .add_system_to_stage(CoreStage::PostUpdate, rerender_dom)
             .add_system_to_stage(
                 CoreStage::PostUpdate,
                 change_window, /* TODO.label(ModifiesWindows) // is recentry introduced ( > 0.7 ) */
@@ -182,7 +182,8 @@ where
                         cmd = vdom_cmd_rx.receive() => {
                             if let Some(cmd) = cmd {
                                 match cmd {
-                                    VDomCommand::UpdateDom => {}
+                                    VDomCommand::UpdateDom => {
+                                    }
                                     VDomCommand::GlobalState(state) => {
                                         let cx = vdom.base_scope();
                                         let _root = match cx.consume_context::<Rc<AtomRoot>>() {
@@ -191,10 +192,21 @@ where
                                                 cx.schedule_update_any(),
                                             ))),
                                         };
-                                        println!("set value: {:?}", state.value);
-                                        // root.set(state.id as AtomId, state.value);
+                                        println!("set atom id: {:?}, value: {:?}",state.id as AtomId, state.value);
                                     }
                                 }
+
+                                let muts = vdom.work_with_deadline(|| false);
+                                for edit in muts {
+                                    edit_queue
+                                        .lock()
+                                        .unwrap()
+                                        .push(serde_json::to_string(&edit.edits).unwrap());
+                                }
+
+                                proxy
+                                    .send_event(UiEvent::WindowEvent(WindowEvent::Update))
+                                    .unwrap();
                             }
                         }
                     }
