@@ -166,6 +166,13 @@ where
             proxy
                 .send_event(UiEvent::WindowEvent(WindowEvent::Update))
                 .unwrap();
+            let cx = vdom.base_scope();
+            let root = match cx.consume_context::<Rc<AtomRoot>>() {
+                Some(root) => root,
+                None => cx.provide_root_context(Rc::new(AtomRoot::new(
+                    cx.schedule_update_any(),
+                ))),
+                };
 
             Runtime::new().unwrap().block_on(async move {
                 let mut count = 0;
@@ -190,13 +197,6 @@ where
                                     VDomCommand::UpdateDom => {
                                     }
                                     VDomCommand::GlobalState(state) => {
-                                        let cx = vdom.base_scope();
-                                        let root = match cx.consume_context::<Rc<AtomRoot>>() {
-                                            Some(root) => root,
-                                            None => cx.provide_root_context(Rc::new(AtomRoot::new(
-                                                cx.schedule_update_any(),
-                                            ))),
-                                        };
                                         println!("set atom id: {:?}, value: {:?}", state.id as AtomId, state.value);
                                         root.set(state.id as AtomId, Count(count));
                                         count += 1;
