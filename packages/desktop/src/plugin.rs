@@ -22,7 +22,7 @@ use dioxus_core::{Component as DioxusComponent, SchedulerMsg, VirtualDom};
 use fermi::{AtomId, AtomRoot};
 use futures_channel::mpsc;
 use futures_intrusive::channel::{
-    shared::{channel, Sender},
+    shared::{channel, Receiver, Sender},
     TrySendError,
 };
 use std::{
@@ -53,79 +53,14 @@ where
     Props: 'static + Send + Sync + Clone + Default,
 {
     fn build(&self, app: &mut App) {
-        let runtime = Runtime::new().unwrap();
-
         let (core_tx, core_rx) = channel::<CoreCommand>(8);
         let (ui_tx, ui_rx) = channel::<UiCommand>(8);
         let (vdom_cmd_tx, vdom_cmd_rx) = channel::<VDomCommand>(8);
+
         let settings = app
             .world
             .remove_non_send_resource::<DioxusSettings<Props>>()
             .unwrap_or_default();
-        let props = settings.props.as_ref().unwrap().clone();
-
-        let event_loop = EventLoop::<UiEvent<CoreCommand>>::with_user_event();
-        let proxy = event_loop.create_proxy();
-        let (dom_tx, dom_rx) = mpsc::unbounded::<SchedulerMsg>();
-        let context = UiContext::<CoreCommand, UiCommand>::new(proxy.clone(), (core_tx, ui_rx));
-        let edit_queue = Arc::new(Mutex::new(Vec::new()));
-
-        let dom_tx_clone = dom_tx.clone();
-        let edit_queue_clone = edit_queue.clone();
-        let root = self.root.clone();
-
-        std::thread::spawn(move || {
-            Runtime::new().unwrap().block_on(async move {
-                let mut dom =
-                    VirtualDom::new_with_props_and_scheduler(root, props, (dom_tx_clone, dom_rx));
-
-                dom.base_scope().provide_context(context.clone());
-
-                let edits = dom.rebuild();
-
-                edit_queue_clone
-                    .lock()
-                    .unwrap()
-                    .push(serde_json::to_string(&edits.edits).unwrap());
-
-                let cx = dom.base_scope();
-                let root = match cx.consume_context::<Rc<AtomRoot>>() {
-                    Some(root) => root,
-                    None => {
-                        cx.provide_root_context(Rc::new(AtomRoot::new(cx.schedule_update_any())))
-                    }
-                };
-
-                proxy
-                    .send_event(UiEvent::WindowEvent(WindowEvent::Update))
-                    .unwrap();
-
-                while let Some(cmd) = vdom_cmd_rx.receive().await {
-                    match cmd {
-                        VDomCommand::UpdateDom => {}
-                        VDomCommand::GlobalState(state) => {
-                            println!("set: {}", state.id);
-                            root.set(state.id as AtomId, state.value);
-                        }
-                    }
-
-                    // println!("dom wait for work");
-                    // dom.wait_for_work().await;
-
-                    let muts = dom.work_with_deadline(|| false);
-                    for edit in muts {
-                        edit_queue_clone
-                            .lock()
-                            .unwrap()
-                            .push(serde_json::to_string(&edit.edits).unwrap());
-                    }
-
-                    // proxy
-                    //     .send_event(UiEvent::WindowEvent(WindowEvent::Update))
-                    //     .unwrap();
-                }
-            });
-        });
 
         app.add_plugin(WindowPlugin::default())
             .add_plugin(InputPlugin)
@@ -134,14 +69,12 @@ where
             .add_event::<UiCommand>()
             .insert_resource(core_rx)
             .insert_resource(ui_tx)
-            .insert_resource(dom_tx)
-            .insert_resource(runtime)
-            .insert_resource(edit_queue)
+            .insert_resource(Runtime::new().unwrap())
             .insert_resource(vdom_cmd_tx)
             .insert_non_send_resource(settings)
             .init_non_send_resource::<DioxusWindows>()
+            .insert_non_send_resource(EventLoop::<UiEvent<CoreCommand>>::with_user_event())
             .set_runner(|app| runner::<CoreCommand, UiCommand, Props>(app))
-            .insert_non_send_resource(event_loop)
             .add_system_to_stage(CoreStage::PostUpdate, send_ui_commands::<UiCommand>)
             // .add_system_to_stage(CoreStage::PostUpdate, send_vdom_commands)
             .add_system_to_stage(
@@ -149,11 +82,17 @@ where
                 change_window, /* TODO.label(ModifiesWindows) // is recentry introduced ( > 0.7 ) */
             );
 
+        self.spawn_virtual_dom(&mut app.world, (core_tx, ui_rx), vdom_cmd_rx);
         Self::handle_initial_window_events(&mut app.world);
     }
 }
 
-impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props> {
+impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props>
+where
+    CoreCommand: Clone + Debug + Send + Sync,
+    UiCommand: Clone + Debug + Send + Sync,
+    Props: Send + Sync + Clone + 'static,
+{
     /// Initialize DioxusPlugin with root component and channel types
     /// ```
     /// use bevy_dioxus::desktop::prelude::*;
@@ -181,6 +120,79 @@ impl<CoreCommand, UiCommand, Props> DioxusPlugin<CoreCommand, UiCommand, Props> 
             core_cmd_type: PhantomData,
             ui_cmd_type: PhantomData,
         }
+    }
+
+    fn spawn_virtual_dom(
+        &self,
+        world: &mut World,
+        (core_tx, ui_rx): (Sender<CoreCommand>, Receiver<UiCommand>),
+        vdom_cmd_rx: Receiver<VDomCommand>,
+    ) {
+        let (dom_tx, dom_rx) = mpsc::unbounded::<SchedulerMsg>();
+        let edit_queue = Arc::new(Mutex::new(Vec::new()));
+        let settings = world
+            .get_non_send_resource::<DioxusSettings<Props>>()
+            .unwrap();
+        let root = self.root.clone();
+        let props = settings.props.as_ref().unwrap().clone();
+        let event_loop = world
+            .get_non_send_resource::<EventLoop<UiEvent<CoreCommand>>>()
+            .unwrap();
+        let proxy = event_loop.create_proxy();
+        let context = UiContext::<CoreCommand, UiCommand>::new(proxy.clone(), (core_tx, ui_rx));
+
+        world.insert_resource(dom_tx.clone());
+        world.insert_resource(edit_queue.clone());
+
+        std::thread::spawn(move || {
+            Runtime::new().unwrap().block_on(async move {
+                let mut dom =
+                    VirtualDom::new_with_props_and_scheduler(root, props, (dom_tx, dom_rx));
+
+                dom.base_scope().provide_context(context.clone());
+
+                let muts = dom.rebuild();
+                edit_queue
+                    .lock()
+                    .unwrap()
+                    .push(serde_json::to_string(&muts.edits).unwrap());
+
+                let cx = dom.base_scope();
+                let root = match cx.consume_context::<Rc<AtomRoot>>() {
+                    Some(root) => root,
+                    None => {
+                        cx.provide_root_context(Rc::new(AtomRoot::new(cx.schedule_update_any())))
+                    }
+                };
+
+                proxy
+                    .send_event(UiEvent::WindowEvent(WindowEvent::Update))
+                    .unwrap();
+
+                while let Some(cmd) = vdom_cmd_rx.receive().await {
+                    match cmd {
+                        VDomCommand::UpdateDom => {}
+                        VDomCommand::GlobalState(state) => {
+                            root.set(state.id as AtomId, state.value);
+                        }
+                    }
+
+                    dom.wait_for_work().await;
+
+                    let muts = dom.work_with_deadline(|| false);
+                    for edit in muts {
+                        edit_queue
+                            .lock()
+                            .unwrap()
+                            .push(serde_json::to_string(&edit.edits).unwrap());
+                    }
+
+                    proxy
+                        .send_event(UiEvent::WindowEvent(WindowEvent::Update))
+                        .unwrap();
+                }
+            });
+        });
     }
 
     fn handle_initial_window_events(world: &mut World)

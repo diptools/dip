@@ -41,9 +41,7 @@ fn update_count_atom(query: Query<&Count, Changed<Count>>, vdom_tx: Res<Sender<V
             COUNT.unique_id() as usize,
             Box::new(count.clone()),
         ))) {
-            Ok(()) => {
-                println!("send ok");
-            }
+            Ok(()) => {}
             Err(e) => match e {
                 TrySendError::Full(e) => {
                     error!(

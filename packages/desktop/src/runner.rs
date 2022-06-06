@@ -414,7 +414,6 @@ where
                         tao_state.last_update = Instant::now();
 
                         let _ = vdom_cmd_tx.try_send(VDomCommand::UpdateDom);
-                        println!("update");
                         app.update();
                     }
                 }
