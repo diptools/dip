@@ -81,7 +81,6 @@ where
             .insert_non_send_resource(EventLoop::<UiEvent<CoreCommand>>::with_user_event())
             .set_runner(|app| runner::<CoreCommand, UiCommand, Props>(app))
             .add_system_to_stage(CoreStage::PostUpdate, send_ui_commands::<UiCommand>)
-            .add_system_to_stage(CoreStage::PostUpdate, rerender_dom)
             .add_system_to_stage(
                 CoreStage::PostUpdate,
                 change_window, /* TODO.label(ModifiesWindows) // is recentry introduced ( > 0.7 ) */
@@ -245,26 +244,6 @@ where
                 id: create_window_event.id,
             });
         }
-    }
-}
-
-fn rerender_dom(tx: Res<Sender<VDomCommand>>) {
-    match tx.try_send(VDomCommand::UpdateDom) {
-        Ok(()) => {}
-        Err(e) => match e {
-            TrySendError::Full(e) => {
-                error!(
-                    "Failed to send VDomCommand: channel is full: event: {:?}",
-                    e
-                );
-            }
-            TrySendError::Closed(e) => {
-                error!(
-                    "Failed to send VDomCommand: channel is closed: event: {:?}",
-                    e
-                );
-            }
-        },
     }
 }
 
