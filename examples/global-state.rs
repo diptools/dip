@@ -12,7 +12,8 @@ fn main() {
         .add_plugin(DioxusPlugin::<CoreCommand, (), GlobalState>::new(Root))
         .add_startup_system(setup)
         .add_system(handle_core_cmd.label("handle-core-cmd"))
-        .add_system(update_count_atom.after("handle-core-cmd"))
+        .add_system(apply_count.after("handle-core-cmd"))
+        .add_system(apply_disabled.after("handle-core-cmd"))
         .run();
 }
 
@@ -67,9 +68,8 @@ fn setup(mut commands: Commands) {
 }
 
 // TODO: should be derived by macro
-fn update_count_atom(
+fn apply_count(
     counts: Query<&Count, Changed<Count>>,
-    disabled: Query<&Disabled, Changed<Disabled>>,
     vdom_tx: Res<Sender<VDomCommand<GlobalState>>>,
 ) {
     for count in counts.iter() {
@@ -91,6 +91,12 @@ fn update_count_atom(
             },
         }
     }
+}
+
+fn apply_disabled(
+    disabled: Query<&Disabled, Changed<Disabled>>,
+    vdom_tx: Res<Sender<VDomCommand<GlobalState>>>,
+) {
     for disabled in disabled.iter() {
         match vdom_tx.try_send(VDomCommand::GlobalState(GlobalState::Disabled(
             disabled.clone(),
