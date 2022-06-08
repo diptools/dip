@@ -92,7 +92,9 @@ fn update_count_atom(
         }
     }
     for disabled in disabled.iter() {
-        match vdom_tx.try_send(VDomCommand::GlobalState(GlobalState::Disabled(disabled.clone()))) {
+        match vdom_tx.try_send(VDomCommand::GlobalState(GlobalState::Disabled(
+            disabled.clone(),
+        ))) {
             Ok(()) => {}
             Err(e) => match e {
                 TrySendError::Full(e) => {
@@ -112,7 +114,10 @@ fn update_count_atom(
     }
 }
 
-fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<(&mut Count, &mut Disabled)>) {
+fn handle_core_cmd(
+    mut events: EventReader<CoreCommand>,
+    mut query: Query<(&mut Count, &mut Disabled)>,
+) {
     for cmd in events.iter() {
         let (mut count, mut disabled) = query.single_mut();
         match cmd {
