@@ -129,33 +129,13 @@ pub enum WindowEvent {
 
 /// Event to control VirtualDom from outside
 #[derive(Debug)]
-pub enum VDomCommand<V> {
+pub enum VDomCommand<GlobalState> {
     /// Apply all edits
     UpdateDom,
 
     /// Set global state
-    GlobalState(GlobalState<V>),
+    GlobalState(GlobalState),
 }
-
-/// Set global state
-#[derive(Debug)]
-pub struct GlobalState<V> {
-    /// AtomId of target global state to modify
-    pub id: usize,
-    /// new value to set as global state
-    pub value: V,
-}
-
-impl<V> GlobalState<V> {
-    /// Instanciate new GlobalState
-    pub fn new(id: usize, value: V) -> Self {
-        Self { id, value }
-    }
-}
-
-// /// Event which lets VirtualDom to apply all edits
-// #[derive(Debug, Clone)]
-// pub struct UpdateDom;
 
 /// Rust representation of web KeyboardEvent
 #[derive(Debug, Clone, Deserialize)]

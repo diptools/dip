@@ -20,7 +20,7 @@ use bevy::{
     },
 };
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg, VirtualDom};
-use fermi::{AtomId, AtomRoot};
+use fermi::AtomRoot;
 use futures_channel::mpsc;
 use futures_intrusive::channel::{
     shared::{channel, Receiver, Sender},
@@ -39,26 +39,33 @@ use wry::application::{
     window::Fullscreen,
 };
 
+///
+pub trait GlobalStateHandler<GlobalState> {
+    ///
+    fn handler(_atom_root: Rc<AtomRoot>, state: GlobalState);
+}
+
 /// Dioxus Plugin for Bevy
-pub struct DioxusPlugin<CoreCommand, UiCommand, V, Props = ()> {
+pub struct DioxusPlugin<CoreCommand, UiCommand, GlobalState, Props = ()> {
     /// Root component
     pub Root: DioxusComponent<Props>,
     core_cmd_type: PhantomData<CoreCommand>,
     ui_cmd_type: PhantomData<UiCommand>,
-    v_type: PhantomData<V>,
+    global_state_type: PhantomData<GlobalState>,
 }
 
-impl<CoreCommand, UiCommand, V, Props> Plugin for DioxusPlugin<CoreCommand, UiCommand, V, Props>
+impl<CoreCommand, UiCommand, GlobalState, Props> Plugin
+    for DioxusPlugin<CoreCommand, UiCommand, GlobalState, Props>
 where
     CoreCommand: 'static + Send + Sync + Clone + Debug,
     UiCommand: 'static + Send + Sync + Clone + Debug,
+    GlobalState: 'static + Send + Sync + GlobalStateHandler<GlobalState>,
     Props: 'static + Send + Sync + Clone + Default,
-    V: 'static + Send + Sync,
 {
     fn build(&self, app: &mut App) {
         let (core_tx, core_rx) = channel::<CoreCommand>(8);
         let (ui_tx, ui_rx) = channel::<UiCommand>(8);
-        let (vdom_cmd_tx, vdom_cmd_rx) = channel::<VDomCommand<V>>(8);
+        let (vdom_cmd_tx, vdom_cmd_rx) = channel::<VDomCommand<GlobalState>>(8);
 
         let settings = app
             .world
@@ -89,11 +96,12 @@ where
     }
 }
 
-impl<CoreCommand, UiCommand, V, Props> DioxusPlugin<CoreCommand, UiCommand, V, Props>
+impl<CoreCommand, UiCommand, GlobalState, Props>
+    DioxusPlugin<CoreCommand, UiCommand, GlobalState, Props>
 where
     CoreCommand: Clone + Debug + Send + Sync,
     UiCommand: Clone + Debug + Send + Sync,
-    V: Send + Sync,
+    GlobalState: Send + Sync + GlobalStateHandler<GlobalState>,
     Props: Send + Sync + Clone + 'static,
 {
     /// Initialize DioxusPlugin with root component and channel types
@@ -122,7 +130,7 @@ where
             Root,
             core_cmd_type: PhantomData,
             ui_cmd_type: PhantomData,
-            v_type: PhantomData,
+            global_state_type: PhantomData,
         }
     }
 
@@ -130,7 +138,7 @@ where
         &self,
         world: &mut World,
         (core_tx, ui_rx): (Sender<CoreCommand>, Receiver<UiCommand>),
-        vdom_cmd_rx: Receiver<VDomCommand<V>>,
+        vdom_cmd_rx: Receiver<VDomCommand<GlobalState>>,
     ) {
         let (dom_tx, dom_rx) = mpsc::unbounded::<SchedulerMsg>();
         let edit_queue = Arc::new(Mutex::new(Vec::new()));
@@ -177,10 +185,9 @@ where
                         cmd = vdom_cmd_rx.receive() => {
                             if let Some(cmd) = cmd {
                                 match cmd {
-                                    VDomCommand::UpdateDom => {
-                                    }
+                                    VDomCommand::UpdateDom => {}
                                     VDomCommand::GlobalState(state) => {
-                                        root.set(state.id as AtomId, state.value);
+                                        GlobalState::handler(root.clone(), state);
                                     }
                                 }
                             }
