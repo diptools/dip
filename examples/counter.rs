@@ -4,15 +4,11 @@ use dioxus::prelude::*;
 
 fn main() {
     App::new()
-        .insert_resource(WindowDescriptor {
-            title: "Counter".to_string(),
-            ..Default::default()
-        })
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<CoreCommand, UiCommand, ()>::new(Root))
-        .add_startup_system(spawn_count)
+        .add_plugin(DioxusPlugin::<EmptyGlobalState, CoreCommand, UiCommand>::new(Root))
+        .add_startup_system(setup)
         .add_system(handle_core_cmd)
-        .add_system_to_stage(CoreStage::PostUpdate, notify_counter_change)
+        .add_system(notify_counter_change)
         .run();
 }
 
@@ -31,6 +27,43 @@ enum CoreCommand {
 #[derive(Clone, Debug)]
 enum UiCommand {
     CountChanged(u32),
+}
+
+// Systems
+fn setup(mut commands: Commands) {
+    info!("🧠 Spawn count");
+    commands.spawn().insert(Count::default());
+}
+
+fn notify_counter_change(query: Query<&Count, Changed<Count>>, mut ui: EventWriter<UiCommand>) {
+    for count in query.iter() {
+        info!("🧠 Counter Changed: {}", count.0);
+        ui.send(UiCommand::CountChanged(count.0));
+    }
+}
+
+fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut Count>) {
+    for cmd in events.iter() {
+        let mut count = query.single_mut();
+        match cmd {
+            CoreCommand::Increment => {
+                info!("🧠 Increment");
+                count.0 += 1;
+            }
+            CoreCommand::Decrement => {
+                if count.0 > 0 {
+                    info!("🧠 Decrement");
+                    count.0 -= 1;
+                }
+            }
+            CoreCommand::Reset => {
+                if count.0 != 0 {
+                    info!("🧠 Reset");
+                    count.0 = 0;
+                }
+            }
+        }
+    }
 }
 
 // UI Component
@@ -71,41 +104,4 @@ fn Root(cx: Scope) -> Element {
             "+",
         }
     })
-}
-
-// Systems
-fn spawn_count(mut commands: Commands) {
-    info!("🧠 Spawn count");
-    commands.spawn().insert(Count::default());
-}
-
-fn notify_counter_change(query: Query<&Count, Changed<Count>>, mut ui: EventWriter<UiCommand>) {
-    for count in query.iter() {
-        info!("🧠 Counter Changed: {}", count.0);
-        ui.send(UiCommand::CountChanged(count.0));
-    }
-}
-
-fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut Count>) {
-    for cmd in events.iter() {
-        let mut count = query.single_mut();
-        match cmd {
-            CoreCommand::Increment => {
-                info!("🧠 Increment");
-                count.0 += 1;
-            }
-            CoreCommand::Decrement => {
-                if count.0 > 0 {
-                    info!("🧠 Decrement");
-                    count.0 -= 1;
-                }
-            }
-            CoreCommand::Reset => {
-                if count.0 != 0 {
-                    info!("🧠 Reset");
-                    count.0 = 0;
-                }
-            }
-        }
-    }
 }

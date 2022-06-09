@@ -2,7 +2,7 @@ use bevy::{log::LogPlugin, prelude::*};
 use bevy_dioxus::desktop::prelude::*;
 use dioxus::prelude::*;
 
-/// This example attemps to create a second window then warning shows up
+/// This example open window with specific size then resize
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {
@@ -11,7 +11,7 @@ fn main() {
             ..default()
         })
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<(), ()>::new(Root))
+        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), ()>::new(Root))
         .add_system(toggle_override)
         .add_system(change_scale_factor)
         .run();

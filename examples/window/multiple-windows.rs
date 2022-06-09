@@ -10,7 +10,7 @@ use dioxus::prelude::*;
 fn main() {
     App::new()
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<NewWindow, ()>::new(Root))
+        .add_plugin(DioxusPlugin::<EmptyGlobalState, NewWindow, ()>::new(Root))
         .add_event::<NewWindow>()
         .add_system(create_new_window)
         .run();

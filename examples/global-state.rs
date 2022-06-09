@@ -1,26 +1,22 @@
 use bevy::{log::LogPlugin, prelude::*};
-use bevy_dioxus::desktop::prelude::*;
-use dioxus::{
-    fermi::{AtomRoot, Readable},
-    prelude::*,
-};
-use std::rc::Rc;
+use bevy_dioxus::{core::prelude::*, desktop::prelude::*};
+use dioxus::prelude::*;
 
 fn main() {
     App::new()
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<CoreCommand, (), GlobalState>::new(Root))
+        .add_plugin(GlobalStatePlugin)
+        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand, ()>::new(Root))
         .add_startup_system(setup)
-        .add_system(handle_core_cmd.label("handle-core-cmd"))
-        .add_system(apply_count.after("handle-core-cmd"))
-        .add_system(apply_disabled.after("handle-core-cmd"))
+        .add_system(handle_core_cmd)
         .run();
 }
 
-#[derive(Component, Clone, Debug, Default)]
-struct Count(pub u32);
+/// Make sure to implement Default trait.
+#[derive(Component, Clone, Debug, Default, GlobalState)]
+struct Count(u32);
 
-#[derive(Component, Clone, Debug)]
+#[derive(Component, Clone, Debug, GlobalState)]
 struct Disabled(bool);
 
 impl Default for Disabled {
@@ -29,28 +25,9 @@ impl Default for Disabled {
     }
 }
 
-// TODO: derive by macro ?
-static COUNT: Atom<Count> = |_| Count::default();
-static DISABLED: Atom<Disabled> = |_| Disabled::default();
-
-#[derive(Debug)]
-enum GlobalState {
-    Count(Count),
-    Disabled(Disabled),
-}
-
-impl GlobalStateHandler<GlobalState> for GlobalState {
-    fn handler(root: Rc<AtomRoot>, state: GlobalState) {
-        match state {
-            GlobalState::Count(count) => {
-                root.set(COUNT.unique_id(), count);
-            }
-            GlobalState::Disabled(disabled) => {
-                root.set(DISABLED.unique_id(), disabled);
-            }
-        }
-    }
-}
+/// Warning: Execution order matters here. Make sure to place this line after deriving all GlobalState.
+#[derive(GlobalStatePlugin)]
+struct GlobalStatePlugin;
 
 #[derive(Clone, Debug)]
 enum CoreCommand {
@@ -65,59 +42,6 @@ fn setup(mut commands: Commands) {
         .spawn()
         .insert(Count::default())
         .insert(Disabled::default());
-}
-
-// TODO: should be derived by macro
-fn apply_count(
-    counts: Query<&Count, Changed<Count>>,
-    vdom_tx: Res<Sender<VDomCommand<GlobalState>>>,
-) {
-    for count in counts.iter() {
-        match vdom_tx.try_send(VDomCommand::GlobalState(GlobalState::Count(count.clone()))) {
-            Ok(()) => {}
-            Err(e) => match e {
-                TrySendError::Full(e) => {
-                    error!(
-                        "Failed to send VDomCommand: channel is full: event: {:?}",
-                        e
-                    );
-                }
-                TrySendError::Closed(e) => {
-                    error!(
-                        "Failed to send VDomCommand: channel is closed: event: {:?}",
-                        e
-                    );
-                }
-            },
-        }
-    }
-}
-
-fn apply_disabled(
-    disabled: Query<&Disabled, Changed<Disabled>>,
-    vdom_tx: Res<Sender<VDomCommand<GlobalState>>>,
-) {
-    for disabled in disabled.iter() {
-        match vdom_tx.try_send(VDomCommand::GlobalState(GlobalState::Disabled(
-            disabled.clone(),
-        ))) {
-            Ok(()) => {}
-            Err(e) => match e {
-                TrySendError::Full(e) => {
-                    error!(
-                        "Failed to send VDomCommand: channel is full: event: {:?}",
-                        e
-                    );
-                }
-                TrySendError::Closed(e) => {
-                    error!(
-                        "Failed to send VDomCommand: channel is closed: event: {:?}",
-                        e
-                    );
-                }
-            },
-        }
-    }
 }
 
 fn handle_core_cmd(
@@ -150,9 +74,10 @@ fn handle_core_cmd(
 
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
-    let window = use_window::<CoreCommand, ()>(&cx);
     let count = use_read(&cx, COUNT);
     let disabled = use_read(&cx, DISABLED);
+
+    let window = use_window::<CoreCommand, ()>(&cx);
 
     cx.render(rsx! {
         h1 { "Counter Example" }

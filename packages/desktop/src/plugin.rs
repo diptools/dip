@@ -19,6 +19,7 @@ use bevy::{
         WindowScaleFactorChanged, Windows,
     },
 };
+use bevy_dioxus_core::prelude::GlobalStateHandler;
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg, VirtualDom};
 use fermi::AtomRoot;
 use futures_channel::mpsc;
@@ -39,27 +40,22 @@ use wry::application::{
     window::Fullscreen,
 };
 
-///
-pub trait GlobalStateHandler<GlobalState> {
-    ///
-    fn handler(_atom_root: Rc<AtomRoot>, state: GlobalState);
-}
-
 /// Dioxus Plugin for Bevy
-pub struct DioxusPlugin<CoreCommand, UiCommand, GlobalState, Props = ()> {
+pub struct DioxusPlugin<GlobalState, CoreCommand, UiCommand, Props = ()> {
     /// Root component
     pub Root: DioxusComponent<Props>,
+
+    global_state_type: PhantomData<GlobalState>,
     core_cmd_type: PhantomData<CoreCommand>,
     ui_cmd_type: PhantomData<UiCommand>,
-    global_state_type: PhantomData<GlobalState>,
 }
 
-impl<CoreCommand, UiCommand, GlobalState, Props> Plugin
-    for DioxusPlugin<CoreCommand, UiCommand, GlobalState, Props>
+impl<GlobalState, CoreCommand, UiCommand, Props> Plugin
+    for DioxusPlugin<GlobalState, CoreCommand, UiCommand, Props>
 where
+    GlobalState: 'static + Send + Sync + GlobalStateHandler,
     CoreCommand: 'static + Send + Sync + Clone + Debug,
     UiCommand: 'static + Send + Sync + Clone + Debug,
-    GlobalState: 'static + Send + Sync + GlobalStateHandler<GlobalState>,
     Props: 'static + Send + Sync + Clone + Default,
 {
     fn build(&self, app: &mut App) {
@@ -96,12 +92,12 @@ where
     }
 }
 
-impl<CoreCommand, UiCommand, GlobalState, Props>
-    DioxusPlugin<CoreCommand, UiCommand, GlobalState, Props>
+impl<GlobalState, CoreCommand, UiCommand, Props>
+    DioxusPlugin<GlobalState, CoreCommand, UiCommand, Props>
 where
+    GlobalState: Send + Sync + GlobalStateHandler,
     CoreCommand: Clone + Debug + Send + Sync,
     UiCommand: Clone + Debug + Send + Sync,
-    GlobalState: Send + Sync + GlobalStateHandler<GlobalState>,
     Props: Send + Sync + Clone + 'static,
 {
     /// Initialize DioxusPlugin with root component and channel types
@@ -115,7 +111,7 @@ where
     ///
     /// fn main() {
     ///    App::new()
-    ///         .add_plugin(DioxusPlugin::<CoreCommand, UiCommand>::new(Root))
+    ///         .add_plugin(DioxusPlugin::<EmptyGlobalState, CoreCommand, UiCommand>::new(Root))
     ///         .run();
     /// }
     ///
@@ -172,6 +168,7 @@ where
             proxy
                 .send_event(UiEvent::WindowEvent(WindowEvent::Update))
                 .unwrap();
+
             let cx = vdom.base_scope();
             let root = match cx.consume_context::<Rc<AtomRoot>>() {
                 Some(root) => root,
@@ -180,14 +177,15 @@ where
 
             Runtime::new().unwrap().block_on(async move {
                 loop {
+                    // wait for either
                     select! {
-                        () = vdom.wait_for_work() => {}
-                        cmd = vdom_cmd_rx.receive() => {
+                        () = vdom.wait_for_work() => {} // 1) when event listener is triggered
+                        cmd = vdom_cmd_rx.receive() => { // 2) when global state is changed or injected window.document event is emitted
                             if let Some(cmd) = cmd {
                                 match cmd {
                                     VDomCommand::UpdateDom => {}
                                     VDomCommand::GlobalState(state) => {
-                                        GlobalState::handler(root.clone(), state);
+                                        state.handler(root.clone())
                                     }
                                 }
                             }

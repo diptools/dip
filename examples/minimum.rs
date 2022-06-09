@@ -8,7 +8,7 @@ fn main() {
             title: "Minimum Example".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<(), ()>::new(Root))
+        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), ()>::new(Root))
         .run();
 }
 

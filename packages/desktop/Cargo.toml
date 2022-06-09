@@ -13,6 +13,7 @@ keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 [dependencies]
 approx = "0.5.1"
 bevy = { version = "0.7", default-features = false }
+bevy_dioxus_core = { version = "0.1", path = "../core"}
 core-foundation = "0.9"
 dioxus-core = { version = "0.2", features = ["serialize"] }
 dioxus-hooks = "0.2"
