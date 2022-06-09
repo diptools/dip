@@ -1,4 +1,4 @@
-//! Build desktop app
+//! For build desktop application
 
 #![deny(missing_docs)]
 
@@ -14,10 +14,13 @@ mod window;
 
 pub mod prelude {
     //! This module includes plugin, settings, events, and hooks.
+
     pub use crate::{
         event::*,
         hooks::*,
         plugin::DioxusPlugin,
         setting::{DioxusSettings, UpdateMode},
     };
+    pub use bevy_dioxus_core::prelude::*;
+    pub use futures_intrusive::channel::{shared::Sender, TrySendError};
 }

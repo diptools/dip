@@ -8,7 +8,7 @@ fn main() {
     App::new()
         .add_plugin(CorePlugin)
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<(), UiCommand>::new(Root))
+        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), UiCommand>::new(Root))
         .add_plugin(InputManagerPlugin::<Action>::default())
         .add_startup_system(setup)
         .add_system(update_frame)

@@ -1,22 +1,34 @@
 use bevy::{log::LogPlugin, prelude::*};
-use bevy_dioxus::desktop::prelude::*;
+use bevy_dioxus::{core::prelude::*, desktop::prelude::*};
 use dioxus::prelude::*;
 
 fn main() {
     App::new()
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<EmptyGlobalState, CoreCommand, UiCommand>::new(Root))
+        .add_plugin(GlobalStatePlugin)
+        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand, ()>::new(Root))
         .add_startup_system(setup)
         .add_system(handle_core_cmd)
-        .add_system(notify_counter_change)
         .run();
 }
 
-// Bevy Components
-#[derive(Component, Default)]
+/// Make sure to implement Default trait.
+#[derive(Component, Clone, Debug, Default, GlobalState)]
 struct Count(u32);
 
-// Core <-> UI
+#[derive(Component, Clone, Debug, GlobalState)]
+struct Disabled(bool);
+
+impl Default for Disabled {
+    fn default() -> Self {
+        Self(true)
+    }
+}
+
+/// Warning: Execution order matters here. Make sure to place this line after deriving all GlobalState.
+#[derive(GlobalStatePlugin)]
+struct GlobalStatePlugin;
+
 #[derive(Clone, Debug)]
 enum CoreCommand {
     Increment,
@@ -24,27 +36,20 @@ enum CoreCommand {
     Reset,
 }
 
-#[derive(Clone, Debug)]
-enum UiCommand {
-    CountChanged(u32),
-}
-
-// Systems
 fn setup(mut commands: Commands) {
     info!("🧠 Spawn count");
-    commands.spawn().insert(Count::default());
+    commands
+        .spawn()
+        .insert(Count::default())
+        .insert(Disabled::default());
 }
 
-fn notify_counter_change(query: Query<&Count, Changed<Count>>, mut ui: EventWriter<UiCommand>) {
-    for count in query.iter() {
-        info!("🧠 Counter Changed: {}", count.0);
-        ui.send(UiCommand::CountChanged(count.0));
-    }
-}
-
-fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut Count>) {
+fn handle_core_cmd(
+    mut events: EventReader<CoreCommand>,
+    mut query: Query<(&mut Count, &mut Disabled)>,
+) {
     for cmd in events.iter() {
-        let mut count = query.single_mut();
+        let (mut count, mut disabled) = query.single_mut();
         match cmd {
             CoreCommand::Increment => {
                 info!("🧠 Increment");
@@ -62,41 +67,29 @@ fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut C
                     count.0 = 0;
                 }
             }
-        }
+        };
+        disabled.0 = count.0 == 0;
     }
 }
 
-// UI Component
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
-    let window = use_window::<CoreCommand, UiCommand>(&cx);
-    let count = use_state(&cx, || 0);
-    let disabled = *count == 0;
+    let count = use_read(&cx, COUNT);
+    let disabled = use_read(&cx, DISABLED);
 
-    use_future(&cx, (), |_| {
-        let count = count.clone();
-        let rx = window.receiver();
-
-        async move {
-            while let Some(cmd) = rx.receive().await {
-                match cmd {
-                    UiCommand::CountChanged(c) => count.modify(|_| c),
-                }
-            }
-        }
-    });
+    let window = use_window::<CoreCommand, ()>(&cx);
 
     cx.render(rsx! {
         h1 { "Counter Example" }
-        p { "count: {count}" }
+        p { "count: {count.0}" }
         button {
             onclick: move |_| window.send(CoreCommand::Decrement),
-            disabled: "{disabled}",
+            disabled: "{disabled.0}",
             "-",
         }
         button {
             onclick: move |_| window.send(CoreCommand::Reset),
-            disabled: "{disabled}",
+            disabled: "{disabled.0}",
             "Reset"
         }
         button {

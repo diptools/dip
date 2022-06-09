@@ -1,0 +1,15 @@
+[package]
+name = "bevy_dioxus_core"
+version = "0.1.0"
+authors = ["Junichi Sugiura"]
+edition = "2021"
+description = "Write Cross-platform application with React-like decralative UI framework and scalable ECS architecture all in Rust."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/JunichiSugiura/bevy_dioxus/"
+homepage = "https://github.com/JunichiSugiura/bevy_dioxus/"
+documentation = "https://docs.rs/bevy_dioxus/latest/bevy_dioxus/"
+keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
+
+[dependencies]
+bevy_dioxus_macro = { version = "0.1", path = "../macro"}
+fermi = "0.2"

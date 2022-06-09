@@ -20,7 +20,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<(), ()>::new(Root))
+        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), ()>::new(Root))
         .add_plugin(CorePlugin)
         .add_plugin(InputManagerPlugin::<Action>::default())
         .add_startup_system(setup)

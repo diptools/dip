@@ -1,6 +1,6 @@
 use crate::{
-    context::{ProxyType, UiContext},
-    event::{trigger_from_serialized, IpcMessage, KeyboardEvent, UiEvent, UpdateDom, WindowEvent},
+    context::ProxyType,
+    event::{trigger_from_serialized, IpcMessage, KeyboardEvent, UiEvent, WindowEvent},
     protocol,
     setting::DioxusSettings,
 };
@@ -10,16 +10,14 @@ use bevy::{
     utils::HashMap,
     window::{Window as BevyWindow, WindowDescriptor, WindowId, WindowMode},
 };
-use dioxus_core::{Component as DioxusComponent, SchedulerMsg, VirtualDom};
+use dioxus_core::SchedulerMsg;
 use futures_channel::mpsc;
-use futures_intrusive::channel::shared::{Receiver, Sender};
 use raw_window_handle::HasRawWindowHandle;
 use std::{
     fmt::{self, Debug},
     marker::PhantomData,
     sync::{atomic::AtomicBool, Arc, Mutex},
 };
-use tokio::runtime::Runtime;
 use wry::{
     application::{
         dpi::{LogicalPosition, LogicalSize},
@@ -73,7 +71,7 @@ impl DioxusWindows {
         self.tao_to_window_id.get(&id).cloned()
     }
 
-    pub fn create<CoreCommand, UiCommand, Props>(
+    pub fn create<CoreCommand, Props>(
         &mut self,
         world: &WorldCell,
         window_id: WindowId,
@@ -81,20 +79,24 @@ impl DioxusWindows {
     ) -> BevyWindow
     where
         CoreCommand: 'static + Send + Sync + Clone + Debug,
-        UiCommand: 'static + Send + Sync + Clone + Debug,
         Props: 'static + Send + Sync + Clone,
     {
         let event_loop = world
             .get_non_send_mut::<EventLoop<UiEvent<CoreCommand>>>()
             .unwrap();
         let proxy = event_loop.create_proxy();
+        let dom_tx = world
+            .get_resource::<mpsc::UnboundedSender<SchedulerMsg>>()
+            .unwrap();
+        let edit_queue = world
+            .get_resource::<Arc<Mutex<Vec<String>>>>()
+            .unwrap()
+            .clone();
 
         let tao_window = Self::create_tao_window::<CoreCommand>(&event_loop, &window_descriptor);
         let tao_window_id = tao_window.id();
 
         let bevy_window = Self::create_bevy_window(window_id, &tao_window, &window_descriptor);
-        let (dom_tx, edit_queue) =
-            Self::spawn_virtual_dom::<CoreCommand, UiCommand, Props>(world, proxy.clone());
         let (webview, is_ready) = Self::create_webview::<CoreCommand, Props>(
             world,
             window_descriptor,
@@ -105,7 +107,7 @@ impl DioxusWindows {
 
         self.windows.insert(
             tao_window_id,
-            Window::new(webview, dom_tx, is_ready, edit_queue),
+            Window::new(webview, dom_tx.clone(), is_ready, edit_queue),
         );
         self.window_id_to_tao.insert(window_id, tao_window_id);
         self.tao_to_window_id.insert(tao_window_id, window_id);
@@ -264,69 +266,6 @@ impl DioxusWindows {
                 .map(|position| IVec2::new(position.x, position.y)),
             tao_window.raw_window_handle(),
         )
-    }
-
-    fn spawn_virtual_dom<CoreCommand, UiCommand, Props>(
-        world: &WorldCell,
-        proxy: ProxyType<CoreCommand>,
-    ) -> (mpsc::UnboundedSender<SchedulerMsg>, Arc<Mutex<Vec<String>>>)
-    where
-        CoreCommand: 'static + Send + Sync + Clone + Debug,
-        UiCommand: 'static + Send + Sync + Clone + Debug,
-        Props: 'static + Send + Sync + Clone,
-    {
-        let root = world
-            .get_resource::<DioxusComponent<Props>>()
-            .unwrap()
-            .clone();
-        let settings = world.get_non_send::<DioxusSettings<Props>>().unwrap();
-        let props = settings.props.as_ref().unwrap().clone();
-        let core_tx = world.get_resource::<Sender<CoreCommand>>().unwrap().clone();
-        let ui_rx = world.get_resource::<Receiver<UiCommand>>().unwrap().clone();
-        let dom_update_rx = world.get_resource::<Receiver<UpdateDom>>().unwrap().clone();
-
-        let (dom_tx, dom_rx) = mpsc::unbounded::<SchedulerMsg>();
-        let context = UiContext::<CoreCommand, UiCommand>::new(proxy.clone(), (core_tx, ui_rx));
-        let edit_queue = Arc::new(Mutex::new(Vec::new()));
-
-        let dom_tx_clone = dom_tx.clone();
-        let edit_queue_clone = edit_queue.clone();
-
-        std::thread::spawn(move || {
-            Runtime::new().unwrap().block_on(async move {
-                let mut dom =
-                    VirtualDom::new_with_props_and_scheduler(root, props, (dom_tx_clone, dom_rx));
-
-                dom.base_scope().provide_context(context.clone());
-
-                let edits = dom.rebuild();
-
-                edit_queue_clone
-                    .lock()
-                    .unwrap()
-                    .push(serde_json::to_string(&edits.edits).unwrap());
-
-                proxy
-                    .send_event(UiEvent::WindowEvent(WindowEvent::Update))
-                    .unwrap();
-
-                while let Some(_) = dom_update_rx.receive().await {
-                    dom.wait_for_work().await;
-
-                    let muts = dom.work_with_deadline(|| false);
-                    for edit in muts {
-                        edit_queue_clone
-                            .lock()
-                            .unwrap()
-                            .push(serde_json::to_string(&edit.edits).unwrap());
-                    }
-
-                    let _ = proxy.send_event(UiEvent::WindowEvent(WindowEvent::Update));
-                }
-            });
-        });
-
-        (dom_tx, edit_queue)
     }
 
     fn create_webview<CoreCommand, Props>(
