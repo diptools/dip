@@ -14,17 +14,20 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v1
       - name: Build
         run: cargo build
   build-examples:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v1
       - name: Build Examples
         run: cargo build --examples
   test:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v1
       - name: Run tests
         run: cargo test
