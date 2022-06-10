@@ -22,7 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
-      - name: Build
       - name: Build Examples
         run: cargo build --examples
   test:
@@ -30,6 +29,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
-      - name: Build
       - name: Run tests
         run: cargo test
