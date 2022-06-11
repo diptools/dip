@@ -31,3 +31,13 @@ jobs:
       - uses: Swatinem/rust-cache@v1
       - name: Run tests
         run: cargo test
+  changelog:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: orhun/git-cliff-action@v1
+        with:
+          config: cliff.toml
+          args: --verbose
+        env:
+          OUTPUT: CHANGELOG.md
