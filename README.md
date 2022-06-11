@@ -77,9 +77,17 @@ More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy
 
 ### Prerequisites
 - [convco](https://github.com/convco/convco#installation): CLI tool to generate conventional-commit message.
+- [cargo-workspaces](https://github.com/pksunkara/cargo-workspaces): CLI tool to manage monorepo
+
+### Branch Conventions
+
+Example
+```
+git branch -m docs/#20-guide-website
+```
 
 ### Conventional Commits
-Make sure to use `convco commit` instead of `git commit`. [git-cliff](https://github.com/orhun/git-cliff) will automatically generates changelog automatically based on conventional-commit message that convco produces.
+Make sure to use `convco commit` instead of `git commit` when it should be noted in changelog. [git-cliff](https://github.com/orhun/git-cliff) will automatically generates changelog automatically based on conventional-commit message that convco produces.
 ```sh
 cargo install convco
 # or
