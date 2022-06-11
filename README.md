@@ -90,7 +90,7 @@ More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy
 ### Branch Conventions
 
 Example
-```
+```sh
 git checkout -b docs/#20-guide-website
 ```
 
