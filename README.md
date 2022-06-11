@@ -76,14 +76,22 @@ More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy
 ## Development
 
 ### Prerequisites
-- [convco](https://github.com/convco/convco#installation): CLI tool to generate conventional-commit message.
-- [cargo-workspaces](https://github.com/pksunkara/cargo-workspaces): CLI tool to manage monorepo
+- [Tauri prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
+- [convco](https://github.com/convco/convco#installation): Conventional commits, changelog, versioning, validation
+- [cargo-workspaces](https://github.com/pksunkara/cargo-workspaces): A tool for managing cargo workspaces and their crates, inspired by lerna
+
+#### WebSite
+- [Zola](https://github.com/getzola/zola): A fast static site generator in a single binary with everything built-in.
+
+#### API Reference
+- [cargo-watch](https://github.com/watchexec/cargo-watch): Watches over your Cargo project's source.
+
 
 ### Branch Conventions
 
 Example
 ```
-git branch -m docs/#20-guide-website
+git checkout -b docs/#20-guide-website
 ```
 
 ### Conventional Commits
@@ -96,7 +104,13 @@ brew install convco/formulae/convco
 convco commit
 ```
 
-### Documentation
+### Website
+```sh
+cd packages/website
+zola serve
+```
+
+### API Reference
 ```sh
 # serve doc locally
 cargo doc --open --no-deps
