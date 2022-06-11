@@ -97,5 +97,3 @@ cargo doc --open --no-deps
 cargo install watch https # <- install deps
 cargo watch -s 'cargo doc && http target/doc'
 ```
-
-### Release
