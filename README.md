@@ -52,7 +52,17 @@ fn Root(cx: Scope) -> Element {
 }
 ```
 
+## About Dioxus and Bevy
+### Dioxus
+Dioxus is a cross-platform decralative UI framework. It provides familiar features that React developer expects such as component, state, props, hooks, global state, and router. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
+
+### Bevy
+Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS) design pattern. Think of it as a global state management tool like Redux but much more performant because all systems will run concurrently as much as possible. Thanks to its plugin system, there's already a handlfull of third-party Bevy plugins out there. Imagine implemnenting core logic as `CorePlugin` seperated from UI layer. You may start with `bevy_dioxus` to build desektop application. Then let's say you want to release a metaverse edition at some point in the future, it's as simple as swapping UI plugin to Bevy's 3d rendering plugin while still using the same CorePlugin.
+
 ## Try examples
+
+Make sure to install all prerequisites for Tauri.
+[Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
 
 ```sh
 gh repo clone JunichiSugiura/bevy_dioxus
@@ -63,9 +73,21 @@ cargo run --example counter
 
 More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy_dioxus/tree/main/examples) directory.
 
-
 ## Development
 
+### Prerequisites
+- [convco](https://github.com/convco/convco#installation): CLI tool to generate conventional-commit message.
+
+Make sure to use convco instead of `git commit`. [git-cliff](https://github.com/orhun/git-cliff) will automatically generates changelog automatically based on conventional-commit message that convco produces.
+```sh
+cargo install convco
+# or
+brew install convco/formulae/convco
+
+convco commit
+```
+
+### Documentation
 ```sh
 # serve doc locally
 cargo doc --open --no-deps
@@ -75,9 +97,4 @@ cargo install watch https # <- install deps
 cargo watch -s 'cargo doc && http target/doc'
 ```
 
-## Why Dioxus and Bevy
-### Dioxus
-Dioxus is a cross-platform decralative UI framework. It provides familiar features that React developer expects such as component, hooks, and global state. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
-
-### Bevy
-Bevy is not only known as a game engine but it's also a great general purpose Entity Component System(ECS) framework. Bevy is also extensible.
+### Release
