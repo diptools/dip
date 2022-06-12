@@ -1,0 +1,14 @@
+{
+  "name": "bevy-dioxus-website",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tailwindcss -i ./packages/website/src/tailwind.css -o ./packages/website/public/tailwind.css"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.1.2"
+  }
+}
