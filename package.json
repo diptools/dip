@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tailwindcss -i ./packages/website/src/main.css -o ./packages/website/public/main.css -c ./packages/website/tailwind.config.js"
+    "build": "tailwindcss -i ./packages/website/src/main.css -o ./packages/website/public/main.css -c ./packages/website/tailwind.config.js",
+    "watch": "tailwindcss -i ./packages/website/src/main.css -o ./packages/website/public/main.css -c ./packages/website/tailwind.config.js -w"
   },
   "author": "",
   "license": "ISC",
