@@ -3,7 +3,7 @@
 Cargo.lock
 .DS_Store
 
-/* /packages/website/public */
+/packages/website/public
 
 .vscode/*
 !.vscode/settings.json
