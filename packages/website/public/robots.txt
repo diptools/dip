@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://bevy-dioxus.com/sitemap.xml

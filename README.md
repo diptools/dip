@@ -76,46 +76,60 @@ More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy
 ## Development
 
 ### Prerequisites
+#### General
 - [Tauri prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
 - [convco](https://github.com/convco/convco#installation): Conventional commits, changelog, versioning, validation
+  ```sh
+  cargo install convco
+  # or
+  brew install convco/formulae/convco
+  ```
 - [cargo-workspaces](https://github.com/pksunkara/cargo-workspaces): A tool for managing cargo workspaces and their crates, inspired by lerna
+  ```sh
+  cargo install cargo-workspaces
+  ```
 
-#### WebSite
+#### Website
 - [Zola](https://github.com/getzola/zola): A fast static site generator in a single binary with everything built-in.
+  ```sh
+  brew install zola
+  ```
 
 #### API Reference
 - [cargo-watch](https://github.com/watchexec/cargo-watch): Watches over your Cargo project's source.
+  ```sh
+  cargo install cargo-watch
+  ```
 
-
-### Branch Conventions
-
-Example
+### Run
+#### Examples
 ```sh
-git checkout -b docs/#20-guide-website
+cargo run --example counter
 ```
 
-### Conventional Commits
-Make sure to use `convco commit` instead of `git commit` when it should be noted in changelog. [git-cliff](https://github.com/orhun/git-cliff) will automatically generates changelog automatically based on conventional-commit message that convco produces.
+#### Website
 ```sh
-cargo install convco
-# or
-brew install convco/formulae/convco
-
-convco commit
+zola -r packages/website serve
 ```
 
-### Website
-```sh
-cd packages/website
-zola serve
-```
-
-### API Reference
+#### API Reference
 ```sh
 # serve doc locally
 cargo doc --open --no-deps
 
 # watch file changes and serve doc locally
-cargo install watch https # <- install deps
 cargo watch -s 'cargo doc && http target/doc'
+```
+
+### Conventions
+
+#### Branch name example
+```sh
+git checkout -b docs/#20-guide-website
+```
+
+#### Conventional Commits
+Make sure to use `convco commit` instead of `git commit` when it should be noted in changelog. [git-cliff](https://github.com/orhun/git-cliff) will automatically generates changelog automatically based on conventional-commit message that convco produces.
+```sh
+convco commit
 ```

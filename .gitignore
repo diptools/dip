@@ -3,6 +3,8 @@
 Cargo.lock
 .DS_Store
 
+/* /packages/website/public */
+
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -12,3 +14,4 @@ tarpaulin-report.html
 
 # Jetbrain
 .idea/
+
