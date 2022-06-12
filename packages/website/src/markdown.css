@@ -1,1 +1,4 @@
-.markdown-content {}
+.content {
+    @apply text-violet-600;
+}
+
