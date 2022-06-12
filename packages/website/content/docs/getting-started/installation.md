@@ -1,4 +1,9 @@
 +++
+title = "Installation"
 +++
 
-# Documentation
+## H2 Installation
+
+```sh
+cargo add bevy_dioxus
+```
