@@ -1,4 +1,4 @@
-base_url = "https://127.0.0.1:1111"
+base_url = "https://www.bevydioxus.com"
 title = "bevy_dioxus"
 description = "Write cross-platform application with React-like declarative UI framework and scalable ECS architecture all in Rust."
 default_language = "en"

@@ -105,6 +105,10 @@ More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy
 ### Run
 #### Examples
 ```sh
+# Build
+cargo build --examples
+
+# or Run
 cargo run --example counter
 ```
 
