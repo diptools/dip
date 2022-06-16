@@ -1,28 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+        <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
 
-      <!-- Enable responsiveness on mobile devices-->
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+        <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+        <link rel="icon" href="{{ get_url(path="favicon.png") }}">
 
-      <title>{% block title %}{{ config.title }}{% endblock title %}</title>
 
-      {% block js %}
-      {% endblock js %}
+        {% block js %}
+        {% endblock js %}
 
-      <!-- CSS -->
-      {% block css %}
-      <link rel="stylesheet" href="{{ get_url(path="main.css") | safe }}">
-      {% endblock css %}
+        {% block css %}
+            <link rel="stylesheet" href="{{ get_url(path="main.css") | safe }}">
+        {% endblock css %}
 
-      {% block extra_head %}
-      {% endblock extra_head %}
+        {% block extra_head %}
+        {% endblock extra_head %}
     </head>
 
-    <body>
-        {% block content %}
-        {% endblock content %}
+    <body class="bg-background text-text">
+        <main>
+            <header class="h-14 px-4 py-2 flex items-center">
+                <div class="flex items-center">
+                    <a href="/" alt="Home Page" class="mr-2 flex items-center">
+                        <img src="/logo/light.svg" class="dark:hidden" />
+                        <img src="/logo/dark.svg" class="hidden light:block" />
+                    </a
+                    <div class="text-neutral-400">v0.1.0</div>
+                </div>
+            </header>
+
+            {% block nav %}
+            {% endblock nav %}
+
+            <div>
+                {% block content %}
+                    <ul class="underline text-accent">
+                        <a href="/docs" alt="Docs Page">
+                            <li>Docs</li>
+                        </a>
+                        <a href="/todo" alt="Todo Page">
+                            <li>Todo</li>
+                        </a>
+                    </li>
+                {% endblock content %}
+            </div>
+        </main>
     </body>
 </html>
