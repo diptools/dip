@@ -7,7 +7,7 @@
         <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
 
         <title>{% block title %}{{ config.title }}{% endblock title %}</title>
-        <link rel="icon" href="{{ get_url(path="favicon.png") }}">
+        <link rel="shortcut icon" href="favicon.ico" />
 
 
         {% block js %}
@@ -19,6 +19,14 @@
 
         {% block extra_head %}
         {% endblock extra_head %}
+
+        <script>
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark')
+                } else {
+                  document.documentElement.classList.remove('dark')
+            }
+        </script>
     </head>
 
     <body class="bg-background text-text">
