@@ -1,0 +1,43 @@
+{% extends "index.html" %}
+
+{% block nav %}
+    {% include "nav.html" %}
+{% endblock nav %}
+
+{% block content %}
+    <main class="py-4 grid grid-cols-6 gap-4">
+        <div class="flex justify-center">
+            {% include "icons/chevron-down.html" %}
+        </div>
+        <div class="flex justify-center">
+            {% include "icons/chevron-left.html" %}
+        </div>
+        <div class="flex justify-center">
+            {% include "icons/chevron-right.html" %}
+        </div>
+        <div class="flex justify-center">
+            {% include "icons/desktop-computer.html" %}
+        </div>
+        <div class="flex justify-center">
+            {% include "icons/document-duplicate.html" %}
+        </div>
+        <div class="flex justify-center">
+            {% include "icons/dots-vertical.html" %}
+        </div>
+        <div class="flex justify-center">
+            {% include "icons/menu.html" %}
+        </div>
+        <div class="flex justify-center">
+            {% include "icons/moon.html" %}
+        </div>
+        <div class="flex justify-center">
+            {% include "icons/search.html" %}
+        </div>
+        <div class="flex justify-center">
+            {% include "icons/sun.html" %}
+        </div>
+        <div class="flex justify-center">
+            {% include "icons/x.html" %}
+        </div>
+    </main>
+{% endblock content %}

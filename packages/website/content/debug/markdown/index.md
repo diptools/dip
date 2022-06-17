@@ -1,5 +1,5 @@
 +++
-title = "Markdown Demo"
+title = "Markdown"
 +++
 
 # Heading level 1

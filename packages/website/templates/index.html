@@ -3,27 +3,27 @@
     {% include "head.html" %}
 
     <body class="bg-background text-text">
-        <main>
+        <div>
             {% include "header.html" %}
 
             {% block nav %}
             {% endblock nav %}
 
-            <div>
-                {% block content %}
-                    <ul class="underline text-accent">
-                        <a href="/docs" alt="Docs Page">
-                            <li>Docs</li>
-                        </a>
-                        <a href="/todo" alt="Todo Page">
-                            <li>Todo</li>
-                        </a>
-                        <a href="/markdown" alt="Markdown Demo Page">
-                            <li>Markdown Demo</li>
-                        </a>
-                    </li>
-                {% endblock content %}
-            </div>
-        </main>
+            {% block content %}
+                <ul class="flex justify-center">
+                    <a href="/docs" alt="Docs Page" class="underline text-accent">
+                        <li>Docs</li>
+                    </a>
+                    <p class="px-4">/</p>
+                    <a href="/todo" alt="Todo Page" class="underline text-accent">
+                        <li>Todo</li>
+                    </a>
+                    <p class="px-4">/</p>
+                    <a href="/debug" alt="Debug Page (dev only)" class="underline text-accent">
+                        <li>Debug</li>
+                    </a>
+                </li>
+            {% endblock content %}
+        </div>
     </body>
 </html>
