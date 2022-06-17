@@ -1,51 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-        <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
-
-        <title>{% block title %}{{ config.title }}{% endblock title %}</title>
-        <link rel="shortcut icon" href="favicon.ico" />
-
-
-        {% block js %}
-        {% endblock js %}
-
-        {% block css %}
-            <link rel="stylesheet" href="{{ get_url(path="main.css") | safe }}">
-        {% endblock css %}
-
-        {% block extra_head %}
-        {% endblock extra_head %}
-
-        <script>
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                  document.documentElement.classList.add('dark')
-                } else {
-                  document.documentElement.classList.remove('dark')
-            }
-        </script>
-    </head>
+    {% include "head.html" %}
 
     <body class="bg-background text-text">
         <main>
-            <header class="
-                h-14
-                px-4
-                py-2
-                flex
-                items-center
-            ">
-                <div class="flex items-center">
-                    <a href="/" alt="Home Page" class="mr-2 flex items-center">
-                        <img src="/logo/light.svg" class="dark:hidden" />
-                        <img src="/logo/dark.svg" class="hidden light:block" />
-                    </a
-                    <div class="text-neutral-400">v0.1.0</div>
-                </div>
-            </header>
+            {% include "header.html" %}
 
             {% block nav %}
             {% endblock nav %}

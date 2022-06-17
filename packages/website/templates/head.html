@@ -1,0 +1,27 @@
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
+
+    <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+    <link rel="shortcut icon" href="favicon.ico" />
+
+    {% block js %}
+    {% endblock js %}
+
+    {% block css %}
+        <link rel="stylesheet" href="{{ get_url(path="main.css") | safe }}">
+    {% endblock css %}
+
+    {% block extra_head %}
+    {% endblock extra_head %}
+
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+              document.documentElement.classList.add('dark')
+            } else {
+              document.documentElement.classList.remove('dark')
+        }
+    </script>
+</head>
