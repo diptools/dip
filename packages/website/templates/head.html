@@ -18,18 +18,18 @@
     {% endblock extra_head %}
 
     <script>
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-              document.documentElement.classList.add('dark')
-            } else {
-              document.documentElement.classList.remove('dark')
+        if (localStorage.theme === "dark" || (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
         }
 
         function openMenu() {
-            const menu = document.getElementById("menu").style.display = "flex";
+            document.getElementById("menu").style.display = "flex";
         }
 
         function closeMenu() {
-            const menu = document.getElementById("menu").style.display = "none";
+            document.getElementById("menu").style.display = "none";
         }
     </script>
 </head>
