@@ -4,7 +4,7 @@
     {% set meta = section %}
 {% endif %}
 
-<nav class="bg-neutral-900 flex items-center justify-between px-4 py-2 bg-red-400">
+<div class="md:hidden bg-neutral-900 flex items-center justify-between px-4 py-2 bg-red-400">
     <ol class="text-sm flex justify-center items-center">
         {% for a in meta.ancestors %}
             {% if loop.index != 1 %}
@@ -24,4 +24,4 @@
     <button class="w-10 h-10 flex justify-center items-center">
         {% include "icons/menu.html" %}
     </div>
-</nav>
+</div>
