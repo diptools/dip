@@ -11,12 +11,23 @@
         </button>
     </div>
 
-    <div class="flex items-center">
-        <button class="w-10 h-10 flex justify-center items-center">
-            {% include "icons/search.html" %}
-        </a>
-        <button class="w-10 h-10 flex justify-center items-center">
-            {% include "icons/dots-vertical.html" %}
-        </a>
+    <div>
+        <div class="md:hidden flex items-center">
+            <button class="w-10 h-10 flex justify-center items-center">
+                {% include "icons/search.html" %}
+            </a>
+            <button class="w-10 h-10 flex justify-center items-center">
+                {% include "icons/dots-vertical.html" %}
+            </a>
+        </div>
+
+        <div class="hidden md:flex items-center">
+            <button class="w-10 h-10 flex justify-center items-center">
+                {% include "icons/search.html" %}
+            </a>
+            <button class="w-10 h-10 flex justify-center items-center">
+                {% include "icons/dots-vertical.html" %}
+            </a>
+        </div>
     </div>
 </header>

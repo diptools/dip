@@ -8,10 +8,11 @@
     <ol class="text-sm flex justify-center items-center">
         {% for a in meta.ancestors %}
             {% if loop.index != 1 %}
-                {% set section = get_section(path=a, metadata_only=true) %}
+                {% set a_meta = get_section(path=a, metadata_only=true) %}
+
                 <li class="flex items-center">
-                    <a class="text-neutral-500" href="{{ section.permalink }}" alt="{{ meta.title }}">
-                        {{ section.title }}
+                    <a class="text-neutral-500" href="{{ a_meta.permalink }}" alt="{{ a_meta.title }}">
+                        {{ a_meta.title }}
                     </a>
                     <div class="p-2 text-neutral-500">/</div>
                 </li>
