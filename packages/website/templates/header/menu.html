@@ -1,0 +1,17 @@
+<div id="menu" class="absolute w-screen h-screen hidden flex-col items-end top-0 backdrop-blur">
+    <ul class="w-screen max-w-xs bg-neutral-900 border border-neutral-400 rounded mt-16 mr-4 flex flex-col">
+        <button class="absolute right-4 w-10 h-10 flex justify-center items-center" onclick="closeMenu()">
+            {% include "icons/x.html" %}
+        </button>
+
+        <li class="p-4">
+            <a class="" href="{{ get_url(path = "@/docs/_index.md") }}">Docs</a>
+        </li>
+        <li class="p-4">
+            <a href="https://docs.rs/bevy_dioxus" alt="API Reference" target="_blank" rel="noopener noreferrer">API Reference</a>
+        </li>
+        <li class="p-4">
+            <a href="https://github.com/JunichiSugiura/bevy_dioxus" alt="GitHub Page" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </li>
+    </ul>
+</div>

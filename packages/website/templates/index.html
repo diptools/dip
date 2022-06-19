@@ -4,22 +4,23 @@
 
     <body class="bg-background text-text">
         <div>
-            {% include "header.html" %}
+            {% include "header/index.html" %}
+            {% include "header/menu.html" %}
 
             {% block breadcrumb %}
             {% endblock breadcrumb %}
 
             {% block content %}
                 <ul class="flex justify-center">
-                    <a href="/docs" alt="Docs Page" class="underline text-accent">
+                    <a href="{{ get_url(path = "@/docs/_index.md") }}" alt="Docs Page" class="underline text-accent">
                         <li>Docs</li>
                     </a>
                     <p class="px-4">/</p>
-                    <a href="/todo" alt="Todo Page" class="underline text-accent">
+                    <a href="{{ get_url(path = "@/todo.md") }}" alt="Todo Page" class="underline text-accent">
                         <li>Todo</li>
                     </a>
                     <p class="px-4">/</p>
-                    <a href="/debug" alt="Debug Page (dev only)" class="underline text-accent">
+                    <a href="{{ get_url(path = "@/debug/_index.md") }}" alt="Debug Page (dev only)" class="underline text-accent">
                         <li>Debug</li>
                     </a>
                 </li>
