@@ -24,6 +24,10 @@ module.exports = {
       serif: defaultTheme.fontFamily.serif,
       mono: defaultTheme.fontFamily.mono,
     },
+    screens: {
+      "md": "768px",
+      "lg": "1024px",
+    }
   },
   plugins: [
     require('@tailwindcss/typography'),

@@ -1,6 +1,3 @@
-# Check docs for default config
-# Reference: https://getzola.org/documentation/getting-started/configuration/
-
 base_url = "www.bevydioxus.com"
 title = "bevy_dioxus"
 description = "Write cross-platform application with React-like declarative UI framework and scalable ECS architecture all in Rust."

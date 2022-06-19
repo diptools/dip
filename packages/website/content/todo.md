@@ -14,7 +14,7 @@ title = "Todo"
     - [ ] ...
 
 ## Design System
-- [ ] Breakpoints
+- [x] Breakpoints
 - [x] Custom theme colors with CSS variable
 - [x] Font family 
 - [x] SVG icons
