@@ -1,29 +1,31 @@
 <header class="px-4 py-2 flex items-center justify-between">
     <div class="flex items-center">
-        <a href="/" alt="Home Page" class="mr-2 flex items-center">
+        <a href="/" alt="Home Page" class="mr-2 flex items-center md:mr-4">
             {% include "logo.html" %}
         </a>
-        <button class="text-neutral-400 flex items-center">
+        <div class="text-neutral-400 flex items-center">
             <div class="pr-1">
-                v0.1.0
+                {{ config.extra.version }}
             </div>
-            {% include "icons/chevron-down.html" %}
-        </button>
+        </div>
     </div>
 
     <div>
         <div class="md:hidden flex items-center">
-            <button class="w-10 h-10 flex justify-center items-center">
-                {% include "icons/search.html" %}
-            </button>
+            <!-- <button class="w-10 h-10 flex justify-center items-center"> -->
+            <!--     {% include "icons/search.html" %} -->
+            <!-- </button> -->
             <button class="w-10 h-10 flex justify-center items-center" onclick="openMenu()">
                 {% include "icons/dots-vertical.html" %}
             </button>
         </div>
 
         <div class="hidden md:flex items-center">
+            <button id="desktop-light" class="w-10 h-10 flex justify-center items-center">
+                {% include "icons/sun.html" %}
+            </button>
             <button class="w-10 h-10 flex justify-center items-center">
-                {% include "icons/search.html" %}
+                {% include "icons/moon.html" %}
             </button>
             <button class="w-10 h-10 flex justify-center items-center">
                 {% include "icons/dots-vertical.html" %}

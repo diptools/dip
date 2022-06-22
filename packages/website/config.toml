@@ -6,3 +6,6 @@ build_search_index = true
 [markdown]
 highlight_code = true
 external_links_target_blank = true
+
+[extra]
+version = "0.1.0"
