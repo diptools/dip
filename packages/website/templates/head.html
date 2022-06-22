@@ -16,20 +16,4 @@
 
     {% block extra_head %}
     {% endblock extra_head %}
-
-    <script>
-        if (localStorage.theme === "dark" || (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-            document.documentElement.classList.add("dark");
-        } else {
-            document.documentElement.classList.remove("dark");
-        }
-
-        function openMenu() {
-            document.getElementById("menu").style.display = "flex";
-        }
-
-        function closeMenu() {
-            document.getElementById("menu").style.display = "none";
-        }
-    </script>
 </head>

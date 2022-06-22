@@ -26,5 +26,111 @@
                 </li>
             {% endblock content %}
         </div>
+
+        <script>
+            setThemeClass();
+
+            const theme = localStorage.getItem("theme");
+            setSelectedTheme(theme);
+            updateThemeOptions(theme);
+
+            function openMenu() {
+                document.getElementById("menu").classList.remove("hidden");
+            }
+
+            function closeMenu() {
+                document.getElementById("menu").classList.add("hidden");
+            }
+
+            function openThemeSelector() {
+                document.getElementById("theme-options").classList.remove("hidden");
+            }
+
+            function closeThemeSelector() {
+                document.getElementById("theme-options").classList.add("hidden");
+            }
+
+            function onSelectTheme(theme) {
+                updateTheme(theme);
+                closeThemeSelector();
+            }
+
+            function updateTheme(theme) {
+                switch (theme) {
+                    case "light":
+                    case "dark":
+                        localStorage.setItem("theme", theme);
+                        break;
+                    case "system":
+                        localStorage.removeItem("theme");
+                        break;
+                }
+
+                setThemeClass();
+                setSelectedTheme(theme);
+                updateThemeOptions(theme);
+            }
+
+            function setThemeClass() {
+                if (
+                    localStorage.theme === "dark" || (
+                        !("theme" in localStorage) &&
+                        window.matchMedia("(prefers-color-scheme: dark)").matches)
+                ) {
+                    document.documentElement.classList.add("dark");
+                } else {
+                    document.documentElement.classList.remove("dark");
+                }
+            }
+
+            function setSelectedTheme(theme) {
+                switch(theme) {
+                    case "light":
+                        document.getElementById("theme-selected-light").classList.replace("hidden", "flex");
+                        document.getElementById("theme-selected-dark").classList.replace("flex", "hidden");
+                        document.getElementById("theme-selected-system").classList.replace("flex", "hidden");
+                        break;
+                    case "dark":
+                        document.getElementById("theme-selected-light").classList.replace("flex", "hidden");
+                        document.getElementById("theme-selected-dark").classList.replace("hidden", "flex");
+                        document.getElementById("theme-selected-system").classList.replace("flex", "hidden");
+                        break;
+                    default:
+                        document.getElementById("theme-selected-light").classList.replace("flex", "hidden");
+                        document.getElementById("theme-selected-dark").classList.replace("flex", "hidden");
+                        document.getElementById("theme-selected-system").classList.replace("hidden", "flex");
+                        break;
+                }
+            }
+
+            function updateThemeOptions(theme) {
+                switch(theme) {
+                    case "light":
+                        document.getElementById("theme-options-light-icon").classList.replace("text-neutral-600", "text-accent");
+                        document.getElementById("theme-options-light-text").classList.replace("text-neutral-300", "text-accent");
+                        document.getElementById("theme-options-dark-icon").classList.replace("text-accent", "text-neutral-600");
+                        document.getElementById("theme-options-dark-text").classList.replace("text-accent", "text-neutral-300");
+                        document.getElementById("theme-options-system-icon").classList.replace("text-accent", "text-neutral-600");
+                        document.getElementById("theme-options-system-text").classList.replace("text-accent", "text-neutral-300");
+                        break;
+                    case "dark":
+                        document.getElementById("theme-options-light-icon").classList.replace("text-accent", "text-neutral-600");
+                        document.getElementById("theme-options-light-text").classList.replace("text-accent", "text-neutral-300");
+                        document.getElementById("theme-options-dark-icon").classList.replace("text-neutral-600", "text-accent");
+                        document.getElementById("theme-options-dark-text").classList.replace("text-neutral-300", "text-accent");
+                        document.getElementById("theme-options-system-icon").classList.replace("text-accent", "text-neutral-600");
+                        document.getElementById("theme-options-system-text").classList.replace("text-accent", "text-neutral-300");
+                        break;
+                    default:
+                        document.getElementById("theme-options-light-icon").classList.replace("text-accent", "text-neutral-600");
+                        document.getElementById("theme-options-light-text").classList.replace("text-accent", "text-neutral-300");
+                        document.getElementById("theme-options-dark-icon").classList.replace("text-accent", "text-neutral-600");
+                        document.getElementById("theme-options-dark-text").classList.replace("text-accent", "text-neutral-300");
+                        document.getElementById("theme-options-system-icon").classList.replace("text-neutral-600", "text-accent");
+                        document.getElementById("theme-options-system-text").classList.replace("text-neutral-300", "text-accent");
+                        break;
+                }
+            }
+        </script>
     </body>
 </html>
