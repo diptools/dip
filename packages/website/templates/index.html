@@ -35,19 +35,19 @@
             updateThemeOptions();
 
             function openMenu() {
-                document.getElementById("menu").classList.remove("hidden");
+                document.getElementById("menu").classList.replace("hidden", "flex");
             }
 
             function closeMenu() {
-                document.getElementById("menu").classList.add("hidden");
+                document.getElementById("menu").classList.replace("flex", "hidden");
             }
 
             function openThemeSelector() {
-                document.getElementById("theme-options").classList.remove("hidden");
+                document.getElementById("theme-options").classList.replace("hidden", "flex");
             }
 
             function closeThemeSelector() {
-                document.getElementById("theme-options").classList.add("hidden");
+                document.getElementById("theme-options").classList.replace("flex", "hidden");
             }
 
             function onSelectTheme(theme) {
