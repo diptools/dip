@@ -30,10 +30,9 @@
         <script>
             const themes = ["light", "dark", "system"];
 
-            updateThemeClass();
-            updateSelectedTheme();
-            updateThemeOptions();
+            applyTheme();
 
+            // handlers
             function openMenu() {
                 document.getElementById("menu").classList.replace("hidden", "flex");
             }
@@ -52,7 +51,15 @@
 
             function onSelectTheme(theme) {
                 setTheme(theme);
+                applyTheme();
                 closeThemeSelector();
+            }
+
+            // utils
+            function applyTheme() {
+                updateThemeClass();
+                updateSelectedTheme();
+                updateThemeOptions();
             }
 
             function setTheme(theme) {
@@ -65,10 +72,6 @@
                         localStorage.removeItem("theme");
                         break;
                 }
-
-                updateThemeClass();
-                updateSelectedTheme();
-                updateThemeOptions();
             }
 
             function updateThemeClass() {
@@ -103,7 +106,7 @@
             }
 
             function updateThemeOptions() {
-                removeAccent();
+                removeAccents();
                 addAccent();
             }
 
@@ -113,7 +116,7 @@
                 $text.classList.replace("text-neutral-300", "text-accent");
             }
 
-            function removeAccent() {
+            function removeAccents() {
                 themes
                     .filter(t => t !== getTheme())
                     .forEach(theme => {
