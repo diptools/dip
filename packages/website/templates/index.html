@@ -39,6 +39,7 @@
 
             function closeMenu() {
                 document.getElementById("menu").classList.replace("flex", "hidden");
+                closeThemeSelector();
             }
 
             function openThemeSelector() {
@@ -87,22 +88,48 @@
             }
 
             function updateSelectedTheme() {
-                hideElements();
-                showElement();
-            }
+                const $el = document.getElementById("theme-selected");
+                const theme = getTheme();
+                const div = document.createElement("div");
+                div.id = "theme-selected";
+                div.className = "flex items-center justify-between w-full";
 
-            function showElement() {
-                const $el = document.getElementById(`theme-selected-${getTheme()}`);
-                $el.classList.replace("hidden", "flex");
-            }
-
-            function hideElements($els) {
-                themes
-                    .filter(t => t !== getTheme())
-                    .forEach(theme => {
-                        const $el = document.getElementById(`theme-selected-${theme}`);
-                        $el.classList.replace("flex", "hidden");
-                    });
+                switch (theme) {
+                    case "light":
+                        div.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="mr-4 text-neutral-600">
+                                    {% include "icons/sun.html" %}
+                                </div>
+                                <div>Light</div>
+                            </div>
+                            <div class="text-neutral-600">{% include "icons/chevron-down.html" %}</div>
+                        `;
+                        break;
+                    case "dark":
+                        div.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="mr-4 text-neutral-600">
+                                    {% include "icons/moon.html" %}
+                                </div>
+                                <div>Dark</div>
+                            </div>
+                            <div class="text-neutral-600">{% include "icons/chevron-down.html" %}</div>
+                        `;
+                        break;
+                    case "system":
+                        div.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="mr-4 text-neutral-600">
+                                    {% include "icons/desktop-computer.html" %}
+                                </div>
+                                <div>System</div>
+                            </div>
+                            <div class="text-neutral-600">{% include "icons/chevron-down.html" %}</div>
+                        `;
+                        break;
+                }
+                $el.parentNode.replaceChild(div, $el);
             }
 
             function updateThemeOptions() {

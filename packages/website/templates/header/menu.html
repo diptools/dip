@@ -20,28 +20,7 @@
             <div class="text-neutral-600">Switch theme</div>
 
             <button class="w-40 border border-neutral-600 rounded p-4 flex items-center justify-between" onclick="openThemeSelector()">
-                <div id="theme-selected-light" class="hidden items-center">
-                    <div class="mr-4 text-neutral-600">
-                        {% include "icons/sun.html" %}
-                    </div>
-                    <div>Light</div>
-                </div>
-
-                <div id="theme-selected-dark" class="hidden items-center">
-                    <div class="mr-4 text-neutral-600">
-                        {% include "icons/moon.html" %}
-                    </div>
-                    <div>Dark</div>
-                </div>
-
-                <div id="theme-selected-system" class="hidden items-center">
-                    <div class="mr-4 text-neutral-600">
-                        {% include "icons/desktop-computer.html" %}
-                    </div>
-                    <div>System</div>
-                </div>
-
-                <div class="text-neutral-600">{% include "icons/chevron-down.html" %}</div>
+                <div id="theme-selected" />
             </button>
 
             <ul id="theme-options" class="absolute w-40 border border-neutral-600 rounded hidden flex-col top-4 right-0 bg-background">
