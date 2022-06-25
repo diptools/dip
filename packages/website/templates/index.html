@@ -74,7 +74,7 @@
                     </li>
                 `;
 
-                $el.parentNode.replaceChild(ul, $el);
+                $el.replaceWith(ul);
 
                 updateThemeOptions();
             }
@@ -84,7 +84,7 @@
                 const ul = document.createElement("ul");
                 ul.id = "theme-options";
                 ul.className = "hidden";
-                $el.parentNode.replaceChild(ul, $el);
+                $el.replaceWith(ul);
             }
 
             function onSelectTheme(theme) {
@@ -165,7 +165,7 @@
                         `;
                         break;
                 }
-                $el.parentNode.replaceChild(div, $el);
+                $el.replaceWith(div);
             }
 
             function updateThemeOptions() {
