@@ -43,11 +43,48 @@
             }
 
             function openThemeSelector() {
-                document.getElementById("theme-options").classList.replace("hidden", "flex");
+                const $el = document.getElementById("theme-options");
+                const ul = document.createElement("ul");
+                ul.id = "theme-options";
+                ul.className = "absolute w-40 border border-neutral-600 rounded flex flex-col top-4 right-0 bg-background";
+                ul.innerHTML = `
+                    <li>
+                        <button id="theme-options-light" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('light')">
+                            <div class="mr-4 text-neutral-600">
+                                {% include "icons/sun.html" %}
+                            </div>
+                            <div class="text-neutral-300">Light</div>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="theme-options-dark" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('dark')">
+                            <div class="mr-4 text-neutral-600">
+                                {% include "icons/moon.html" %}
+                            </div>
+                            <div class="text-neutral-300">Dark</div>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="theme-options-system" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('system')">
+                            <div class="mr-4 text-neutral-600">
+                                {% include "icons/desktop-computer.html" %}
+                            </div>
+                            <div class="text-neutral-300">System</div>
+                        </button>
+                    </li>
+                `;
+
+                $el.parentNode.replaceChild(ul, $el);
+
+                updateThemeOptions();
             }
 
             function closeThemeSelector() {
-                document.getElementById("theme-options").classList.replace("flex", "hidden");
+                const $el = document.getElementById("theme-options");
+                const ul = document.createElement("ul");
+                ul.id = "theme-options";
+                ul.className = "hidden";
+                $el.parentNode.replaceChild(ul, $el);
             }
 
             function onSelectTheme(theme) {
@@ -60,7 +97,6 @@
             function applyTheme() {
                 updateThemeClass();
                 updateSelectedTheme();
-                updateThemeOptions();
             }
 
             function setTheme(theme) {
