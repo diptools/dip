@@ -6,13 +6,10 @@
 
 {% if meta.path == "/docs/getting-started/installation/" %}
   {% set docs_style = "text-neutral-50 pointer-events-none" %}
-  {% set tutorial_style = "" %}
 {% elif meta.path == "/docs/tutorial/" %}
   {% set docs_style = "" %}
-  {% set tutorial_style = "text-neutral-50 pointer-events-none" %}
 {% else %}
   {% set docs_style = "text-neutral-300" %}
-  {% set tutorial_style = "text-neutral-300" %}
 {% endif %}
 
 <header class="px-4 py-2 flex items-center justify-between">
@@ -43,8 +40,8 @@
                     Docs
                 </a>
 
-                <a href="{{ get_url(path = "@/docs/tutorial.md") }}" alt="Tutorial Page" class="flex justify-center items-center p-4 {{ tutorial_style }}">
-                    Tutorial
+                <a href="https://docs.rs/bevy_dioxus" alt="API Reference" target="_blank" rel="noopener noreferrer" class="flex justify-center items-center p-4">
+                    API Reference
                 </a>
             </div>
 
