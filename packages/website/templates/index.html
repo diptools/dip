@@ -32,6 +32,14 @@
 
             applyTheme();
 
+            const mediaQuery = window.matchMedia("(min-width: 768px)");
+
+            mediaQuery.addListener((e) => {
+                if (e.matches) {
+                    closeMenu();
+                }
+            });
+
             // handlers
             function openMenu() {
                 document.getElementById("menu").classList.replace("hidden", "flex");
@@ -39,17 +47,17 @@
 
             function closeMenu() {
                 document.getElementById("menu").classList.replace("flex", "hidden");
-                closeThemeSelector();
+                closeThemeOptions();
             }
 
-            function openThemeSelector() {
-                openDesktopThemeSelector();
-                openMobileThemeSelector();
+            function openThemeOptions() {
+                openDesktopThemeOptions();
+                openMobileThemeOptions();
 
                 updateThemeOptions();
             }
 
-            function openMobileThemeSelector() {
+            function openMobileThemeOptions() {
                 const $el = document.getElementById("theme-options");
                 const ul = document.createElement("ul");
                 ul.id = "theme-options";
@@ -85,7 +93,7 @@
                 $el.replaceWith(ul);
             }
 
-            function openDesktopThemeSelector() {
+            function openDesktopThemeOptions() {
                 const $el = document.getElementById("md:theme-options");
                 const ul = document.createElement("ul");
                 ul.id = "md:theme-options";
@@ -123,7 +131,7 @@
                 $el.replaceWith(ul);
             }
 
-            function closeThemeSelector() {
+            function closeThemeOptions() {
                 hideThemeOptions("theme-options");
                 hideThemeOptions("md:theme-options");
             }
@@ -137,7 +145,7 @@
             function onSelectTheme(theme) {
                 setTheme(theme);
                 applyTheme();
-                closeThemeSelector();
+                closeThemeOptions();
             }
 
             // utils
@@ -231,7 +239,7 @@
                         div.innerHTML = `
                             <button
                                 class="w-10 h-10 flex justify-center items-center mx-2 text-accent"
-                                onclick="openThemeSelector()"
+                                onclick="openThemeOptions()"
                             >
                                 {% include "icons/sun.html" %}
                             </button>
@@ -241,7 +249,7 @@
                         div.innerHTML = `
                             <button
                                 class="w-10 h-10 flex justify-center items-center mx-2 text-accent"
-                                onclick="openThemeSelector()"
+                                onclick="openThemeOptions()"
                             >
                                 {% include "icons/moon.html" %}
                             </button>
@@ -251,7 +259,7 @@
                         div.innerHTML = `
                             <button
                                 class="w-10 h-10 flex justify-center items-center mx-2"
-                                onclick="openThemeSelector()"
+                                onclick="openThemeOptions()"
                             >
                                 {% include "icons/sun.html" %}
                             </button>
@@ -262,7 +270,7 @@
                         div.innerHTML = `
                             <button
                                 class="w-10 h-10 flex justify-center items-center mx-2"
-                                onclick="openThemeSelector()"
+                                onclick="openThemeOptions()"
                             >
                                 {% include "icons/moon.html" %}
                             </button>
