@@ -101,7 +101,7 @@
 
                 ul.innerHTML = `
                     <li>
-                        <button id="theme-options-light" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('light')">
+                        <button id="md:theme-options-light" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('light')">
                             <div class="mr-4 text-neutral-600">
                                 {% include "icons/sun.html" %}
                             </div>
@@ -110,7 +110,7 @@
                     </li>
 
                     <li>
-                        <button id="theme-options-dark" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('dark')">
+                        <button id="md:theme-options-dark" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('dark')">
                             <div class="mr-4 text-neutral-600">
                                 {% include "icons/moon.html" %}
                             </div>
@@ -119,7 +119,7 @@
                     </li>
 
                     <li>
-                        <button id="theme-options-system" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('system')">
+                        <button id="md:theme-options-system" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('system')">
                             <div class="mr-4 text-neutral-600">
                                 {% include "icons/desktop-computer.html" %}
                             </div>
@@ -283,19 +283,21 @@
             function updateThemeOptions() {
                 removeAccents();
                 addAccent();
+                removeAccents("md:");
+                addAccent("md:");
             }
 
-            function addAccent() {
-                const [$icon, $text] = document.getElementById(`theme-options-${getTheme(false)}`).getElementsByTagName("div");
+            function addAccent(prefix = "") {
+                const [$icon, $text] = document.getElementById(`${prefix}theme-options-${getTheme(false)}`).getElementsByTagName("div");
                 $icon.classList.replace("text-neutral-600", "text-accent");
                 $text.classList.replace("text-neutral-300", "text-accent");
             }
 
-            function removeAccents() {
+            function removeAccents(prefix = "") {
                 themes
                     .filter(t => t !== getTheme(false))
                     .forEach(theme => {
-                        const [$icon, $text] = document.getElementById(`theme-options-${theme}`).getElementsByTagName("div");
+                        const [$icon, $text] = document.getElementById(`${prefix}theme-options-${theme}`).getElementsByTagName("div");
                         $icon.classList.replace("text-accent", "text-neutral-600");
                         $text.classList.replace("text-accent", "text-neutral-300");
                     });
