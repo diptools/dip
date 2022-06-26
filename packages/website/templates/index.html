@@ -45,6 +45,8 @@
             function openThemeSelector() {
                 openDesktopThemeSelector();
                 openMobileThemeSelector();
+
+                updateThemeOptions();
             }
 
             function openMobileThemeSelector() {
@@ -81,8 +83,6 @@
                 `;
 
                 $el.replaceWith(ul);
-
-                updateThemeOptions();
             }
 
             function openDesktopThemeSelector() {
@@ -121,8 +121,6 @@
                 `;
 
                 $el.replaceWith(ul);
-
-                /* updateThemeOptions(); */
             }
 
             function closeThemeSelector() {
