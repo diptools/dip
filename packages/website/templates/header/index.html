@@ -1,3 +1,20 @@
+{% if page %}
+    {% set meta = page %}
+{% else %}
+    {% set meta = section %}
+{% endif %}
+
+{% if meta.path == "/docs/getting-started/installation/" %}
+  {% set docs_style = "text-neutral-50 pointer-events-none" %}
+  {% set tutorial_style = "" %}
+{% elif meta.path == "/docs/tutorial/" %}
+  {% set docs_style = "" %}
+  {% set tutorial_style = "text-neutral-50 pointer-events-none" %}
+{% else %}
+  {% set docs_style = "text-neutral-300" %}
+  {% set tutorial_style = "text-neutral-300" %}
+{% endif %}
+
 <header class="px-4 py-2 flex items-center justify-between">
     <div class="flex items-center">
         <a href="/" alt="Home Page" class="mr-2 flex items-center md:mr-4">
@@ -21,12 +38,27 @@
         </div>
 
         <div class="hidden md:flex items-center">
-            <button id="desktop-theme-icon" class="w-10 h-10 flex justify-center items-center">
-                {% include "icons/sun.html" %}
-            </button>
-            <a href="https://github.com/JunichiSugiura/bevy_dioxus" alt="GitHub Page" target="_blank" rel="noopener noreferrer" class="w-10 h-10 flex justify-center items-center text-neutral-300">
-                {% include "icons/github.html" %}
-            </a>
+            <div class="flex items-center mr-8 text-neutral-300">
+                <a href="{{ get_url(path = "@/docs/getting-started/installation.md") }}" alt="Docs Page" class="flex justify-center items-center p-4 {{ docs_style }}">
+                    Docs
+                </a>
+
+                <a href="{{ get_url(path = "@/docs/tutorial.md") }}" alt="Tutorial Page" class="flex justify-center items-center p-4 {{ tutorial_style }}">
+                    Tutorial
+                </a>
+            </div>
+
+            <div class="border-l border-neutral-600" />
+
+            <div class="flex items-center pl-8">
+                <button id="desktop-theme-icon" class="w-10 h-10 flex justify-center items-center mx-2">
+                    {% include "icons/sun.html" %}
+                </button>
+
+                <a href="https://github.com/JunichiSugiura/bevy_dioxus" alt="GitHub Page" target="_blank" rel="noopener noreferrer" class="w-10 h-10 flex justify-center items-center text-neutral-300 mx-2">
+                    {% include "icons/github.html" %}
+                </a>
+            </div>
         </div>
     </div>
 </header>
