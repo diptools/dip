@@ -2,29 +2,25 @@
 <html lang="en">
     {% include "head.html" %}
 
-    <body class="bg-background text-text">
-        <div>
+    <body class="bg-background text-text h-screen w-screen">
             {% include "header/index.html" %}
             {% include "header/menu.html" %}
 
             {% block breadcrumb %}
             {% endblock breadcrumb %}
 
-            {% block content %}
-                <ul class="flex justify-center">
-                    <a href="{{ get_url(path = "@/docs/_index.md") }}" alt="Docs Page" class="underline text-accent">
-                        <li>Docs</li>
-                    </a>
-                    <p class="px-4">/</p>
-                    <a href="{{ get_url(path = "@/todo.md") }}" alt="Todo Page" class="underline text-accent">
-                        <li>Todo</li>
-                    </a>
-                    <p class="px-4">/</p>
-                    <a href="{{ get_url(path = "@/debug/_index.md") }}" alt="Debug Page (dev only)" class="underline text-accent">
-                        <li>Debug</li>
-                    </a>
-                </li>
-            {% endblock content %}
+            <div class="flex m-h-full">
+                {% block sidebar %}
+                {% endblock sidebar %}
+
+                {% block content %}
+                    <ul class="flex justify-center">
+                        <a href="{{ get_url(path = "@/docs/_index.md") }}" alt="Docs Page" class="underline text-accent">
+                            <li>Docs</li>
+                        </a>
+                    </ul>
+                {% endblock content %}
+            </div>
         </div>
 
         <script>

@@ -1,0 +1,34 @@
+<div class="hidden md:flex flex-col p-8 text-neutral-300 text-sm w-72">
+    <button class="p-2 border border-neutral-50 flex items-center rounded">
+        <div class="mr-4">
+            {% include "icons/search.html" %}
+        </div>
+        <div>Search</div>
+    </button>
+
+    <div class="overflow-y-scroll">
+        <ul class="flex flex-col my-4 py-8 border-b border-b-neutral-800">
+            <li><a>Crates.io</a></li>
+            <li><a>API Reference</a></li>
+            <li><a>Bevy</a></li>
+            <li><a>Dioxus</a></li>
+        </ul>
+        
+        <ul>
+            {% set section = get_section(path="docs/_index.md") %}
+            {% for p in section.subsections %}
+                {% set subsection = get_section(path=p) %}
+                <li>
+                    <div class="text-base text-text py-4">{{ subsection.title }}</div>
+                    <ul>
+                        {% for page in subsection.pages %}
+                            <li class="p-4 border-l border-l-neutral-800 {% if current_path == page.path %}border-l-accent text-accent{% endif %}">
+                                <a href="{{ page.permalink }}" class="{% if current_path == page.path %}pointer-events-none{% endif %}">{{page.title}}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
