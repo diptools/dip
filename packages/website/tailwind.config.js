@@ -24,8 +24,14 @@ module.exports = {
       mono: defaultTheme.fontFamily.mono,
     },
     screens: {
-      "md": "768px",
-      "lg": "1024px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px"
+    },
+    extend: {
+      maxWidth: theme => ({
+        "screen-xl": theme("screens.xl"),
+      })
     }
   },
   plugins: [
