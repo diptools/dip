@@ -2,14 +2,14 @@
 <html lang="en">
     {% include "head.html" %}
 
-    <body class="bg-background text-text h-screen w-screen">
+    <body class="bg-background text-text">
             {% include "header/index.html" %}
             {% include "header/menu.html" %}
 
             {% block breadcrumb %}
             {% endblock breadcrumb %}
 
-            <div class="flex m-h-full">
+            <div class="flex">
                 {% block sidebar %}
                 {% endblock sidebar %}
 
