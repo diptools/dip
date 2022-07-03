@@ -48,37 +48,3 @@
         </li>
     {% endfor %}
 </ul>
-
-<ul>
-    {% set section = get_section(path="docs/_index.md") %}
-    {% for p in section.subsections %}
-        {% set subsection = get_section(path=p) %}
-        <li>
-            <div class="text-base text-text py-6">{{ subsection.title }}</div>
-            <ul>
-                {% for page in subsection.pages %}
-                    <li class="py-2 px-4 border-l border-l-neutral-800 {% if current_path == page.path %}border-l-accent text-accent{% endif %}">
-                        <a href="{{ page.permalink }}" class="{% if current_path == page.path %}pointer-events-none{% endif %}">{{page.title}}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </li>
-    {% endfor %}
-</ul>
-
-<ul>
-    {% set section = get_section(path="docs/_index.md") %}
-    {% for p in section.subsections %}
-        {% set subsection = get_section(path=p) %}
-        <li>
-            <div class="text-base text-text py-6">{{ subsection.title }}</div>
-            <ul>
-                {% for page in subsection.pages %}
-                    <li class="py-2 px-4 border-l border-l-neutral-800 {% if current_path == page.path %}border-l-accent text-accent{% endif %}">
-                        <a href="{{ page.permalink }}" class="{% if current_path == page.path %}pointer-events-none{% endif %}">{{page.title}}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </li>
-    {% endfor %}
-</ul>

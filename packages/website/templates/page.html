@@ -2,36 +2,12 @@
 
 {% block content %}
     <div class="px-4 py-6 md:pl-[19.5rem]">
-        <article class="prose max-w-full w-full prose-headings:text-text prose-headings:font-medium prose-a:text-accent prose-blockquote:border-accent prose-blockquote:border-l prose-blockquote:text-text text-text">
+        <article class="prose prose-headings:text-text prose-headings:font-medium prose-a:text-accent prose-blockquote:border-accent prose-blockquote:border-l prose-blockquote:text-text text-text">
             <h1 class="text-3xl">{{ page.title }}</h1>
 
             {{ page.content | safe }}
         </article>
 
-        <footer class="w-full flex justify-between text-sm py-4">
-            <a class="flex items-center hover:text-accent">
-                {% if page.lighter %}
-                    <div class="pr-4">
-                        {% include "icons/chevron-left.html" %}
-                    </div>
-
-                    <div class="flex items-center href="{{ page.lighter.path }}">
-                        {{ page.lighter.title }}
-                    </div>
-                {% endif %}
-            </a>
-
-            <a class="flex items-center">
-                {% if page.heavier %}
-                    <div class="flex items-center href="{{ page.heavier.path }}">
-                        {{ page.heavier.title }}
-                    </div>
-
-                    <div class="pl-4">
-                        {% include "icons/chevron-right.html" %}
-                    </div>
-                {% endif %}
-            </a>
-        </footer>
+        {% include "pagenation.html" %}
     </div>
 {% endblock content %}
