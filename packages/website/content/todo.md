@@ -27,7 +27,7 @@ draft = true
 - [x] Mobile Menu
 - [x] Mobile Breadcrumb
 - [x] Content
-- [x] Pagenation
+- [x] Pagination
 - [x] Theme Switch
 - [ ] Search
 - [ ] Page Content (On this page)
