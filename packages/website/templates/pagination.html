@@ -1,0 +1,29 @@
+<footer class="flex justify-between text-sm text-neutral-300 py-4 max-w-[74ch]">
+    <div>
+        {% if page.lighter %}
+            <a href="{{ page.lighter.path }}" class="flex items-center hover:text-text">
+                <div class="pr-4">
+                    {% include "icons/chevron-left.html" %}
+                </div>
+
+                <div class="flex items-center">
+                    {{ page.lighter.title }}
+                </div>
+            </a>
+        {% endif %}
+    </div>
+
+    <div>
+        {% if page.heavier %}
+            <a href="{{ page.heavier.path }}" class="flex items-center hover:text-text">
+                <div class="flex items-center">
+                    {{ page.heavier.title }}
+                </div>
+
+                <div class="pl-4">
+                    {% include "icons/chevron-right.html" %}
+                </div>
+            </a>
+        {% endif %}
+    </div>
+</footer>

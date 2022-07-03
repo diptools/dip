@@ -1,0 +1,43 @@
+{% extends "index.html" %}
+
+{% block content %}
+    <div class="text-text px-4 py-6 md:pl-[19.5rem]"> 
+        <h1 class="text-3xl mb-4">{{ page.title }}</h1>
+
+        <div class="flex flex-1">
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/chevron-down.html" %}
+            </div>
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/chevron-left.html" %}
+            </div>
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/chevron-right.html" %}
+            </div>
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/desktop-computer.html" %}
+            </div>
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/document-duplicate.html" %}
+            </div>
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/dots-vertical.html" %}
+            </div>
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/menu.html" %}
+            </div>
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/moon.html" %}
+            </div>
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/search.html" %}
+            </div>
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/sun.html" %}
+            </div>
+            <div class="flex w-8 h-8 items-center justify-center">
+                {% include "icons/x.html" %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

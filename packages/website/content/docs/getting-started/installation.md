@@ -1,9 +1,4 @@
 +++
 title = "Installation"
+weight = 1
 +++
-
-## H2 Installation
-
-```sh
-cargo add bevy_dioxus
-```

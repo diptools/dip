@@ -101,7 +101,9 @@ where
     Props: Send + Sync + Clone + 'static,
 {
     /// Initialize DioxusPlugin with root component and channel types
-    /// ```
+    ///
+    /// ```no_run
+    /// use bevy::prelude::*;
     /// use bevy_dioxus::desktop::prelude::*;
     /// use dioxus::prelude::*;
     ///
@@ -117,7 +119,7 @@ where
     ///
     /// fn Root(cx: Scope) -> Element {
     ///    cx.render(rsx! {
-    ///    h1 { "<Root /> Component" }
+    ///    h1 { "Hello, World !" }
     ///        })
     /// }
     /// ```

@@ -32,3 +32,7 @@ serde_repr = "0.1"
 tokio = { version = "1.18", features = ["rt-multi-thread", "macros"], default-features = false }
 webbrowser = "0.5"
 wry = "0.16"
+
+[dev-dependencies]
+bevy_dioxus = { version = "0.1", path = "../.." }
+dioxus = "0.2"

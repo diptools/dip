@@ -1,0 +1,28 @@
+{% if page %}
+    {% set meta = page %}
+{% else %}
+    {% set meta = section %}
+{% endif %}
+
+<div class="md:hidden bg-neutral-900 w-screen h-14 flex max-w-screen-xl items-center justify-between px-4 bg-red-400">
+    <ul class="text-sm flex justify-center items-center">
+        {% for a in meta.ancestors %}
+            {% if loop.index != 1 %}
+                {% set a_meta = get_section(path=a, metadata_only=true) %}
+
+                <li class="flex items-center text-neutral-500">
+                    <a class=" hover:text-text" href="{{ a_meta.permalink }}" alt="{{ a_meta.title }}">
+                        {{ a_meta.title }}
+                    </a>
+                    <div class="p-2">/</div>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        <li>{{ meta.title }}</li>
+    </ul>
+
+    <button class="w-10 h-10 flex justify-center items-center" onclick="openNav()">
+        {% include "icons/menu.html" %}
+    </button>
+</div>
