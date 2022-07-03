@@ -23,7 +23,7 @@
     .dark {
         --color-accent:      186 162 253;
         --color-text:        255 255 255;
-        --color-background:   26  26  26;
+        --color-background:    0   0   0;
 
         --color-neutral-50:  250 250 250;
         --color-neutral-100: 242 242 242;
