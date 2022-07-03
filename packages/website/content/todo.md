@@ -1,5 +1,6 @@
 +++
 title = "Todo"
+draft = true
 +++
 
 ## Content
@@ -19,8 +20,15 @@ title = "Todo"
 - [x] Font family 
 - [x] SVG icons
 
-## Component
-- [ ] Head
-- [ ] Header
-- [ ] Nav (sidebar)
-- [ ] Content
+## Template
+- [x] Head
+- [x] Header
+- [x] Nav
+- [x] Mobile Menu
+- [x] Mobile Breadcrumb
+- [x] Content
+- [x] Pagenation
+- [x] Theme Switch
+- [ ] Search
+- [ ] Page Content (On this page)
+- [ ] Landing Page
