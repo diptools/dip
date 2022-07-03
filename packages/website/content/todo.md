@@ -31,4 +31,5 @@ draft = true
 - [x] Theme Switch
 - [ ] Search
 - [ ] Page Content (On this page)
+- [ ] Link to each content header
 - [ ] Landing Page
