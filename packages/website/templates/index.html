@@ -2,18 +2,15 @@
 <html lang="en">
     {% include "head.html" %}
 
-    <body class="bg-background text-text flex items-center flex-col">
-        <div class="w-full max-w-screen-xl max-auto px-4 md:px-8 flex flex-1 flex-col">
-            {% include "header/index.html" %}
-            {% include "header/menu.html" %}
+    <body class="h-screen w-screen bg-background text-text flex items-center flex-col">
+        {% include "header/index.html" %}
 
-            {% block breadcrumb %}
-            {% endblock breadcrumb %}
+        <div class="w-screen h-full max-w-screen-xl pt-32 md:pt-14 flex flex-1">
+            <nav class="hidden md:block w-72 h-full px-8 fixed overflow-y-scroll">
+                {% include "sidebar.html" %}
+            </nav>
 
-            <div class="flex">
-                {% block sidebar %}
-                {% endblock sidebar %}
-
+            <div class="md:pl-72">
                 {% block content %}
                     <ul class="flex justify-center">
                         <a href="{{ get_url(path = "@/docs/_index.md") }}" alt="Docs Page" class="underline text-accent">
