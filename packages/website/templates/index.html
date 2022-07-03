@@ -6,8 +6,8 @@
         {% include "header/index.html" %}
 
         <div class="w-screen h-full max-w-screen-xl pt-32 md:pt-14 flex flex-1">
-            <nav class="hidden md:block w-72 h-full px-8 fixed overflow-y-scroll">
-                {% include "sidebar.html" %}
+            <nav id="nav" class="hidden md:block">
+                {% include "nav/index.html" %}
             </nav>
 
             <div class="md:pl-72">
@@ -30,9 +30,21 @@
 
             mediaQuery.addListener((e) => {
                 if (e.matches) {
+                    closeNav();
                     closeMenu();
                 }
             });
+
+            // handlers
+            function openNav() {
+                document.getElementById("nav").classList.replace("hidden", "block");
+                document.body.classList.add("overflow-hidden");
+            }
+
+            function closeNav() {
+                document.getElementById("nav").classList.replace("block", "hidden");
+                document.body.classList.remove("overflow-hidden");
+            }
 
             // handlers
             function openMenu() {

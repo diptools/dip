@@ -4,16 +4,14 @@
     {% set meta = section %}
 {% endif %}
 
-{% if meta.path == "/docs/getting-started/installation/" %}
+{% if "/docs/" in current_path %}
   {% set docs_style = "text-text pointer-events-none" %}
-{% elif meta.path == "/docs/tutorial/" %}
-  {% set docs_style = "" %}
 {% else %}
   {% set docs_style = "text-neutral-300" %}
 {% endif %}
 
 <header class="fixed top-0 left-0 w-screen flex flex-col items-center bg-background">
-    <div class="flex items-center justify-between w-screen h-14 max-w-screen-xl px-8">
+    <div class="flex items-center justify-between w-screen h-14 max-w-screen-xl px-4 md:px-8">
         <div class="flex items-center">
             <a href="/" alt="Home Page" class="mr-2 flex items-center md:mr-4">
                 {% include "logo.html" %}
