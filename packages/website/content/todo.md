@@ -33,3 +33,5 @@ draft = true
 - [ ] Page Content (On this page)
 - [ ] Link to each content header
 - [ ] Landing Page
+- [ ] Make it as Zola theme
+- [ ] External link icons
