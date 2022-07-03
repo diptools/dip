@@ -1,16 +1,16 @@
 <div class="fixed top-0 left-0 w-screen h-screen backdrop-blur md:backdrop-blur-none md:top-auto md:left-auto" onclick="closeNav()">
     <div class="w-72 h-full overflow-y-scroll bg-neutral-900 md:bg-transparent">
-        <div class="flex flex-col pt-4 md:pt-8 text-neutral-300 text-sm">
+        <div class="flex flex-col text-neutral-300 text-sm">
             <button class="md:hidden self-end w-10 h-10 flex items-center justify-center mr-4" onclick="closeNav()" >
                 {% include "icons/x.html" %}
             </button>
 
-            <button class="hidden md:flex p-2 mx-8 border border-neutral-50 items-center rounded" onclick="">
+            <!-- button class="hidden md:flex p-2 mx-8 md:mt-8 border border-neutral-50 items-center rounded" onclick="">
                 <div class="mr-4">
                     {% include "icons/search.html" %}
                 </div>
                 <div>Search</div>
-            </button>
+            </button -->
             
             <div class="px-8">
                 {% include "nav/sections.html" %}
