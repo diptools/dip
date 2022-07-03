@@ -1,11 +1,13 @@
 {% extends "index.html" %}
 
 {% block content %}
-    <div class="content">
-        <div class="content-header">
-        <h1>{{ page.title }}</h1>
-        <article class="prose lg:prose-xl">
-        {{ page.content | safe }}
+    <div class="px-4 py-6 md:pl-[19.5rem]">
+        <article class="prose prose-headings:text-text prose-headings:font-medium prose-a:text-accent prose-blockquote:border-accent prose-blockquote:border-l prose-blockquote:text-text text-text">
+            <h1 class="text-3xl">{{ page.title }}</h1>
+
+            {{ page.content | safe }}
         </article>
+
+        {% include "pagination.html" %}
     </div>
 {% endblock content %}

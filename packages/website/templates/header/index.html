@@ -1,0 +1,66 @@
+{% if page %}
+    {% set meta = page %}
+{% else %}
+    {% set meta = section %}
+{% endif %}
+
+{% if "/docs/" in current_path %}
+  {% set docs_style = "text-text pointer-events-none" %}
+{% else %}
+  {% set docs_style = "text-neutral-300" %}
+{% endif %}
+
+<header class="fixed top-0 left-0 w-screen flex flex-col items-center bg-background md:z-10">
+    <div class="flex items-center justify-between w-screen h-14 max-w-screen-xl px-4 md:px-8">
+        <div class="flex items-center">
+            <a href="/" alt="Home Page" class="mr-2 flex items-center md:mr-4">
+                {% include "logo.html" %}
+            </a>
+            <div class="text-neutral-400 flex items-center">
+                <div class="pr-1">
+                    {{ config.extra.version }}
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="md:hidden flex items-center">
+                <!-- <button class="w-10 h-10 flex justify-center items-center"> -->
+                <!--     {% include "icons/search.html" %} -->
+                <!-- </button> -->
+                <button class="w-10 h-10 flex justify-center items-center" onclick="openMenu()">
+                    {% include "icons/dots-vertical.html" %}
+                </button>
+            </div>
+
+            <div class="hidden md:flex items-center">
+                <div class="flex items-center mr-8 text-neutral-300">
+                    <a href="{{ get_url(path = "@/docs/getting-started/installation.md") }}" alt="Docs Page" class="flex justify-center items-center p-4 {{ docs_style }} hover:text-text">
+                        Docs
+                    </a>
+
+                    <a href="https://docs.rs/bevy_dioxus" alt="API Reference" target="_blank" rel="noopener noreferrer" class="flex justify-center items-center p-4 hover:text-text">
+                        API Reference
+                    </a>
+                </div>
+
+                <div class="h-8 border-l border-neutral-600"></div>
+
+                <div class="flex items-center pl-8">
+                    <div id="md:theme-selected"></div>
+                    <div id="md:theme-options"></div>
+
+                    <a href="https://github.com/JunichiSugiura/bevy_dioxus" alt="GitHub Page" target="_blank" rel="noopener noreferrer" class="w-10 h-10 flex justify-center items-center text-neutral-300 mx-2 hover:text-text">
+                        {% include "icons/github.html" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include "header/menu.html" %}
+
+    {% if "/docs/" in current_path %}
+        {% include "breadcrumb.html" %}
+    {% endif %}
+</header>

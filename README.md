@@ -118,7 +118,7 @@ cargo run --example counter
 npm i
 
 # Serve locally
-zola -r packages/website serve
+zola -r packages/website serve --drafts
 
 # Watch Tailwind CSS
 npm run watch
