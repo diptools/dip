@@ -1,25 +1,27 @@
 <div id="menu" class="absolute w-screen h-screen hidden flex-col items-end top-0 backdrop-blur" onclick="closeMenu()">
-    <div class="w-screen max-w-xs bg-background border border-neutral-600 rounded mt-16 mr-4 flex flex-col">
-        <button class="absolute right-4 w-10 h-10 flex justify-center items-center text-neutral-600" onclick="closeMenu()">
+    <div class="w-screen max-w-xs bg-background border border-neutral-600 rounded mt-16 mr-4 flex flex-col" onclick="event.stopPropagation()">
+        <button class="absolute right-4 w-10 h-10 flex justify-center items-center text-neutral-600 hover:text-text" onclick="closeMenu()">
             {% include "icons/x.html" %}
         </button>
 
-        <ul>
+        <ul class="p-4 text-neutral-600">
             <li class="p-4">
-                <a class="text-neutral-300" href="{{ get_url(path = "@/docs/_index.md") }}">Docs</a>
+                <a class="text-neutral-300 hover:text-text" href="{{ get_url(path = "@/docs/_index.md") }}">Docs</a>
             </li>
-            <li class="p-4 text-neutral-600">
-                <a href="https://docs.rs/bevy_dioxus" alt="API Reference" target="_blank" rel="noopener noreferrer">API Reference</a>
+
+            <li class="p-4">
+                <a class="hover:text-text" href="https://docs.rs/bevy_dioxus" alt="API Reference" target="_blank" rel="noopener noreferrer">API Reference</a>
             </li>
-            <li class="p-4 pb-8 text-neutral-600">
-                <a href="https://github.com/JunichiSugiura/bevy_dioxus" alt="GitHub Page" target="_blank" rel="noopener noreferrer">GitHub</a>
+
+            <li class="p-4 mb-4 hover:text-text">
+                <a class="hover:text-text" href="https://github.com/JunichiSugiura/bevy_dioxus" alt="GitHub Page" target="_blank" rel="noopener noreferrer">GitHub</a>
             </li>
         </ul>
 
         <div class="mx-4 py-4 border-t border-neutral-600 flex justify-between items-center relative">
-            <div class="text-neutral-600">Switch theme</div>
+            <div class="text-neutral-600 hover:text-text">Switch theme</div>
 
-            <button class="w-40 border border-neutral-600 rounded p-4 flex items-center justify-between" onclick="openThemeOptions()">
+            <button class="w-40 border border-neutral-600 rounded p-4 flex items-center justify-between hover:text-text" onclick="openThemeOptions()">
                 <div id="theme-selected" />
             </button>
 

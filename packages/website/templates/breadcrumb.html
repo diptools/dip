@@ -10,11 +10,11 @@
             {% if loop.index != 1 %}
                 {% set a_meta = get_section(path=a, metadata_only=true) %}
 
-                <li class="flex items-center">
-                    <a class="text-neutral-500" href="{{ a_meta.permalink }}" alt="{{ a_meta.title }}">
+                <li class="flex items-center text-neutral-500">
+                    <a class=" hover:text-text" href="{{ a_meta.permalink }}" alt="{{ a_meta.title }}">
                         {{ a_meta.title }}
                     </a>
-                    <div class="p-2 text-neutral-500">/</div>
+                    <div class="p-2">/</div>
                 </li>
             {% endif %}
         {% endfor %}
