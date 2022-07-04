@@ -8,7 +8,7 @@
     </li>
 
     <li>
-        <a href="https://docs.rs/bevy_dioxus" alt="API Reference.io" target="_blank" rel="noopener noreferrer" class="flex py-2 hover:text-text">
+        <a href="https://docs.rs/bevy_dioxus" alt="API Reference" target="_blank" rel="noopener noreferrer" class="flex py-2 hover:text-text">
             <div class="mr-4 w-6 h-6 bg-accent opacity-20 rounded"></div>
 
             <div>API Reference</div>
@@ -16,7 +16,7 @@
     </li>
 
     <li>
-        <a href="https://bevyengine.org/" alt="Bevy" target="_blank" rel="noopener noreferrer" class="flex py-2 hover:text-text">
+        <a href="https://docs.rs/bevy" alt="Bevy API Reference" target="_blank" rel="noopener noreferrer" class="flex py-2 hover:text-text">
             <div class="mr-4 w-6 h-6 bg-accent opacity-20 rounded"></div>
 
             <div>Bevy</div>
@@ -24,10 +24,10 @@
     </li>
 
     <li>
-        <a href="https://dioxuslabs.com/" alt="Dioxus" target="_blank" rel="noopener noreferrer" class="flex py-2 hover:text-text">
+        <a href="https://docs.rs/dioxus" alt="Dioxus API Reference" target="_blank" rel="noopener noreferrer" class="flex py-2 hover:text-text">
             <div class="mr-4 w-6 h-6 bg-accent opacity-20 rounded"></div>
 
-            <div>Dixous</div>
+            <div>Dioxus</div>
         </a>
     </li>
 </ul>
@@ -36,8 +36,8 @@
     {% set section = get_section(path="docs/_index.md") %}
     {% for p in section.subsections %}
         {% set subsection = get_section(path=p) %}
-        <li>
-            <div class="text-base text-text py-6">{{ subsection.title }}</div>
+        <li class="mb-4">
+            <div class="text-sm text-text py-4">{{ subsection.title }}</div>
             <ul>
                 {% for page in subsection.pages %}
                     <li class="py-2 px-4 border-l border-l-neutral-800 {% if current_path == page.path %}border-l-accent text-accent{% endif %}">

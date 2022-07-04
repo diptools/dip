@@ -13,11 +13,11 @@ module.exports = {
         current: colors.current,
         transparent: colors.transparent,
 
-        accent: getColor("accent"),
         text: getColor("text"),
         background: getColor("background"),
 
-        neutral: getShades("neutral"),
+        accent: getColorVariant("accent", ["DEFAULT", "background"]),
+        neutral: getColorVariant("neutral", [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]),
     },
     fontFamily: {
       sans: ["Inter", ...defaultTheme.fontFamily.sans],
@@ -43,10 +43,9 @@ function getColor(name) {
   return `rgb(var(--color-${name}) / <alpha-value>)`
 }
 
-function getShades(name) {
-  const shades = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
-  return shades.reduce((prev, key) => ({
+function getColorVariant(name, keys) {
+  return keys.reduce((prev, key) => ({
     ...prev,
-    [key]: getColor(`${name}-${key}`),
+    [key]: getColor(key === "DEFAULT" ? name : `${name}-${key}`),
   }), {});
 }

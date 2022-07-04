@@ -5,7 +5,7 @@
 {% endif %}
 
 <div class="md:hidden bg-neutral-900 w-screen h-14 flex max-w-screen-xl items-center justify-between px-4 bg-red-400">
-    <ul class="text-sm flex justify-center items-center">
+    <ul class="text-sm flex items-center flex-1 overflow-x-scroll pr-4">
         {% for a in meta.ancestors %}
             {% if loop.index != 1 %}
                 {% set a_meta = get_section(path=a, metadata_only=true) %}
