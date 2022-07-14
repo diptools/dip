@@ -1,6 +1,6 @@
 [package]
 name = "bevy_dioxus_desktop"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Junichi Sugiura"]
 edition = "2021"
 description = "Write cross-platform application with React-like declarative UI framework and scalable ECS architecture all in Rust."
