@@ -14,7 +14,7 @@ fn main() {
 
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
-    let name = use_state(&cx, || "World".to_string());
+    let name = use_state(&cx, || "world".to_string());
 
     cx.render(rsx! {
         h1 { "Hello, {name} !" }
@@ -22,7 +22,7 @@ fn Root(cx: Scope) -> Element {
         input {
             value: "{name}",
             oninput: |e| {
-                name.set(String::from(&e.value));
+                name.set(e.value.to_string());
             },
         }
     })
