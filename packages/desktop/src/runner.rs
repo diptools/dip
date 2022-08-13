@@ -82,7 +82,8 @@ where
                     ..
                 } => {
                     let world = app.world.cell();
-                    let dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
+                    let dioxus_windows =
+                        world.get_non_send_resource_mut::<DioxusWindows>().unwrap();
                     let mut windows = world.get_resource_mut::<Windows>().unwrap();
                     let window_id =
                         if let Some(window_id) = dioxus_windows.get_window_id(tao_window_id) {
@@ -245,12 +246,12 @@ where
                     match user_event {
                         UiEvent::WindowEvent(window_event) => {
                             let world = app.world.cell();
-                            let mut windows = world.get_non_send_mut::<Windows>().unwrap();
+                            let mut windows = world.get_non_send_resource_mut::<Windows>().unwrap();
                             let window = windows.get_primary_mut().unwrap();
                             let id = WindowId::primary();
 
                             let mut dioxus_windows =
-                                world.get_non_send_mut::<DioxusWindows>().unwrap();
+                                world.get_non_send_resource_mut::<DioxusWindows>().unwrap();
                             let tao_window = dioxus_windows.get_tao_window(id).unwrap();
 
                             match window_event {

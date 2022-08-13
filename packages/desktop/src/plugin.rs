@@ -14,8 +14,10 @@ use bevy::{
     ecs::{event::Events, prelude::*},
     input::InputPlugin,
     log::error,
+    log::warn,
+    math::{UVec2, Vec2},
     window::{
-        CreateWindow, WindowCommand, WindowCreated, WindowMode, WindowPlugin,
+        CreateWindow, WindowClosed, WindowCommand, WindowCreated, WindowMode, WindowPlugin,
         WindowScaleFactorChanged, Windows,
     },
 };
@@ -216,7 +218,7 @@ where
         Props: 'static + Send + Sync + Clone,
     {
         let world = world.cell();
-        let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
+        let mut dioxus_windows = world.get_non_send_resource_mut::<DioxusWindows>().unwrap();
         let mut bevy_windows = world.get_resource_mut::<Windows>().unwrap();
         let mut create_window_events = world.get_resource_mut::<Events<CreateWindow>>().unwrap();
         let mut window_created_events = world.get_resource_mut::<Events<WindowCreated>>().unwrap();
@@ -258,13 +260,12 @@ where
 }
 
 fn change_window(
-    dioxus_windows: NonSend<DioxusWindows>,
+    mut dioxus_windows: NonSendMut<DioxusWindows>,
     mut windows: ResMut<Windows>,
     mut window_dpi_changed_events: EventWriter<WindowScaleFactorChanged>,
-    // mut window_close_events: EventWriter<WindowClosed>, // bevy > 0.7
+    mut window_close_events: EventWriter<WindowClosed>,
 ) {
-    // let mut removed_windows = vec![];
-
+    let mut removed_windows = vec![];
     for bevy_window in windows.iter_mut() {
         let id = bevy_window.id();
         let window = dioxus_windows.get_tao_window(id).unwrap();
@@ -273,7 +274,7 @@ fn change_window(
             match command {
                 WindowCommand::SetWindowMode {
                     mode,
-                    resolution: (width, height),
+                    resolution: UVec2 { x, y },
                 } => match mode {
                     WindowMode::BorderlessFullscreen => {
                         window.set_fullscreen(Some(Fullscreen::Borderless(None)));
@@ -286,8 +287,8 @@ fn change_window(
                     WindowMode::SizedFullscreen => window.set_fullscreen(Some(
                         Fullscreen::Exclusive(DioxusWindows::get_fitting_videomode(
                             &window.current_monitor().unwrap(),
-                            width,
-                            height,
+                            x,
+                            y,
                         )),
                     )),
                     WindowMode::Windowed => window.set_fullscreen(None),
@@ -299,7 +300,11 @@ fn change_window(
                     window_dpi_changed_events.send(WindowScaleFactorChanged { id, scale_factor });
                 }
                 WindowCommand::SetResolution {
-                    logical_resolution: (width, height),
+                    logical_resolution:
+                        Vec2 {
+                            x: width,
+                            y: height,
+                        },
                     scale_factor,
                 } => {
                     window.set_inner_size(
@@ -345,6 +350,29 @@ fn change_window(
                         y: position[1],
                     });
                 }
+                WindowCommand::Center(monitor_selection) => {
+                    use bevy::window::MonitorSelection::*;
+                    let maybe_monitor = match monitor_selection {
+                        Current => window.current_monitor(),
+                        Primary => window.primary_monitor(),
+                        Number(n) => window.available_monitors().nth(n),
+                    };
+
+                    if let Some(monitor) = maybe_monitor {
+                        let screen_size = monitor.size();
+
+                        let window_size = window.outer_size();
+
+                        window.set_outer_position(PhysicalPosition {
+                            x: screen_size.width.saturating_sub(window_size.width) as f64 / 2.
+                                + monitor.position().x as f64,
+                            y: screen_size.height.saturating_sub(window_size.height) as f64 / 2.
+                                + monitor.position().y as f64,
+                        });
+                    } else {
+                        warn!("Couldn't get monitor selected with: {monitor_selection:?}");
+                    }
+                }
                 WindowCommand::SetResizeConstraints { resize_constraints } => {
                     let constraints = resize_constraints.check_constraints();
                     let min_inner_size = LogicalSize {
@@ -360,19 +388,20 @@ fn change_window(
                     if constraints.max_width.is_finite() && constraints.max_height.is_finite() {
                         window.set_max_inner_size(Some(max_inner_size));
                     }
-                } // WindowCommand::Close => {
-                  //     removed_windows.push(id);
-                  //     break;
-                  // }
+                }
+                WindowCommand::Close => {
+                    removed_windows.push(id);
+                    break;
+                }
             }
         }
     }
 
-    // if !removed_windows.is_empty() {
-    //     for id in removed_windows {
-    //         let _ = dioxus_windows.remove_window(id);
-    //         windows.remove(id);
-    //         window_close_events.send(WindowClosed { id });
-    //     }
-    // }
+    if !removed_windows.is_empty() {
+        for id in removed_windows {
+            let _ = dioxus_windows.remove(id);
+            windows.remove(id);
+            window_close_events.send(WindowClosed { id });
+        }
+    }
 }
