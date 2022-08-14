@@ -73,7 +73,6 @@ impl DioxusWindows {
 
     pub fn remove(&mut self, id: WindowId) -> Option<Window> {
         let tao_window_id = self.window_id_to_tao.remove(&id)?;
-        // Don't remove from winit_to_window_id, to track that we used to know about this winit window
         self.windows.remove(&tao_window_id)
     }
 
@@ -196,19 +195,6 @@ impl DioxusWindows {
                     scale_factor_override,
                     ..
                 } = window_descriptor;
-
-                // if let Some(position) = position {
-                //     if let Some(sf) = scale_factor_override {
-                //         tao_window_builder = tao_window_builder.with_position(
-                //             LogicalPosition::new(position[0] as f64, position[1] as f64)
-                //                 .to_physical::<f64>(*sf),
-                //         );
-                //     } else {
-                //         tao_window_builder = tao_window_builder.with_position(
-                //             LogicalPosition::new(position[0] as f64, position[1] as f64),
-                //         );
-                //     }
-                // }
 
                 use bevy::window::WindowPosition::*;
                 match position {
