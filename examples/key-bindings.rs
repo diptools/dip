@@ -1,8 +1,8 @@
 use bevy::{
-    core::CorePlugin,
     input::keyboard::KeyCode,
     log::LogPlugin,
     prelude::*,
+    time::TimePlugin,
     window::{WindowCloseRequested, WindowId},
 };
 use bevy_dioxus::desktop::prelude::*;
@@ -20,8 +20,8 @@ fn main() {
             ..Default::default()
         })
         .add_plugin(LogPlugin)
+        .add_plugin(TimePlugin)
         .add_plugin(DioxusPlugin::<EmptyGlobalState, (), ()>::new(Root))
-        .add_plugin(CorePlugin)
         .add_plugin(InputManagerPlugin::<Action>::default())
         .add_startup_system(setup)
         .add_system(close_window)
@@ -45,8 +45,8 @@ fn Root(cx: Scope) -> Element {
 }
 
 fn setup(mut commands: Commands) {
-    let mut input_map = InputMap::new([(Action::CloseWindow, KeyCode::Escape)]);
-    input_map.insert_chord(Action::CloseWindow, [KeyCode::LControl, KeyCode::C]);
+    let mut input_map = InputMap::new([(KeyCode::Escape, Action::CloseWindow)]);
+    input_map.insert_chord([KeyCode::LControl, KeyCode::C], Action::CloseWindow);
     commands
         .spawn()
         .insert(User)

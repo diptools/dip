@@ -1,6 +1,5 @@
 use bevy::{
     app::App,
-    core::CorePlugin,
     ecs::{
         component::Component,
         event::{EventReader, EventWriter},
@@ -9,6 +8,7 @@ use bevy::{
     },
     input::keyboard::{KeyCode, KeyboardInput},
     log::{info, LogPlugin},
+    time::TimePlugin,
     window::{ReceivedCharacter, WindowCloseRequested, WindowDescriptor, WindowId},
 };
 use bevy_dioxus::desktop::prelude::*;
@@ -46,9 +46,9 @@ fn main() {
         })
         .add_plugin(DioxusPlugin::<EmptyGlobalState, CoreCommand, UiCommand>::new(Root))
         .add_plugin(LogPlugin)
+        .add_plugin(TimePlugin)
         .add_system(send_keyboard_input)
         .add_system(handle_core_command)
-        .add_plugin(CorePlugin)
         .add_plugin(InputManagerPlugin::<Action>::default())
         .add_system(log_keyboard_event)
         .add_startup_system(spawn_user)
@@ -159,9 +159,9 @@ fn Root(cx: Scope) -> Element {
 }
 
 fn spawn_user(mut commands: Commands) {
-    let mut input_map = InputMap::new([(Action::CloseWindow, KeyCode::Escape)]);
-    input_map.insert_chord(Action::CloseWindow, [KeyCode::LControl, KeyCode::C]);
-    input_map.insert_chord(Action::CloseWindow, [KeyCode::RControl, KeyCode::C]);
+    let mut input_map = InputMap::new([(KeyCode::Escape, Action::CloseWindow)]);
+    input_map.insert_chord([KeyCode::LControl, KeyCode::C], Action::CloseWindow);
+    input_map.insert_chord([KeyCode::RControl, KeyCode::C], Action::CloseWindow);
 
     commands
         .spawn()

@@ -2,7 +2,7 @@
 
 use crate::converter;
 use bevy::{
-    input::{keyboard::KeyboardInput, ElementState},
+    input::{keyboard::KeyboardInput, ButtonState},
     window::{ReceivedCharacter, WindowId},
 };
 use dioxus_core::{ElementId, EventPriority, UserEvent};
@@ -180,7 +180,7 @@ impl KeyboardEvent {
             } => KeyboardInput {
                 scan_code: *scan_code,
                 key_code: converter::try_convert_key_code(key, location),
-                state: ElementState::Pressed,
+                state: ButtonState::Pressed,
             },
             KeyboardEvent::Keyup {
                 key,
@@ -189,7 +189,7 @@ impl KeyboardEvent {
             } => KeyboardInput {
                 scan_code: *scan_code,
                 key_code: converter::try_convert_key_code(key, location),
-                state: ElementState::Released,
+                state: ButtonState::Released,
             },
         }
     }

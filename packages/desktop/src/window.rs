@@ -20,7 +20,7 @@ use std::{
 };
 use wry::{
     application::{
-        dpi::{LogicalPosition, LogicalSize},
+        dpi::{LogicalPosition, LogicalSize, PhysicalPosition},
         error::ExternalError,
         event_loop::EventLoop,
         monitor::{MonitorHandle, VideoMode},
@@ -71,6 +71,11 @@ impl DioxusWindows {
         self.tao_to_window_id.get(&id).cloned()
     }
 
+    pub fn remove(&mut self, id: WindowId) -> Option<Window> {
+        let tao_window_id = self.window_id_to_tao.remove(&id)?;
+        self.windows.remove(&tao_window_id)
+    }
+
     pub fn create<CoreCommand, Props>(
         &mut self,
         world: &WorldCell,
@@ -82,7 +87,7 @@ impl DioxusWindows {
         Props: 'static + Send + Sync + Clone,
     {
         let event_loop = world
-            .get_non_send_mut::<EventLoop<UiEvent<CoreCommand>>>()
+            .get_non_send_resource_mut::<EventLoop<UiEvent<CoreCommand>>>()
             .unwrap();
         let proxy = event_loop.create_proxy();
         let dom_tx = world
@@ -191,18 +196,56 @@ impl DioxusWindows {
                     ..
                 } = window_descriptor;
 
-                if let Some(position) = position {
-                    if let Some(sf) = scale_factor_override {
-                        tao_window_builder = tao_window_builder.with_position(
-                            LogicalPosition::new(position[0] as f64, position[1] as f64)
-                                .to_physical::<f64>(*sf),
-                        );
-                    } else {
-                        tao_window_builder = tao_window_builder.with_position(
-                            LogicalPosition::new(position[0] as f64, position[1] as f64),
-                        );
+                use bevy::window::WindowPosition::*;
+                match position {
+                    Automatic => { /* Window manager will handle position */ }
+                    Centered(monitor_selection) => {
+                        use bevy::window::MonitorSelection::*;
+                        let maybe_monitor = match monitor_selection {
+                            Current => {
+                                log::warn!("Can't select current monitor on window creation!");
+                                None
+                            }
+                            Primary => event_loop.primary_monitor(),
+                            Number(n) => event_loop.available_monitors().nth(*n),
+                        };
+
+                        if let Some(monitor) = maybe_monitor {
+                            let screen_size = monitor.size();
+
+                            let scale_factor = scale_factor_override.unwrap_or(1.0);
+
+                            // Logical to physical window size
+                            let (width, height): (u32, u32) = LogicalSize::new(*width, *height)
+                                .to_physical::<u32>(scale_factor)
+                                .into();
+
+                            let position = PhysicalPosition {
+                                x: screen_size.width.saturating_sub(width) as f64 / 2.
+                                    + monitor.position().x as f64,
+                                y: screen_size.height.saturating_sub(height) as f64 / 2.
+                                    + monitor.position().y as f64,
+                            };
+
+                            tao_window_builder = tao_window_builder.with_position(position);
+                        } else {
+                            log::warn!("Couldn't get monitor selected with: {monitor_selection:?}");
+                        }
+                    }
+                    At(position) => {
+                        if let Some(sf) = scale_factor_override {
+                            tao_window_builder = tao_window_builder.with_position(
+                                LogicalPosition::new(position[0] as f64, position[1] as f64)
+                                    .to_physical::<f64>(*sf),
+                            );
+                        } else {
+                            tao_window_builder = tao_window_builder.with_position(
+                                LogicalPosition::new(position[0] as f64, position[1] as f64),
+                            );
+                        }
                     }
                 }
+
                 if let Some(sf) = scale_factor_override {
                     tao_window_builder
                         .with_inner_size(LogicalSize::new(*width, *height).to_physical::<f64>(*sf))
@@ -279,7 +322,9 @@ impl DioxusWindows {
         CoreCommand: 'static + Send + Sync + Clone + Debug,
         Props: 'static,
     {
-        let mut settings = world.get_non_send_mut::<DioxusSettings<Props>>().unwrap();
+        let mut settings = world
+            .get_non_send_resource_mut::<DioxusSettings<Props>>()
+            .unwrap();
         let is_ready = Arc::new(AtomicBool::new(false));
 
         let file_drop_handler = settings.file_drop_handler.take();
