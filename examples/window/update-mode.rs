@@ -1,4 +1,4 @@
-use bevy::{core::CorePlugin, log::LogPlugin, prelude::*};
+use bevy::{log::LogPlugin, prelude::*, time::TimePlugin};
 use bevy_dioxus::desktop::prelude::*;
 use dioxus::prelude::*;
 use leafwing_input_manager::prelude::*;
@@ -6,8 +6,12 @@ use leafwing_input_manager::prelude::*;
 /// This example illustrates how to customize render setting
 fn main() {
     App::new()
-        .add_plugin(CorePlugin)
+        .insert_non_send_resource(DioxusSettings::<()> {
+            keyboard_event: true,
+            ..Default::default()
+        })
         .add_plugin(LogPlugin)
+        .add_plugin(TimePlugin)
         .add_plugin(DioxusPlugin::<EmptyGlobalState, (), UiCommand>::new(Root))
         .add_plugin(InputManagerPlugin::<Action>::default())
         .add_startup_system(setup)
@@ -55,7 +59,7 @@ fn setup(mut commands: Commands, mut ui: EventWriter<UiCommand>) {
         .insert(User)
         .insert_bundle(InputManagerBundle::<Action> {
             action_state: ActionState::default(),
-            input_map: InputMap::new([(Action::ToggleUpdateMode, KeyCode::Space)]),
+            input_map: InputMap::new([(KeyCode::Space, Action::ToggleUpdateMode)]),
         });
 
     ui.send(UiCommand::Frame(frame.0));

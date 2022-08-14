@@ -1,4 +1,4 @@
-use bevy::{core::CorePlugin, log::LogPlugin, prelude::*, window::PresentMode};
+use bevy::{log::LogPlugin, prelude::*, time::TimePlugin, window::PresentMode};
 use bevy_dioxus::desktop::prelude::*;
 use dioxus::prelude::*;
 
@@ -12,8 +12,8 @@ fn main() {
             present_mode: PresentMode::Fifo,
             ..Default::default()
         })
-        .add_plugin(CorePlugin)
         .add_plugin(LogPlugin)
+        .add_plugin(TimePlugin)
         .add_plugin(DioxusPlugin::<EmptyGlobalState, (), ()>::new(Root))
         .add_system(change_title)
         .add_system(toggle_cursor)
