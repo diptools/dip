@@ -17,8 +17,9 @@ bevy_dioxus_desktop = { version = "0.1", path = "./packages/desktop", optional =
 bevy_dioxus_macro = { version = "0.1", path = "./packages/macro" }
 
 [dev-dependencies]
-leafwing-input-manager = { version = "0.5", default-features = false }
+chrono = "0.4"
 dioxus = { version = "0.2", features = ["fermi"] }
+leafwing-input-manager = { version = "0.5", default-features = false }
 
 [features]
 default = ["desktop"]
@@ -46,3 +47,7 @@ path = "examples/window/multiple-windows.rs"
 [[example]]
 name = "scale-factor-override"
 path = "examples/window/scale-factor-override.rs"
+
+[[example]]
+name = "todo-global-state-ecs"
+path = "examples/todomvc/global-state-ecs/main.rs"

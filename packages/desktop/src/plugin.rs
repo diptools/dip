@@ -7,8 +7,10 @@ use crate::{
     event::{KeyboardEvent, UiEvent, VDomCommand, WindowEvent},
     runner::runner,
     setting::DioxusSettings,
+    stage::UiStage,
     window::DioxusWindows,
 };
+
 use bevy::{
     app::prelude::*,
     ecs::{event::Events, prelude::*},
@@ -17,8 +19,8 @@ use bevy::{
     log::warn,
     math::{UVec2, Vec2},
     window::{
-        CreateWindow, WindowClosed, WindowCommand, WindowCreated, WindowMode, WindowPlugin,
-        WindowScaleFactorChanged, Windows,
+        CreateWindow, ModifiesWindows, WindowClosed, WindowCommand, WindowCreated, WindowMode,
+        WindowPlugin, WindowScaleFactorChanged, Windows,
     },
 };
 use bevy_dioxus_core::prelude::GlobalStateHandler;
@@ -71,6 +73,7 @@ where
             .unwrap_or_default();
 
         app.add_plugin(WindowPlugin::default())
+            .add_plugin(UiStagePlugin)
             .add_plugin(InputPlugin)
             .add_event::<KeyboardEvent>()
             .add_event::<CoreCommand>()
@@ -83,11 +86,8 @@ where
             .init_non_send_resource::<DioxusWindows>()
             .insert_non_send_resource(EventLoop::<UiEvent<CoreCommand>>::with_user_event())
             .set_runner(|app| runner::<CoreCommand, UiCommand, Props>(app))
-            .add_system_to_stage(CoreStage::PostUpdate, send_ui_commands::<UiCommand>)
-            .add_system_to_stage(
-                CoreStage::PostUpdate,
-                change_window, /* TODO.label(ModifiesWindows) // is recentry introduced ( > 0.7 ) */
-            );
+            .add_system_to_stage(UiStage::Update, send_ui_commands::<UiCommand>)
+            .add_system_to_stage(UiStage::Update, change_window.label(ModifiesWindows));
 
         self.spawn_virtual_dom(&mut app.world, (core_tx, ui_rx), vdom_cmd_rx);
         Self::handle_initial_window_events(&mut app.world);
@@ -403,5 +403,24 @@ fn change_window(
             windows.remove(id);
             window_close_events.send(WindowClosed { id });
         }
+    }
+}
+struct UiStagePlugin;
+
+impl Plugin for UiStagePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_stage_after(
+            CoreStage::PostUpdate,
+            UiStage::First,
+            SystemStage::parallel(),
+        )
+        .add_stage_after(UiStage::First, UiStage::PreUpdate, SystemStage::parallel())
+        .add_stage_after(UiStage::PreUpdate, UiStage::Update, SystemStage::parallel())
+        .add_stage_after(
+            UiStage::Update,
+            UiStage::PostUpdate,
+            SystemStage::parallel(),
+        )
+        .add_stage_after(UiStage::PostUpdate, UiStage::Last, SystemStage::parallel());
     }
 }
