@@ -11,12 +11,7 @@ fn main() {
         .run();
 }
 
-// #[derive(GlobalState)]
-struct GlobalState {
-    name: Name,
-}
-
-#[derive(Component, Clone, Debug)]
+#[derive(Component, Clone, Debug, GlobalState)]
 struct Name(String);
 
 impl Default for Name {
@@ -24,6 +19,9 @@ impl Default for Name {
         Self("world".to_string())
     }
 }
+
+#[derive(GlobalStatePlugin)]
+struct GlobalStatePlugin;
 
 #[derive(Clone, Debug)]
 struct CoreCommand(String);
@@ -37,10 +35,6 @@ fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut N
         let mut name = query.single_mut();
         name.0 = cmd.0.clone();
     }
-}
-
-fn apply_name_change_to_global_state(query: Query<&Name>, state: GlobalState) {
-    state.dispatch(NAME, query.single())
 }
 
 #[allow(non_snake_case)]
@@ -59,6 +53,3 @@ fn Root(cx: Scope) -> Element {
         }
     })
 }
-
-// Generates
-static NAME: Atom<String> = |_| "world".to_string();

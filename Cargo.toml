@@ -20,6 +20,7 @@ bevy_dioxus_macro = { version = "0.1", path = "./packages/macro" }
 chrono = "0.4"
 dioxus = { version = "0.2", features = ["fermi"] }
 leafwing-input-manager = { version = "0.5", default-features = false }
+futures-intrusive = "0.4"
 
 [features]
 default = ["desktop"]
