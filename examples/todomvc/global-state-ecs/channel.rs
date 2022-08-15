@@ -32,3 +32,7 @@ pub struct UpdateTodoMeta {
 }
 
 pub struct UpdateUiTodoList;
+
+pub struct RemoveTodo {
+    pub entity: Entity,
+}
