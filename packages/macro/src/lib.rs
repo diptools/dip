@@ -105,3 +105,64 @@ pub fn derive_global_state_plugin(_input: TokenStream) -> TokenStream {
 
     gen.into()
 }
+
+#[proc_macro_derive(GlobalStateCommand)]
+pub fn derive_global_state_command(input: TokenStream) -> TokenStream {
+    let gen = quote! {
+        use bevy_dioxus::desktop::event::VDomCommand;
+        use dioxus::fermi::{Atom, AtomRoot, Readable};
+        use futures_intrusive::channel::{shared::Sender, TrySendError};
+        use std::rc::Rc;
+
+        pub static TODO_LIST: Atom<Vec<UiTodo>> = |_| vec![];
+
+
+        impl GlobalStateHandler for GlobalStateCommand {
+            fn handler(self, root: Rc<AtomRoot>) {
+                match self {
+                    GlobalStateCommand::TodoList(x) => root.set(TODO_LIST.unique_id(), x),
+                }
+            }
+        }
+
+        pub struct GlobalStatePlugin;
+
+
+        impl Plugin for GlobalStatePlugin {
+            fn build(&self, app: &mut App) {
+                app.add_event::<GlobalStateCommand>()
+                    .add_system(apply_global_state_command);
+                // #(#add_systems)*;
+            }
+        }
+
+        // #(#systems)*;
+        fn apply_global_state_command(
+            mut events: EventReader<GlobalStateCommand>,
+            vdom_tx: Res<Sender<VDomCommand<GlobalStateCommand>>>,
+        ) {
+            for e in events.iter() {
+                match vdom_tx.try_send(VDomCommand::GlobalState(e.clone())) {
+                    Ok(()) => {}
+                    Err(e) => match e {
+                        TrySendError::Full(e) => {
+                            error!(
+                                "Failed to send VDomCommand: channel is full: event: {:?}",
+                                e
+                            );
+                        }
+                        TrySendError::Closed(e) => {
+                            error!(
+                                "Failed to send VDomCommand: channel is closed: event: {:?}",
+                                e
+                            );
+                        }
+                    },
+                }
+            }
+        }
+
+    };
+
+    gen.into()
+}
