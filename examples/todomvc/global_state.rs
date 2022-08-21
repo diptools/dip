@@ -3,13 +3,6 @@ use bevy::prelude::*;
 use bevy_dioxus::core::prelude::*;
 use chrono::{DateTime, Utc};
 
-// Check what is generated with cargo-expand
-//
-// ```sh
-// cargo install expand # if not installed
-// cargo expand --example todomvc
-// ```
-//
 #[global_state]
 struct GlobalState {
     todo_list: Vec<UiTodo>,
