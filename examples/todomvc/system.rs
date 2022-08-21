@@ -4,11 +4,15 @@ use bevy::ecs::prelude::*;
 pub fn handle_core_cmd(
     mut events: EventReader<CoreCommand>,
     mut create_todo: EventWriter<CreateTodo>,
+    mut remove_todo: EventWriter<RemoveTodo>,
 ) {
     for cmd in events.iter() {
         match cmd {
             CoreCommand::CreateTodo(event) => {
                 create_todo.send(event.clone());
+            }
+            CoreCommand::RemoveTodo(event) => {
+                remove_todo.send(event.clone());
             }
         }
     }
