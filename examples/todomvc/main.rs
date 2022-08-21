@@ -21,6 +21,7 @@ fn main() {
         .add_event::<UpdateTodoMeta>()
         .add_event::<RemoveTodo>()
         .add_event::<ChangeFilter>()
+        .add_event::<ClearCompleted>()
         .add_event::<NewUiTodoListRequested>()
         .add_event::<NewUiTodoListReady>()
         .add_system(handle_core_cmd)
@@ -34,5 +35,6 @@ fn main() {
         .add_system(update_todo_meta)
         .add_system(remove_todo)
         .add_system(change_filter)
+        .add_system(clear_completed)
         .run();
 }

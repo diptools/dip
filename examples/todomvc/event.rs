@@ -28,6 +28,9 @@ pub struct ChangeFilter {
     pub filter: Filter,
 }
 
+#[derive(Clone, Debug)]
+pub struct ClearCompleted;
+
 // Internal (System -> System)
 
 pub struct UpdateTodoMeta {

@@ -102,6 +102,12 @@ pub fn Root(cx: Scope) -> Element {
                         "Completed"
                     }
                 }
+                button {
+                    onclick: |_| {
+                        window.send(CoreCommand::clear_completed());
+                    },
+                    "Clear completed"
+                }
             }
         }
     })

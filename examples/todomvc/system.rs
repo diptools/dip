@@ -7,6 +7,7 @@ pub fn handle_core_cmd(
     mut toggle_done: EventWriter<ToggleDone>,
     mut remove_todo: EventWriter<RemoveTodo>,
     mut change_filter: EventWriter<ChangeFilter>,
+    mut clear_completed: EventWriter<ClearCompleted>,
 ) {
     for cmd in events.iter() {
         match cmd {
@@ -21,6 +22,9 @@ pub fn handle_core_cmd(
             }
             CoreCommand::ChangeFilter(event) => {
                 change_filter.send(event.clone());
+            }
+            CoreCommand::ClearCompleted(event) => {
+                clear_completed.send(event.clone());
             }
         }
     }
@@ -156,5 +160,21 @@ pub fn change_filter(
     for e in events.iter() {
         settings.filter = e.filter.clone();
         new_ui_todo_list_requested.send(NewUiTodoListRequested);
+    }
+}
+
+pub fn clear_completed(
+    mut events: EventReader<ClearCompleted>,
+    query: Query<(Entity, Option<&DoneAt>), With<Todo>>,
+    mut commands: Commands,
+    mut new_ui_todo_list_requested: EventWriter<NewUiTodoListRequested>,
+) {
+    for _ in events.iter() {
+        for (entity, done_at) in query.iter() {
+            if done_at.is_some() {
+                commands.entity(entity).despawn();
+                new_ui_todo_list_requested.send(NewUiTodoListRequested);
+            }
+        }
     }
 }
