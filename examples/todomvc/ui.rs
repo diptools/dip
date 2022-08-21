@@ -41,7 +41,8 @@ pub fn Root(cx: Scope) -> Element {
                             style: "display: flex; align-items: center; justify-content: space-between; background: #ddd; padding: 1rem; height: 32px;",
                             onmouseover: |_| {
                                 hovered.set(Some(todo.entity));
-                            }, div { style: "display: flex; align-items: center;",
+                            },
+                            div { style: "display: flex; align-items: center;",
                                 div {
                                     style: "padding-right: 1rem;",
                                     onclick: |_| {
