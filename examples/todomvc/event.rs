@@ -1,4 +1,4 @@
-use crate::global_state::UiTodo;
+use crate::{global_state::UiTodo, resource::*};
 use bevy::ecs::prelude::*;
 
 // UI -> Core
@@ -23,7 +23,12 @@ pub struct RemoveTodo {
     pub entity: Entity,
 }
 
-// System -> System
+#[derive(Clone, Debug)]
+pub struct ChangeFilter {
+    pub filter: Filter,
+}
+
+// Internal (System -> System)
 
 pub struct UpdateTodoMeta {
     pub entity: Entity,

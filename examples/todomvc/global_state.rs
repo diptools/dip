@@ -1,4 +1,4 @@
-use crate::component::*;
+use crate::{component::*, resource::*};
 use bevy::prelude::*;
 use bevy_dioxus::core::prelude::*;
 use chrono::{DateTime, Utc};
@@ -6,6 +6,7 @@ use chrono::{DateTime, Utc};
 #[global_state]
 struct GlobalState {
     todo_list: Vec<UiTodo>,
+    settings: Settings,
 }
 
 #[derive(Component, Clone, Debug)]
