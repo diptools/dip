@@ -156,9 +156,38 @@ pub fn remove_todo(
     }
 }
 
-pub fn toggle_all(mut events: EventReader<ToggleAll>) {
+pub fn toggle_all(
+    mut events: EventReader<ToggleAll>,
+    query: Query<(Entity, Option<&DoneAt>), With<Todo>>,
+    mut toggle_done: EventWriter<ToggleDone>,
+    mut new_ui_todo_list_requested: EventWriter<NewUiTodoListRequested>,
+) {
     for _ in events.iter() {
-        todo!("toggle_all system");
+        let mut active_entities = vec![];
+        let mut completed_entities = vec![];
+        for (entity, done_at) in query.iter() {
+            if done_at.is_none() {
+                active_entities.push(entity);
+            } else {
+                completed_entities.push(entity)
+            }
+        }
+
+        for entity in active_entities.iter() {
+            toggle_done.send(ToggleDone {
+                entity: entity.clone(),
+            });
+        }
+
+        if active_entities.is_empty() || completed_entities.is_empty() {
+            for entity in completed_entities.iter() {
+                toggle_done.send(ToggleDone {
+                    entity: entity.clone(),
+                });
+            }
+        }
+
+        new_ui_todo_list_requested.send(NewUiTodoListRequested);
     }
 }
 
