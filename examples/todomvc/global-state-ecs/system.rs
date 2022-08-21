@@ -36,8 +36,8 @@ pub fn log_ui_todo_list(
 ) {
     for _ in events.iter() {
         let mut todo_list = vec![];
-        for (entity, title, done_at, timestamp) in query.iter() {
-            let todo = UiTodo::from((entity, title, done_at, timestamp));
+        for q in query.iter() {
+            let todo = UiTodo::from(q);
             todo_list.push(todo);
         }
 

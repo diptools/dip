@@ -34,6 +34,14 @@ members = [
 ]
 
 [[example]]
+name = "counter-channel"
+path = "examples/counter/channel.rs"
+
+[[example]]
+name = "counter-global-state"
+path = "examples/counter/global-state.rs"
+
+[[example]]
 name = "window-settings"
 path = "examples/window/settings.rs"
 
@@ -48,7 +56,3 @@ path = "examples/window/multiple-windows.rs"
 [[example]]
 name = "scale-factor-override"
 path = "examples/window/scale-factor-override.rs"
-
-[[example]]
-name = "todo-global-state-ecs"
-path = "examples/todomvc/global-state-ecs/main.rs"
