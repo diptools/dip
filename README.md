@@ -59,7 +59,7 @@ Dioxus is a cross-platform declarative UI framework. It provides familiar featur
 ### Bevy
 Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS) design pattern. Think of it as a global state management tool like Redux but much more performant because all systems will run concurrently as much as possible. Thanks to its plugin system, there's already a handlfull of third-party Bevy plugins out there. Imagine implemnenting core logic as `CorePlugin` seperated from UI layer. You may start with `bevy_dioxus` to build desektop application. Then let's say you want to release a metaverse edition at some point in the future, it's as simple as swapping UI plugin to Bevy's 3d rendering plugin while still using the same CorePlugin.
 
-## Try examples
+## Examples
 
 Make sure to install all prerequisites for Tauri.
 [Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
@@ -69,9 +69,10 @@ gh repo clone JunichiSugiura/bevy_dioxus
 cd bevy_dioxus
 
 cargo run --example counter
+cargo run --example todomvc
 ```
 
-More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy_dioxus/tree/main/examples) directory.
+Find more examples in [examples/](https://github.com/JunichiSugiura/bevy_dioxus/tree/main/examples) directory.
 
 ## Development
 
