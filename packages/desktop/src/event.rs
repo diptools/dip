@@ -129,12 +129,12 @@ pub enum WindowEvent {
 
 /// Event to control VirtualDom from outside
 #[derive(Debug)]
-pub enum VDomCommand<GlobalStateCommand> {
+pub enum VDomCommand<GlobalState> {
     /// Apply all edits
     UpdateDom,
 
     /// Set global state
-    GlobalState(GlobalStateCommand),
+    GlobalState(GlobalState),
 }
 
 /// Rust representation of web KeyboardEvent

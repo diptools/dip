@@ -17,7 +17,7 @@ pub fn handle_core_cmd(
 pub fn update_ui_todo_list(
     mut events: EventReader<UpdateUiTodoList>,
     query: Query<(Entity, &Title, Option<&DoneAt>, &Timestamp), With<Todo>>,
-    mut global_state: EventWriter<GlobalStateCommand>,
+    mut global_state: EventWriter<GlobalState>,
 ) {
     for _ in events.iter() {
         let mut todo_list = vec![];
@@ -26,7 +26,7 @@ pub fn update_ui_todo_list(
             todo_list.push(todo);
         }
 
-        global_state.send(GlobalStateCommand::TodoList(todo_list));
+        global_state.send(GlobalState::TodoList(todo_list));
     }
 }
 

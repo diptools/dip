@@ -10,9 +10,7 @@ use bevy_dioxus::desktop::prelude::*;
 
 fn main() {
     App::new()
-        .add_plugin(DioxusPlugin::<GlobalStateCommand, CoreCommand, ()>::new(
-            Root,
-        ))
+        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand, ()>::new(Root))
         .add_plugin(GlobalStatePlugin)
         .add_event::<CreateTodo>()
         .add_event::<ChangeTitle>()
