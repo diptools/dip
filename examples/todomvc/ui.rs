@@ -22,7 +22,7 @@ pub fn Root(cx: Scope) -> Element {
                     new_todo.set(e.value.clone());
                 },
                 onchange: |e| {
-                    window.send(CoreCommand::create(&e.value));
+                    window.send(CoreCommand::create_todo(&e.value));
                     new_todo.set("".to_string());
                 }
             }
@@ -40,15 +40,26 @@ pub fn Root(cx: Scope) -> Element {
                             hovered.set(Some(todo.entity));
                         },
                         div {
-                            "{todo.title}"
+                            style: "display: flex; align-items: center;",
+                            div {
+                                style: "padding-right: 1rem;",
+                                onclick: |_| {
+                                    window.send(CoreCommand::toggle_done(&todo.entity));
+                                },
+                                [format_args!("{}", if todo.done_at.is_some() { "✅" } else { "❎" })],
+                            }
+                            div {
+                                "{todo.title}"
+                            }
                         }
 
                         if let Some(entity) = hovered.get() {
                             if entity == &todo.entity {
                                 cx.render(rsx! {
                                     button {
+                                        style: "align-self: flex-end",
                                         onclick: |_| {
-                                            window.send(CoreCommand::remove(&todo.entity));
+                                            window.send(CoreCommand::remove_todo(&todo.entity));
                                         },
                                         "X"
                                     }

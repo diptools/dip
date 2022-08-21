@@ -1,46 +1,29 @@
+use crate::event::*;
 use bevy::ecs::prelude::*;
 
 #[derive(Clone, Debug)]
 pub enum CoreCommand {
     CreateTodo(CreateTodo),
+    ToggleDone(ToggleDone),
     RemoveTodo(RemoveTodo),
 }
 
 impl CoreCommand {
-    pub fn create(title: &String) -> Self {
+    pub fn create_todo(title: &String) -> Self {
         Self::CreateTodo(CreateTodo {
             title: title.clone(),
         })
     }
 
-    pub fn remove(entity: &Entity) -> Self {
+    pub fn toggle_done(entity: &Entity) -> Self {
+        Self::ToggleDone(ToggleDone {
+            entity: entity.clone(),
+        })
+    }
+
+    pub fn remove_todo(entity: &Entity) -> Self {
         Self::RemoveTodo(RemoveTodo {
             entity: entity.clone(),
         })
     }
 }
-
-#[derive(Clone, Debug)]
-pub struct CreateTodo {
-    pub title: String,
-}
-
-#[derive(Clone, Debug)]
-pub struct RemoveTodo {
-    pub entity: Entity,
-}
-
-pub struct ChangeTitle {
-    pub entity: Entity,
-    pub title: String,
-}
-
-pub struct UpdateDone {
-    pub entity: Entity,
-}
-
-pub struct UpdateTodoMeta {
-    pub entity: Entity,
-}
-
-pub struct UpdateUiTodoList;
