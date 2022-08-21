@@ -38,8 +38,12 @@ name = "counter-channel"
 path = "examples/counter/channel.rs"
 
 [[example]]
-name = "counter-global-state"
-path = "examples/counter/global-state.rs"
+name = "counter-global-state-ecs"
+path = "examples/counter/global-state-ecs.rs"
+
+[[example]]
+name = "todo-global-state-ecs"
+path = "examples/todomvc/global-state-ecs/main.rs"
 
 [[example]]
 name = "window-settings"
