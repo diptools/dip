@@ -7,7 +7,7 @@ use chrono::{DateTime, Utc};
 //
 // ```sh
 // cargo install expand # if not installed
-// cargo expand --example todo-global-state-ecs
+// cargo expand --example todomvc
 // ```
 //
 #[global_state]

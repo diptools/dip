@@ -42,8 +42,8 @@ name = "counter-global-state-ecs"
 path = "examples/counter/global-state-ecs.rs"
 
 [[example]]
-name = "todo-global-state-ecs"
-path = "examples/todomvc/global-state-ecs/main.rs"
+name = "todomvc"
+path = "examples/todomvc/main.rs"
 
 [[example]]
 name = "window-settings"
