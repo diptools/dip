@@ -6,6 +6,7 @@ pub fn handle_core_cmd(
     mut create_todo: EventWriter<CreateTodo>,
     mut toggle_done: EventWriter<ToggleDone>,
     mut remove_todo: EventWriter<RemoveTodo>,
+    mut toggle_all: EventWriter<ToggleAll>,
     mut change_filter: EventWriter<ChangeFilter>,
     mut clear_completed: EventWriter<ClearCompleted>,
 ) {
@@ -19,6 +20,9 @@ pub fn handle_core_cmd(
             }
             CoreCommand::RemoveTodo(event) => {
                 remove_todo.send(event.clone());
+            }
+            CoreCommand::ToggleAll(event) => {
+                toggle_all.send(event.clone());
             }
             CoreCommand::ChangeFilter(event) => {
                 change_filter.send(event.clone());
@@ -149,6 +153,12 @@ pub fn remove_todo(
     for e in events.iter() {
         commands.entity(e.entity).despawn();
         new_ui_todo_list_requested.send(NewUiTodoListRequested);
+    }
+}
+
+pub fn toggle_all(mut events: EventReader<ToggleAll>) {
+    for _ in events.iter() {
+        todo!("toggle_all system");
     }
 }
 

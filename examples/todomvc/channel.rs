@@ -8,6 +8,7 @@ pub enum CoreCommand {
     RemoveTodo(RemoveTodo),
     ChangeFilter(ChangeFilter),
     ClearCompleted(ClearCompleted),
+    ToggleAll(ToggleAll),
 }
 
 impl CoreCommand {
@@ -45,6 +46,10 @@ impl CoreCommand {
         Self::ChangeFilter(ChangeFilter {
             filter: Filter::Completed,
         })
+    }
+
+    pub fn toggle_all() -> Self {
+        Self::ToggleAll(ToggleAll)
     }
 
     pub fn clear_completed() -> Self {

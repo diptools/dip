@@ -104,6 +104,12 @@ pub fn Root(cx: Scope) -> Element {
                 }
                 button {
                     onclick: |_| {
+                        window.send(CoreCommand::toggle_all());
+                    },
+                    "Toggle all"
+                }
+                button {
+                    onclick: |_| {
                         window.send(CoreCommand::clear_completed());
                     },
                     "Clear completed"

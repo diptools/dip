@@ -24,6 +24,9 @@ pub struct RemoveTodo {
 }
 
 #[derive(Clone, Debug)]
+pub struct ToggleAll;
+
+#[derive(Clone, Debug)]
 pub struct ChangeFilter {
     pub filter: Filter,
 }
