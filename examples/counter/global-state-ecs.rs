@@ -1,5 +1,5 @@
 use bevy::{log::LogPlugin, prelude::*};
-use bevy_dioxus::{core::prelude::*, desktop::prelude::*};
+use bevy_dioxus::desktop::prelude::*;
 use dioxus::prelude::*;
 
 fn main() {
@@ -7,16 +7,23 @@ fn main() {
         .add_plugin(LogPlugin)
         .add_plugin(GlobalStatePlugin)
         .add_plugin(DioxusPlugin::<GlobalState, CoreCommand, ()>::new(Root))
+        .add_event::<UpdateGlobalState>()
         .add_startup_system(setup)
         .add_system(handle_core_cmd)
+        .add_system(update_global_state)
         .run();
 }
 
-/// Make sure to implement Default trait.
-#[derive(Component, Clone, Debug, Default, GlobalState)]
+#[global_state]
+struct GlobalState {
+    count: u32,
+    disabled: bool,
+}
+
+#[derive(Component, Clone, Debug, Default)]
 struct Count(u32);
 
-#[derive(Component, Clone, Debug, GlobalState)]
+#[derive(Component, Clone, Debug)]
 struct Disabled(bool);
 
 impl Default for Disabled {
@@ -25,10 +32,6 @@ impl Default for Disabled {
     }
 }
 
-/// Warning: Execution order matters here. Make sure to place this line after deriving all GlobalState.
-#[derive(GlobalStatePlugin)]
-struct GlobalStatePlugin;
-
 #[derive(Clone, Debug)]
 enum CoreCommand {
     Increment,
@@ -36,17 +39,22 @@ enum CoreCommand {
     Reset,
 }
 
-fn setup(mut commands: Commands) {
+struct UpdateGlobalState;
+
+fn setup(mut commands: Commands, mut update_global_state: EventWriter<UpdateGlobalState>) {
     info!("🧠 Spawn count");
     commands
         .spawn()
         .insert(Count::default())
         .insert(Disabled::default());
+
+    update_global_state.send(UpdateGlobalState);
 }
 
 fn handle_core_cmd(
     mut events: EventReader<CoreCommand>,
     mut query: Query<(&mut Count, &mut Disabled)>,
+    mut update_global_state: EventWriter<UpdateGlobalState>,
 ) {
     for cmd in events.iter() {
         let (mut count, mut disabled) = query.single_mut();
@@ -69,6 +77,21 @@ fn handle_core_cmd(
             }
         };
         disabled.0 = count.0 == 0;
+
+        update_global_state.send(UpdateGlobalState);
+    }
+}
+
+fn update_global_state(
+    mut events: EventReader<UpdateGlobalState>,
+    query: Query<(&Count, &Disabled)>,
+    mut global_state: EventWriter<GlobalState>,
+) {
+    for _ in events.iter() {
+        let (count, disabled) = query.single();
+
+        global_state.send(GlobalState::Count(count.0));
+        global_state.send(GlobalState::Disabled(disabled.0));
     }
 }
 
@@ -81,15 +104,15 @@ fn Root(cx: Scope) -> Element {
 
     cx.render(rsx! {
         h1 { "Counter Example" }
-        p { "count: {count.0}" }
+        p { "count: {count}" }
         button {
             onclick: move |_| window.send(CoreCommand::Decrement),
-            disabled: "{disabled.0}",
+            disabled: "{disabled}",
             "-",
         }
         button {
             onclick: move |_| window.send(CoreCommand::Reset),
-            disabled: "{disabled.0}",
+            disabled: "{disabled}",
             "Reset"
         }
         button {

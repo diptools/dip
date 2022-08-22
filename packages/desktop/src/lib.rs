@@ -10,6 +10,7 @@ pub mod plugin;
 mod protocol;
 mod runner;
 pub mod setting;
+pub mod stage;
 mod window;
 
 pub mod prelude {
@@ -20,6 +21,7 @@ pub mod prelude {
         hooks::*,
         plugin::DioxusPlugin,
         setting::{DioxusSettings, UpdateMode},
+        stage::UiStage,
     };
     pub use bevy_dioxus_core::prelude::*;
     pub use futures_intrusive::channel::{shared::Sender, TrySendError};

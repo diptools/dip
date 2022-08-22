@@ -59,7 +59,7 @@ Dioxus is a cross-platform declarative UI framework. It provides familiar featur
 ### Bevy
 Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS) design pattern. Think of it as a global state management tool like Redux but much more performant because all systems will run concurrently as much as possible. Thanks to its plugin system, there's already a handlfull of third-party Bevy plugins out there. Imagine implemnenting core logic as `CorePlugin` seperated from UI layer. You may start with `bevy_dioxus` to build desektop application. Then let's say you want to release a metaverse edition at some point in the future, it's as simple as swapping UI plugin to Bevy's 3d rendering plugin while still using the same CorePlugin.
 
-## Try examples
+## Examples
 
 Make sure to install all prerequisites for Tauri.
 [Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
@@ -69,82 +69,10 @@ gh repo clone JunichiSugiura/bevy_dioxus
 cd bevy_dioxus
 
 cargo run --example counter
+cargo run --example todomvc
 ```
 
-More examples can be found in [examples/](https://github.com/JunichiSugiura/bevy_dioxus/tree/main/examples) directory.
+Find more examples in [examples/](https://github.com/JunichiSugiura/bevy_dioxus/tree/main/examples) directory.
 
-## Development
-
-### Prerequisites
-#### General
-- [Tauri prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
-- [convco](https://github.com/convco/convco#installation): Conventional commits, changelog, versioning, validation
-  ```sh
-  cargo install convco
-  # or
-  brew install convco/formulae/convco
-  ```
-- [cargo-workspaces](https://github.com/pksunkara/cargo-workspaces): A tool for managing cargo workspaces and their crates, inspired by lerna
-  ```sh
-  cargo install cargo-workspaces
-  ```
-
-#### Website
-- [Zola](https://github.com/getzola/zola): A fast static site generator in a single binary with everything built-in.
-  ```sh
-  brew install zola
-  ```
-- [Node.js](https://nodejs.org/en/download/): To install Tailwind CSS
-
-#### API Reference
-- [cargo-watch](https://github.com/watchexec/cargo-watch): Watches over your Cargo project's source.
-  ```sh
-  cargo install cargo-watch
-  ```
-
-### Run
-#### Examples
-```sh
-# Build
-cargo build --examples
-
-# or Run
-cargo run --example counter
-```
-
-#### Website
-```sh
-# Install dependencies
-npm i
-
-# Serve locally
-zola -r packages/website serve --drafts
-
-# Watch Tailwind CSS
-npm run watch
-
-# or build
-npm run build
-```
-
-#### API Reference
-```sh
-# Serve doc locally
-cargo doc --open --no-deps
-
-# Watch file changes and serve doc locally
-cargo watch -s 'cargo doc && http target/doc'
-```
-
-### Conventions
-
-#### Branch name example
-```sh
-git checkout -b docs/#20-guide-website
-```
-
-#### Conventional Commits
-Make sure to use `convco commit` instead of `git commit` when it should be noted in changelog. [git-cliff](https://github.com/orhun/git-cliff) will automatically generates changelog on conventional-commit message that convco produces.
-```sh
-convco commit
-```
+## Milestone
+[📌 bevy_dioxus - Project board](https://github.com/users/JunichiSugiura/projects/4/views/9)

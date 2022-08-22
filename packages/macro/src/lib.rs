@@ -1,107 +1,177 @@
-#[macro_use]
-extern crate lazy_static;
 extern crate proc_macro;
 
+use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
-use quote::{format_ident, quote};
-use std::sync::Mutex;
-use syn::{parse_macro_input, DeriveInput};
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
+use std::str::FromStr;
+use syn::{parse_macro_input, Data, DeriveInput, Field, Ident, Type};
 
-lazy_static! {
-    static ref DEPS: Mutex<Vec<String>> = Mutex::new(Default::default());
-}
-
-#[proc_macro_derive(GlobalState)]
-pub fn global_atom(input: TokenStream) -> TokenStream {
+#[proc_macro_attribute]
+pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
-    DEPS.lock().as_mut().unwrap().push(input.ident.to_string());
 
-    let name = &input.ident;
-    let atom_name = format_ident!("{}", &name.to_string().to_uppercase());
-
-    let gen = quote! {
-        static #atom_name: Atom<#name> = |_| #name::default();
-    };
-
-    gen.into()
-}
-
-#[proc_macro_derive(GlobalStatePlugin)]
-pub fn derive_global_state_plugin(_input: TokenStream) -> TokenStream {
-    let mut enum_inners = vec![];
-    let mut handler_inners = vec![];
-    let mut systems = vec![];
-    let mut add_systems = vec![];
-
-    for name in DEPS.lock().unwrap().iter() {
-        let atom_name = format_ident!("{}", name.to_uppercase());
-        let system_name = format_ident!("apply_{}", name.to_lowercase());
-        let name = format_ident!("{}", name);
-
-        let enum_inner = quote! { #name(#name) };
-        let handler_inner = quote! { GlobalState::#name(x) => root.set(#atom_name.unique_id(), x) };
-        let system = quote! {
-            fn #system_name(
-                query: Query<&#name, Changed<#name>>,
-                vdom_tx: Res<Sender<VDomCommand<GlobalState>>>,
-            ) {
-                for x in query.iter() {
-                    match vdom_tx.try_send(VDomCommand::GlobalState(GlobalState::#name(x.clone()))) {
-                        Ok(()) => {}
-                        Err(e) => match e {
-                            TrySendError::Full(e) => {
-                                error!(
-                                    "Failed to send VDomCommand: channel is full: event: {:?}",
-                                    e
-                                );
-                            }
-                            TrySendError::Closed(e) => {
-                                error!(
-                                    "Failed to send VDomCommand: channel is closed: event: {:?}",
-                                    e
-                                );
-                            }
-                        },
-                    }
-                }
-            }
-        };
-        let add_system = quote! {
-            app.add_system(#system_name);
-        };
-
-        enum_inners.push(enum_inner);
-        handler_inners.push(handler_inner);
-        systems.push(system);
-        add_systems.push(add_system);
-    }
+    let GlobalStateTokens {
+        atom_quotes,
+        enum_variants,
+        variant_handlers,
+    } = GlobalStateParser::from(input).parse();
 
     let gen = quote! {
-        use dioxus::fermi::{AtomRoot, Readable};
+        use bevy_dioxus::desktop::event::VDomCommand;
+        use dioxus::fermi::{Atom, AtomRoot, Readable};
+        use futures_intrusive::channel::{shared::Sender, TrySendError};
         use std::rc::Rc;
 
-        #[derive(Debug)]
-        enum GlobalState {
-            #(#enum_inners),*
+        #(#atom_quotes)*
+
+        #[derive(Clone, Debug)]
+        pub enum GlobalState {
+            #(#enum_variants)*
         }
 
         impl GlobalStateHandler for GlobalState {
             fn handler(self, root: Rc<AtomRoot>) {
                 match self {
-                    #(#handler_inners),*
+                    #(#variant_handlers)*
                 }
             }
         }
 
+        pub struct GlobalStatePlugin;
+
         impl Plugin for GlobalStatePlugin {
             fn build(&self, app: &mut App) {
-                #(#add_systems)*;
+                app.add_event::<GlobalState>()
+                    .add_system(apply_global_state_command);
             }
         }
 
-        #(#systems)*;
-
+        fn apply_global_state_command(
+            mut events: EventReader<GlobalState>,
+            vdom_tx: Res<Sender<VDomCommand<GlobalState>>>,
+        ) {
+            for e in events.iter() {
+                match vdom_tx.try_send(VDomCommand::GlobalState(e.clone())) {
+                    Ok(()) => {}
+                    Err(e) => match e {
+                        TrySendError::Full(e) => {
+                            error!(
+                                "Failed to send VDomCommand: channel is full: event: {:?}",
+                                e
+                            );
+                        }
+                        TrySendError::Closed(e) => {
+                            error!(
+                                "Failed to send VDomCommand: channel is closed: event: {:?}",
+                                e
+                            );
+                        }
+                    },
+                }
+            }
+        }
     };
-
     gen.into()
+}
+
+struct GlobalStateParser {
+    fields: Vec<GlobalStateField>,
+}
+
+impl From<DeriveInput> for GlobalStateParser {
+    fn from(input: DeriveInput) -> Self {
+        match input.data {
+            Data::Struct(data) => {
+                let mut fields = vec![];
+                for f in data.fields {
+                    fields.push(GlobalStateField::from(f));
+                }
+                Self { fields }
+            }
+            _ => {
+                panic!("GlobalState derive macro can only be used for struct.");
+            }
+        }
+    }
+}
+
+impl GlobalStateParser {
+    fn parse(&self) -> GlobalStateTokens {
+        let mut tokens = GlobalStateTokens::default();
+
+        for i in &self.fields {
+            tokens.atom_quotes.push(i.to_atom_quote());
+            tokens.enum_variants.push(i.to_enum_variant());
+            tokens.variant_handlers.push(i.to_variant_handler());
+        }
+
+        tokens
+    }
+}
+
+#[derive(Default)]
+struct GlobalStateTokens {
+    atom_quotes: Vec<TokenStream2>,
+    enum_variants: Vec<TokenStream2>,
+    variant_handlers: Vec<TokenStream2>,
+}
+
+struct GlobalStateField {
+    ident: Ident, // "todo_list"
+    r#type: Type, // ["Vec<UiTodo>"]
+}
+
+impl From<Field> for GlobalStateField {
+    fn from(f: Field) -> Self {
+        Self {
+            ident: f
+                .clone()
+                .ident
+                .expect("Make sure to name each field in GlobalState struct"),
+            r#type: f.ty,
+        }
+    }
+}
+
+impl GlobalStateField {
+    // example: pub static TODO_LIST: Atom<Vec<UiTodo>> = |_| Vec::default();
+    fn to_atom_quote(&self) -> TokenStream2 {
+        let name_upper_snake =
+            TokenStream2::from_str(&self.ident.to_string().to_case(Case::UpperSnake)).unwrap();
+        let r#type = self.r#type.clone();
+        let type_name = match self.r#type.clone() {
+            Type::Path(p) => p.path.segments[0].ident.clone(),
+            _ => {
+                panic!("Make sure GlobalState struct has right structure");
+            }
+        };
+
+        quote! {
+            pub static #name_upper_snake: Atom<#r#type> = |_| #type_name::default();
+        }
+    }
+
+    // example: TodoList(Vec<UiTodo>),
+    fn to_enum_variant(&self) -> TokenStream2 {
+        let name_upper_camel =
+            TokenStream2::from_str(&self.ident.to_string().to_case(Case::UpperCamel)).unwrap();
+        let r#type = &self.r#type;
+
+        quote! {
+            #name_upper_camel(#r#type),
+        }
+    }
+
+    // example: GlobalState::TodoList(x) => root.set(TODO_LIST.unique_id(), x),
+    fn to_variant_handler(&self) -> TokenStream2 {
+        let name_upper_camel =
+            TokenStream2::from_str(&self.ident.to_string().to_case(Case::UpperCamel)).unwrap();
+        let name_upper_snake =
+            TokenStream2::from_str(&self.ident.to_string().to_case(Case::UpperSnake)).unwrap();
+
+        quote! {
+            GlobalState::#name_upper_camel(x) => root.set(#name_upper_snake.unique_id(), x),
+        }
+    }
 }

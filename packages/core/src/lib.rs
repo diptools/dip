@@ -18,5 +18,5 @@ impl GlobalStateHandler for EmptyGlobalState {
 
 pub mod prelude {
     pub use crate::{EmptyGlobalState, GlobalStateHandler};
-    pub use bevy_dioxus_macro::{GlobalState, GlobalStatePlugin};
+    pub use bevy_dioxus_macro::global_state;
 }
