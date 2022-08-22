@@ -4,6 +4,7 @@ use bevy::ecs::prelude::*;
 #[derive(Clone, Debug)]
 pub enum CoreCommand {
     CreateTodo(CreateTodo),
+    ChangeTitle(ChangeTitle),
     ToggleDone(ToggleDone),
     RemoveTodo(RemoveTodo),
     ChangeFilter(ChangeFilter),
@@ -14,6 +15,13 @@ pub enum CoreCommand {
 impl CoreCommand {
     pub fn create_todo(title: &String) -> Self {
         Self::CreateTodo(CreateTodo {
+            title: title.clone(),
+        })
+    }
+
+    pub fn change_title(entity: &Entity, title: &String) -> Self {
+        Self::ChangeTitle(ChangeTitle {
+            entity: entity.clone(),
             title: title.clone(),
         })
     }

@@ -102,8 +102,11 @@ pub fn Root(cx: Scope) -> Element {
                                 },
                                 [format_args!("{}", if todo.done_at.is_some() { "✅" } else { "❎" })],
                             }
-                            div {
-                                "{todo.title}"
+                            input {
+                                value: "{todo.title}",
+                                oninput: |e| {
+                                    window.send(CoreCommand::change_title(&todo.entity, &e.value));
+                                }
                             }
                         }
 

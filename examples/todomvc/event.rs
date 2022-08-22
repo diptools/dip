@@ -8,6 +8,7 @@ pub struct CreateTodo {
     pub title: String,
 }
 
+#[derive(Clone, Debug)]
 pub struct ChangeTitle {
     pub entity: Entity,
     pub title: String,

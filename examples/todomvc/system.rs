@@ -4,6 +4,7 @@ use bevy::ecs::prelude::*;
 pub fn handle_core_cmd(
     mut events: EventReader<CoreCommand>,
     mut create_todo: EventWriter<CreateTodo>,
+    mut change_title: EventWriter<ChangeTitle>,
     mut toggle_done: EventWriter<ToggleDone>,
     mut remove_todo: EventWriter<RemoveTodo>,
     mut toggle_all: EventWriter<ToggleAll>,
@@ -14,6 +15,9 @@ pub fn handle_core_cmd(
         match cmd {
             CoreCommand::CreateTodo(event) => {
                 create_todo.send(event.clone());
+            }
+            CoreCommand::ChangeTitle(event) => {
+                change_title.send(event.clone());
             }
             CoreCommand::ToggleDone(event) => {
                 toggle_done.send(event.clone());
