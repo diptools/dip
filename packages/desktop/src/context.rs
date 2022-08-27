@@ -2,37 +2,28 @@ use crate::event::{
     UiEvent::{self, *},
     WindowEvent::*,
 };
-use futures_intrusive::channel::shared::{Receiver, Sender};
+use futures_intrusive::channel::shared::Sender;
 use std::fmt::Debug;
 use wry::application::event_loop::EventLoopProxy;
 
 pub type ProxyType<CoreCommand> = EventLoopProxy<UiEvent<CoreCommand>>;
 
 #[derive(Clone)]
-pub struct UiContext<CoreCommand: Debug + 'static + Clone, UiCommand: 'static + Clone> {
+pub struct UiContext<CoreCommand: Debug + 'static + Clone> {
     proxy: ProxyType<CoreCommand>,
-    channel: (Sender<CoreCommand>, Receiver<UiCommand>),
+    core_tx: Sender<CoreCommand>,
 }
 
-impl<CoreCommand, UiCommand> UiContext<CoreCommand, UiCommand>
+impl<CoreCommand> UiContext<CoreCommand>
 where
     CoreCommand: Debug + Clone,
-    UiCommand: Debug + Clone,
 {
-    pub fn new(
-        proxy: ProxyType<CoreCommand>,
-        channel: (Sender<CoreCommand>, Receiver<UiCommand>),
-    ) -> Self {
-        Self { proxy, channel }
-    }
-
-    pub fn receiver(&self) -> Receiver<UiCommand> {
-        self.channel.1.clone()
+    pub fn new(proxy: ProxyType<CoreCommand>, core_tx: Sender<CoreCommand>) -> Self {
+        Self { proxy, core_tx }
     }
 
     pub fn send(&self, cmd: CoreCommand) {
-        self.channel
-            .0
+        self.core_tx
             .try_send(cmd)
             .expect("Failed to send CoreCommand");
     }
@@ -103,5 +94,11 @@ where
 
     pub fn eval(&self, script: impl std::string::ToString) {
         let _ = self.proxy.send_event(WindowEvent(Eval(script.to_string())));
+    }
+
+    pub fn rerender(&self) {
+        self.proxy
+            .send_event(UiEvent::WindowEvent(Rerender))
+            .unwrap();
     }
 }

@@ -18,7 +18,7 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
     } = GlobalStateParser::from(input).parse();
 
     let gen = quote! {
-        use bevy_dioxus::desktop::event::VDomCommand;
+        use bevy_dioxus::desktop::event::VirtualDomCommand;
         use dioxus::fermi::{Atom, AtomRoot, Readable};
         use futures_intrusive::channel::{shared::Sender, TrySendError};
         use std::rc::Rc;
@@ -49,10 +49,10 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
 
         fn apply_global_state_command(
             mut events: EventReader<GlobalState>,
-            vdom_tx: Res<Sender<VDomCommand<GlobalState>>>,
+            vdom_tx: Res<Sender<VirtualDomCommand<GlobalState>>>,
         ) {
             for e in events.iter() {
-                match vdom_tx.try_send(VDomCommand::GlobalState(e.clone())) {
+                match vdom_tx.try_send(VirtualDomCommand::GlobalState(e.clone())) {
                     Ok(()) => {}
                     Err(e) => match e {
                         TrySendError::Full(e) => {
