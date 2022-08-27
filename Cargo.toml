@@ -34,11 +34,7 @@ members = [
 ]
 
 [[example]]
-name = "counter-channel"
-path = "examples/counter/channel.rs"
-
-[[example]]
-name = "counter-global-state-ecs"
+name = "counter"
 path = "examples/counter/global-state-ecs.rs"
 
 [[example]]

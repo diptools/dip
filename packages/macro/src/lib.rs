@@ -18,6 +18,7 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
     } = GlobalStateParser::from(input).parse();
 
     let gen = quote! {
+        use bevy::{app::Plugin, ecs::system::Res, log::error};
         use bevy_dioxus::desktop::event::VirtualDomCommand;
         use dioxus::fermi::{Atom, AtomRoot, Readable};
         use futures_intrusive::channel::{shared::Sender, TrySendError};

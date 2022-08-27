@@ -7,8 +7,8 @@ fn main() {
         .add_plugin(LogPlugin)
         .add_plugin(GlobalStatePlugin)
         .add_plugin(DioxusPlugin::<GlobalState, CoreCommand, ()>::new(Root))
-        .add_event::<UpdateGlobalState>()
-        .add_startup_system(setup)
+        .add_plugin(GlobalStatePlugin)
+        .init_resource::<Count>()
         .add_system(handle_core_cmd)
         .add_system(update_global_state)
         .run();
@@ -20,16 +20,9 @@ struct GlobalState {
     disabled: bool,
 }
 
-#[derive(Component, Clone, Debug, Default)]
-struct Count(u32);
-
-#[derive(Component, Clone, Debug)]
-struct Disabled(bool);
-
-impl Default for Disabled {
-    fn default() -> Self {
-        Self(true)
-    }
+#[derive(Clone, Debug, Default)]
+struct Count {
+    value: u32,
 }
 
 #[derive(Clone, Debug)]
@@ -39,66 +32,39 @@ enum CoreCommand {
     Reset,
 }
 
-struct UpdateGlobalState;
-
-fn setup(mut commands: Commands, mut update_global_state: EventWriter<UpdateGlobalState>) {
-    info!("🧠 Spawn count");
-    commands
-        .spawn()
-        .insert(Count::default())
-        .insert(Disabled::default());
-
-    update_global_state.send(UpdateGlobalState);
-}
-
-fn handle_core_cmd(
-    mut events: EventReader<CoreCommand>,
-    mut query: Query<(&mut Count, &mut Disabled)>,
-    mut update_global_state: EventWriter<UpdateGlobalState>,
-) {
+fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut count: ResMut<Count>) {
     for cmd in events.iter() {
-        let (mut count, mut disabled) = query.single_mut();
         match cmd {
             CoreCommand::Increment => {
                 info!("🧠 Increment");
-                count.0 += 1;
+                count.value += 1;
             }
             CoreCommand::Decrement => {
-                if count.0 > 0 {
+                if count.value > 0 {
                     info!("🧠 Decrement");
-                    count.0 -= 1;
+                    count.value -= 1;
                 }
             }
             CoreCommand::Reset => {
-                if count.0 != 0 {
+                if count.value != 0 {
                     info!("🧠 Reset");
-                    count.0 = 0;
+                    count.value = 0;
                 }
             }
         };
-        disabled.0 = count.0 == 0;
-
-        update_global_state.send(UpdateGlobalState);
     }
 }
 
-fn update_global_state(
-    mut events: EventReader<UpdateGlobalState>,
-    query: Query<(&Count, &Disabled)>,
-    mut global_state: EventWriter<GlobalState>,
-) {
-    for _ in events.iter() {
-        let (count, disabled) = query.single();
-
-        global_state.send(GlobalState::Count(count.0));
-        global_state.send(GlobalState::Disabled(disabled.0));
+fn update_global_state(count: Res<Count>, mut global_state: EventWriter<GlobalState>) {
+    if count.is_changed() {
+        global_state.send(GlobalState::Count(count.value));
     }
 }
 
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
     let count = use_read(&cx, COUNT);
-    let disabled = use_read(&cx, DISABLED);
+    let disabled = *count == 0;
 
     let window = use_window::<CoreCommand>(&cx);
 
