@@ -342,8 +342,8 @@ impl DioxusWindows {
                 IpcMessage::from_payload(&payload)
                     .map(|message| match message.method() {
                         "user_event" => {
-                            log::debug!("IpcMessage: user_event");
                             let event = trigger_from_serialized(message.params());
+                            log::debug!("IpcMessage user_event: {event:?}");
                             dom_tx.unbounded_send(SchedulerMsg::Event(event)).unwrap();
                         }
                         "keyboard_event" => {

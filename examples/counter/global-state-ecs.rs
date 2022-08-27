@@ -100,7 +100,7 @@ fn Root(cx: Scope) -> Element {
     let count = use_read(&cx, COUNT);
     let disabled = use_read(&cx, DISABLED);
 
-    let window = use_window::<CoreCommand, ()>(&cx);
+    let window = use_window::<CoreCommand>(&cx);
 
     cx.render(rsx! {
         h1 { "Counter Example" }

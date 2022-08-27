@@ -72,7 +72,7 @@ where
     }
 
     /// Configure tao with common settings for a desktop application.
-    pub fn desktop_app() -> Self {
+    pub fn application() -> Self {
         DioxusSettings {
             focused_mode: UpdateMode::Reactive {
                 max_wait: Duration::from_secs(5),
@@ -200,7 +200,7 @@ where
     Props: Default,
 {
     fn default() -> Self {
-        Self::desktop_app()
+        Self::application()
     }
 }
 

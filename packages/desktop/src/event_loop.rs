@@ -26,7 +26,7 @@ use wry::application::{
     event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget},
 };
 
-pub fn start_event_roop<CoreCommand, Props>(mut app: App)
+pub fn start_event_loop<CoreCommand, Props>(mut app: App)
 where
     CoreCommand: 'static + Send + Sync + Clone + Debug,
     Props: 'static + Send + Sync + Clone + Default,
@@ -386,7 +386,6 @@ where
                 Event::MainEventsCleared => {
                     handle_create_window_events::<CoreCommand, Props>(&mut app.world);
                     let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
-                    log::debug!("prevent_app_update: {}", tao_state.prevent_app_update);
                     let update = if !tao_state.active {
                         false
                     } else {
@@ -407,18 +406,10 @@ where
                         tao_state.last_update = Instant::now();
                         log::debug!("app.update()");
                         app.update();
-                        // let mut dioxus_windows = app
-                        //     .world
-                        //     .get_non_send_resource_mut::<DioxusWindows>()
-                        //     .unwrap();
-
-                        // tao_state.prevent_app_update = true;
-                        // let dioxus_window = dioxus_windows.get_mut(id).unwrap();
-                        // dioxus_window.rerender();
                     }
                 }
                 Event::RedrawEventsCleared => {
-                    log::debug!("######################################");
+                    log::debug!("");
                     tao_state.prevent_app_update = true;
 
                     let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();

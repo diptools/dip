@@ -7,12 +7,13 @@ mod system;
 mod ui;
 
 use crate::{channel::*, event::*, global_state::*, resource::*, system::*, ui::Root};
-use bevy::prelude::*;
+use bevy::{log::LogPlugin, prelude::*};
 use bevy_dioxus::desktop::prelude::*;
 
 fn main() {
     App::new()
-        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand, ()>::new(Root))
+        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
+        .add_plugin(LogPlugin)
         .add_plugin(GlobalStatePlugin)
         .init_resource::<Settings>()
         .add_event::<CreateTodo>()

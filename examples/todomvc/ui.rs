@@ -5,7 +5,7 @@ use dioxus::prelude::*;
 
 #[allow(non_snake_case)]
 pub fn Root(cx: Scope) -> Element {
-    let window = use_window::<CoreCommand, ()>(&cx);
+    let window = use_window::<CoreCommand>(&cx);
 
     let todo_list = use_read(&cx, TODO_LIST);
     let settings = use_read(&cx, SETTINGS);
@@ -90,6 +90,7 @@ pub fn Root(cx: Scope) -> Element {
                 },
                 todo_list.iter().map(|todo| rsx! {
                     li {
+                        key: "{todo.entity:?}",
                         style: "display: flex; align-items: center; justify-content: space-between; background: #ddd; padding: 1rem; height: 32px;",
                         onmouseover: |_| {
                             hovered.set(Some(todo.entity));

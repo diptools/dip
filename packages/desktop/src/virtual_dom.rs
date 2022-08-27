@@ -67,7 +67,8 @@ where
             select! {
                 // 1) when no work
                 () = self.virtual_dom.wait_for_work() => {
-                    // log::debug!("wait_for_work");
+                    log::debug!("pulling work");
+                    self.apply_edits();
                 }
                 // 2) when global state is changed or injected window.document event is emitted
                 cmd = self.command_rx.receive() => {
@@ -76,7 +77,6 @@ where
                             VirtualDomCommand::UpdateDom => {
                                 log::debug!("VirtualDomCommand::UpdateDom");
                                 self.apply_edits();
-                                self.rerender();
                             }
                             VirtualDomCommand::GlobalState(state) => {
                                 log::debug!("VirtualDomCommand::GlobalState");
@@ -84,11 +84,14 @@ where
                                 state.handler(root.clone());
 
                                 self.apply_edits();
-                                self.rerender();
                             }
                         };
                     }
                 }
+            }
+
+            if !self.edit_queue.lock().unwrap().is_empty() {
+                self.rerender();
             }
         }
     }
@@ -109,7 +112,6 @@ where
     }
 
     fn apply_edits(&mut self) {
-        log::debug!("apply_edits");
         let muts = self.virtual_dom.work_with_deadline(|| false);
         for edit in muts {
             self.edit_queue
@@ -120,7 +122,6 @@ where
     }
 
     fn rerender(&self) {
-        log::debug!("rerender");
         let ui_context: UiContext<CoreCommand> =
             self.virtual_dom.base_scope().consume_context().unwrap();
         ui_context.rerender();

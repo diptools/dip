@@ -3,6 +3,32 @@ title = "Overview"
 weight = 0
 +++
 
+## Channels
+```rust
+let (vdom_scheduler_tx, vdom_scheduler_rx) = mpsc::unbounded::<SchedulerMsg>();
+let (vdom_command_tx, vdom_command_rx) = channel::<VirtualDomCommand<GlobalState>>(8);
+let (core_tx, core_rx) = channel::<CoreCommand>(8);
+let proxy = event_loop.create_proxy();
+```
+
+```mermaid
+sequenceDiagram
+    participant WebView
+    participant Window
+    participant VirtualDom
+    participant EventLoop
+    participant Systems
+
+    WebView ->> Window: IpcMessage
+    Window ->> VirtualDom: vdom_scheduler_tx.send()
+    VirtualDom ->> EventLoop: proxy.send()
+    EventLoop ->> Systems: app.update()
+
+    Systems ->> EventLoop: global_state.send()
+    EventLoop ->> VirtualDom: vdom_command_tx.send()
+    VirtualDom ->> Window: dioxus_window.rerender()
+    Window ->> WebView: webviwe.evaluate_script()
+```
 
 ## Render cycle
 
@@ -38,29 +64,29 @@ sequenceDiagram
     EventLoop ->> Systems: app.update()
 ```
 
-## Channels
-```rust
-let (vdom_scheduler_tx, vdom_scheduler_rx) = mpsc::unbounded::<SchedulerMsg>();
-let (vdom_command_tx, vdom_command_rx) = channel::<VirtualDomCommand<GlobalState>>(8);
-let (core_tx, core_rx) = channel::<CoreCommand>(8);
-let proxy = event_loop.create_proxy();
-```
+### CoreCommand
 
 ```mermaid
 sequenceDiagram
     participant WebView
     participant Window
-    participant VirtualDom
+    participant Plugin
     participant EventLoop
     participant Systems
+    participant VirtualDom
 
-    WebView ->> Window: IpcMessage
-    Window ->> VirtualDom: vdom_scheduler_tx.send()
-    VirtualDom ->> EventLoop: proxy.send()
+    Window ->> Plugin: window.send(cmd)
+    Plugin ->> EventLoop: proxy.send_event(UiEvent::CoreCommand(cmd));
+    EventLoop ->> EventLoop: MainEventsCleared
     EventLoop ->> Systems: app.update()
-
-    Systems ->> EventLoop: global_state.send()
-    EventLoop ->> VirtualDom: vdom_command_tx.send()
-    VirtualDom ->> Window: dioxus_window.rerender()
+    Note right of Systems: apply_globao_state_command
+    Systems ->> VirtualDom: virtual_dom_command.try_send(VirtualDomCommand::GlobalState(state));
+    Note right of VirtualDom: apply_edits()
+    Note right of VirtualDom: rerender()
+    VirtualDom ->> EventLoop: Event::UserEvent(WindowEvent::Rerender)
+    EventLoop ->> Window: dioxus_window.rerender()
     Window ->> WebView: webviwe.evaluate_script()
+
+    EventLoop ->> EventLoop: RedrawRequested
+    EventLoop ->> EventLoop: RedrawEventsCleared
 ```

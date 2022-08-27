@@ -50,8 +50,8 @@ name = "window-settings"
 path = "examples/window/settings.rs"
 
 [[example]]
-name = "update-mode"
-path = "examples/window/update-mode.rs"
+name = "render-mode"
+path = "examples/window/render-mode.rs"
 
 [[example]]
 name = "multiple-windows"

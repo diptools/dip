@@ -4,7 +4,7 @@
 use crate::{
     context::UiContext,
     event::{KeyboardEvent, UiEvent, VirtualDomCommand},
-    event_loop::start_event_roop,
+    event_loop::start_event_loop,
     setting::DioxusSettings,
     stage::UiStage,
     system::change_window,
@@ -60,6 +60,7 @@ where
         let proxy_clone = proxy.clone();
         runtime.spawn(async move {
             while let Some(cmd) = core_rx.clone().receive().await {
+                log::debug!("CoreCommand: {:#?}", cmd);
                 proxy_clone.send_event(UiEvent::CoreCommand(cmd)).unwrap();
             }
         });
@@ -80,7 +81,7 @@ where
             .init_non_send_resource::<DioxusWindows>()
             .insert_non_send_resource(settings)
             .insert_non_send_resource(event_loop)
-            .set_runner(|app| start_event_roop::<CoreCommand, Props>(app))
+            .set_runner(|app| start_event_loop::<CoreCommand, Props>(app))
             .add_system_to_stage(UiStage::Update, change_window.label(ModifiesWindows));
 
         std::thread::spawn(move || {
