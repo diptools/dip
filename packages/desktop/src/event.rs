@@ -81,7 +81,7 @@ pub(crate) fn trigger_from_serialized(val: serde_json::Value) -> UserEvent {
 #[derive(Debug)]
 pub enum WindowEvent {
     /// When VirtualDOM applies all edits
-    Update,
+    Rerender,
 
     /// When close window is requested
     CloseWindow,
@@ -129,7 +129,7 @@ pub enum WindowEvent {
 
 /// Event to control VirtualDom from outside
 #[derive(Debug)]
-pub enum VDomCommand<GlobalState> {
+pub enum VirtualDomCommand<GlobalState> {
     /// Apply all edits
     UpdateDom,
 

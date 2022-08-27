@@ -34,11 +34,7 @@ members = [
 ]
 
 [[example]]
-name = "counter-channel"
-path = "examples/counter/channel.rs"
-
-[[example]]
-name = "counter-global-state-ecs"
+name = "counter"
 path = "examples/counter/global-state-ecs.rs"
 
 [[example]]
@@ -50,8 +46,8 @@ name = "window-settings"
 path = "examples/window/settings.rs"
 
 [[example]]
-name = "update-mode"
-path = "examples/window/update-mode.rs"
+name = "render-mode"
+path = "examples/window/render-mode.rs"
 
 [[example]]
 name = "multiple-windows"

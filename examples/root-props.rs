@@ -8,9 +8,7 @@ fn main() {
             title: "Props Example".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), (), RootProps>::new(
-            Root,
-        ))
+        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), RootProps>::new(Root))
         .add_plugin(LogPlugin)
         .run();
 }

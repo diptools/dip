@@ -15,43 +15,28 @@ use bevy::{
     utils::Instant,
     window::{
         CreateWindow, FileDragAndDrop, ReceivedCharacter, RequestRedraw,
-        WindowBackendScaleFactorChanged, WindowCloseRequested, WindowFocused, WindowId, WindowMode,
-        WindowMoved, WindowResized, WindowScaleFactorChanged, Windows,
+        WindowBackendScaleFactorChanged, WindowCloseRequested, WindowCreated, WindowFocused,
+        WindowId, WindowMode, WindowMoved, WindowResized, WindowScaleFactorChanged, Windows,
     },
 };
-use futures_intrusive::channel::shared::Receiver;
 use std::fmt::Debug;
-use tokio::runtime::Runtime;
 use wry::application::{
     dpi::LogicalSize,
     event::{DeviceEvent, Event, StartCause, WindowEvent as TaoWindowEvent},
     event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget},
 };
 
-pub fn runner<CoreCommand, UiCommand, Props>(mut app: App)
+pub fn start_event_loop<CoreCommand, Props>(mut app: App)
 where
     CoreCommand: 'static + Send + Sync + Clone + Debug,
-    UiCommand: 'static + Send + Sync + Clone + Debug,
     Props: 'static + Send + Sync + Clone + Default,
 {
     let event_loop = app
         .world
         .remove_non_send_resource::<EventLoop<UiEvent<CoreCommand>>>()
         .unwrap();
-    let core_rx = app
-        .world
-        .remove_resource::<Receiver<CoreCommand>>()
-        .unwrap();
-    let runtime = app.world.get_resource::<Runtime>().unwrap();
-    let proxy = event_loop.create_proxy();
 
     let mut tao_state = TaoPersistentState::default();
-
-    runtime.spawn(async move {
-        while let Some(cmd) = core_rx.receive().await {
-            proxy.clone().send_event(UiEvent::CoreCommand(cmd)).unwrap();
-        }
-    });
 
     event_loop.run(
         move |event: Event<UiEvent<CoreCommand>>,
@@ -60,8 +45,9 @@ where
             log::debug!("{event:?}");
             match event {
                 Event::NewEvents(start) => {
-                    let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
-                    let windows = app.world.resource::<Windows>();
+                    let world = app.world.cell();
+                    let dioxus_settings = world.non_send_resource::<DioxusSettings<Props>>();
+                    let windows = world.resource::<Windows>();
                     let focused = windows.iter().any(|w| w.is_focused());
                     let auto_timeout_reached =
                         matches!(start, StartCause::ResumeTimeReached { .. });
@@ -81,6 +67,7 @@ where
                     window_id: tao_window_id,
                     ..
                 } => {
+                    tao_state.prevent_app_update = false;
                     let world = app.world.cell();
                     let dioxus_windows =
                         world.get_non_send_resource_mut::<DioxusWindows>().unwrap();
@@ -243,6 +230,7 @@ where
                     }
                 }
                 Event::UserEvent(user_event) => {
+                    tao_state.prevent_app_update = false;
                     match user_event {
                         UiEvent::WindowEvent(window_event) => {
                             let world = app.world.cell();
@@ -255,9 +243,10 @@ where
                             let tao_window = dioxus_windows.get_tao_window(id).unwrap();
 
                             match window_event {
-                                WindowEvent::Update => {
+                                WindowEvent::Rerender => {
+                                    tao_state.prevent_app_update = true;
                                     let dioxus_window = dioxus_windows.get_mut(id).unwrap();
-                                    dioxus_window.update();
+                                    dioxus_window.rerender();
                                 }
                                 WindowEvent::CloseWindow => {
                                     let mut events = world
@@ -382,6 +371,7 @@ where
                     event: DeviceEvent::MouseMotion { delta, .. },
                     ..
                 } => {
+                    tao_state.prevent_app_update = false;
                     let mut mouse_motion_events = app.world.resource_mut::<Events<MouseMotion>>();
                     mouse_motion_events.send(MouseMotion {
                         delta: Vec2::new(delta.0 as f32, delta.1 as f32),
@@ -394,21 +384,22 @@ where
                     tao_state.active = true;
                 }
                 Event::MainEventsCleared => {
-                    handle_create_window_events::<CoreCommand, UiCommand, Props>(&mut app.world);
+                    handle_create_window_events::<CoreCommand, Props>(&mut app.world);
                     let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
-                    let update = if tao_state.active {
+                    let update = if !tao_state.active {
+                        false
+                    } else {
                         let windows = app.world.resource::<Windows>();
                         let focused = windows.iter().any(|w| w.is_focused());
                         match dioxus_settings.update_mode(focused) {
                             UpdateMode::Continuous { .. } => true,
-                            UpdateMode::Reactive { .. } | UpdateMode::ReactiveLowPower { .. } => {
+                            UpdateMode::Reactive { .. } => !tao_state.prevent_app_update,
+                            UpdateMode::ReactiveLowPower { .. } => {
                                 tao_state.low_power_event
                                     || tao_state.redraw_request_sent
                                     || tao_state.timeout_reached
                             }
                         }
-                    } else {
-                        false
                     };
 
                     if update {
@@ -418,20 +409,24 @@ where
                     }
                 }
                 Event::RedrawEventsCleared => {
-                    {
-                        let dioxus_settings =
-                            app.world.non_send_resource::<DioxusSettings<Props>>();
-                        let windows = app.world.non_send_resource::<Windows>();
-                        let focused = windows.iter().any(|w| w.is_focused());
-                        let now = Instant::now();
-                        use UpdateMode::*;
-                        *control_flow = match dioxus_settings.update_mode(focused) {
-                            Continuous => ControlFlow::Poll,
-                            Reactive { max_wait } | ReactiveLowPower { max_wait } => {
-                                ControlFlow::WaitUntil(now + *max_wait)
-                            }
-                        };
-                    }
+                    log::debug!("");
+                    tao_state.prevent_app_update = true;
+
+                    let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
+                    let windows = app.world.non_send_resource::<Windows>();
+                    let focused = windows.iter().any(|w| w.is_focused());
+                    let now = Instant::now();
+                    use UpdateMode::*;
+                    *control_flow = match dioxus_settings.update_mode(focused) {
+                        Continuous => ControlFlow::Poll,
+                        Reactive { max_wait } | ReactiveLowPower { max_wait } => {
+                            ControlFlow::WaitUntil(now + *max_wait)
+                        }
+                    };
+
+                    // This block needs to run after `app.update()` in `MainEventsCleared`. Otherwise,
+                    // we won't be able to see redraw requests until the next event, defeating the
+                    // purpose of a redraw request!
                     let mut redraw = false;
                     if let Some(app_redraw_events) =
                         app.world.get_resource::<Events<RequestRedraw>>()
@@ -457,30 +452,29 @@ where
     );
 }
 
-fn handle_create_window_events<CoreCommand, UiCommand, Props>(world: &mut World)
+fn handle_create_window_events<CoreCommand, Props>(world: &mut World)
 where
     CoreCommand: 'static + Send + Sync + Clone + Debug,
-    UiCommand: 'static + Send + Sync + Clone + Debug,
     Props: 'static + Send + Sync + Clone,
 {
     let world = world.cell();
-    // let mut dioxus_windows = world.get_non_send_mut::<DioxusWindows>().unwrap();
-    // let mut windows = world.get_resource_mut::<Windows>().unwrap();
+    let mut dioxus_windows = world.get_non_send_resource_mut::<DioxusWindows>().unwrap();
+    let mut windows = world.get_resource_mut::<Windows>().unwrap();
     let create_window_events = world.get_resource::<Events<CreateWindow>>().unwrap();
     let mut create_window_events_reader = ManualEventReader::<CreateWindow>::default();
-    // let mut window_created_events = world.get_resource_mut::<Events<WindowCreated>>().unwrap();
+    let mut window_created_events = world.get_resource_mut::<Events<WindowCreated>>().unwrap();
 
-    for _create_window_event in create_window_events_reader.iter(&create_window_events) {
+    for create_window_event in create_window_events_reader.iter(&create_window_events) {
         warn!("Multiple Windows isn't supported yet!");
-        //     let window = dioxus_windows.create::<CoreCommand, UiCommand, Props>(
-        //         &world,
-        //         create_window_event.id,
-        //         &create_window_event.descriptor,
-        //     );
-        //     windows.add(window);
-        //     window_created_events.send(WindowCreated {
-        //         id: create_window_event.id,
-        //     });
+        let window = dioxus_windows.create::<CoreCommand, Props>(
+            &world,
+            create_window_event.id,
+            &create_window_event.descriptor,
+        );
+        windows.add(window);
+        window_created_events.send(WindowCreated {
+            id: create_window_event.id,
+        });
     }
 }
 
@@ -489,6 +483,7 @@ struct TaoPersistentState {
     low_power_event: bool,
     redraw_request_sent: bool,
     timeout_reached: bool,
+    prevent_app_update: bool,
     last_update: Instant,
 }
 
@@ -499,6 +494,7 @@ impl Default for TaoPersistentState {
             low_power_event: false,
             redraw_request_sent: false,
             timeout_reached: false,
+            prevent_app_update: true,
             last_update: Instant::now(),
         }
     }

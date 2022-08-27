@@ -8,12 +8,20 @@ fn main() {
             keyboard_event: true,
             ..Default::default()
         })
+        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
+        .add_plugin(GlobalStatePlugin)
+        .init_resource::<EventType>()
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<EmptyGlobalState, CoreCommand, ()>::new(Root))
-        .add_startup_system(setup)
         .add_system(handle_core_cmd)
+        .add_system(apply_global_state)
         .add_system(log_keyboard_event)
         .run();
+}
+
+#[global_state]
+struct GlobalState {
+    event_type: EventType,
+    input_result: InputResult,
 }
 
 // Bevy Components
@@ -23,11 +31,39 @@ struct SelectedType(EventType);
 // UI -> Core
 #[derive(Debug, Clone)]
 enum CoreCommand {
-    NewEventType(EventType),
+    EventType(EventType),
 }
 
-#[derive(Component, Debug, Clone, PartialEq)]
-enum EventType {
+impl CoreCommand {
+    fn keyboard_event() -> Self {
+        Self::EventType(EventType::KeyboardEvent)
+    }
+
+    fn keyboard_input() -> Self {
+        Self::EventType(EventType::KeyboardInput)
+    }
+
+    fn received_char() -> Self {
+        Self::EventType(EventType::ReceivedCharacter)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum InputResult {
+    KeyboardEvent(KeyboardEvent),
+    KeyboardInput(KeyboardInput),
+    ReceivedCharacter(ReceivedCharacter),
+    None,
+}
+
+impl Default for InputResult {
+    fn default() -> Self {
+        Self::None
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum EventType {
     KeyboardEvent,
     KeyboardInput,
     ReceivedCharacter,
@@ -42,89 +78,104 @@ impl Default for EventType {
 // UI Component
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
-    let event_type = use_state(&cx, || EventType::default());
-    let window = use_window::<CoreCommand, ()>(&cx);
+    let event_type = use_read(&cx, EVENT_TYPE);
+    let input_result = use_read(&cx, INPUT_RESULT);
+    let window = use_window::<CoreCommand>(&cx);
 
-    use EventType::*;
     cx.render(rsx! {
         h1 { "Keyboard Event Example" }
         p { "💡 Type any keys and checkout console. (TODO: You might need to click screen to focus.)" }
 
         div {
-            input {
-                r#type: "radio",
-                id: "keyboard-event",
-                checked: format_args!("{}", *event_type == KeyboardEvent),
-                onchange: |_e| {
-                    event_type.modify(|_| KeyboardEvent);
-                    window.send(CoreCommand::NewEventType(KeyboardEvent));
+            select {
+                value: format_args!("{:?}", event_type),
+                onchange: |e| {
+                    match e.value.as_str() {
+                        "KeyboardEvent" => {
+                            window.send(CoreCommand::keyboard_event());
+                        },
+                        "KeyboardInput" => {
+                            window.send(CoreCommand::keyboard_input());
+                        },
+                        "ReceivedCharacter" => {
+                            window.send(CoreCommand::received_char());
+                        }
+                        _ => {}
+                    };
                 },
-                style: "margin: 0.5rem;",
+
+                option {
+                    value: "KeyboardEvent",
+                    "KeyboardEvent"
+                }
+                option {
+                    value: "KeyboardInput",
+                    "KeyboardInput"
+                }
+                option {
+                    value: "ReceivedCharacter",
+                    "ReceivedCharacter"
+                }
             }
-            label {
-                r#for: "keyboard-event",
-                style: "padding-right: 1rem;",
-                "KeyboardEvent",
-            }
-            input {
-                r#type: "radio",
-                id: "keyboard-input",
-                checked: format_args!("{}", *event_type == KeyboardInput),
-                onchange: |_e| {
-                    event_type.modify(|_| KeyboardInput);
-                    window.send(CoreCommand::NewEventType(KeyboardInput));
-                },
-                style: "margin: 0.5rem;",
-            }
-            label {
-                r#for: "keyboard-input",
-                style: "padding-right: 1rem;",
-                "KeyboardInput",
-            }
-            input {
-                r#type: "radio",
-                id: "received-character",
-                checked: format_args!("{}", *event_type == ReceivedCharacter),
-                onchange: |_e| {
-                    event_type.modify(|_| ReceivedCharacter);
-                    window.send(CoreCommand::NewEventType(ReceivedCharacter));
-                },
-                style: "margin: 0.5rem;",
-            }
-            label {
-                r#for: "received-character",
-                style: "padding-right: 1rem;",
-                "ReceivedCharacter",
-            }
+        }
+        
+        code {
+            [format_args!("Input result: {:#?}", input_result)],
         }
     })
 }
 
-// Systems
-fn setup(mut commands: Commands) {
-    commands.spawn().insert(SelectedType::default());
-}
-
-fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut query: Query<&mut SelectedType>) {
+fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut event_type: ResMut<EventType>) {
     for cmd in events.iter() {
-        let mut selected = query.single_mut();
         match cmd {
-            CoreCommand::NewEventType(e) => {
-                info!("🧠 NewEventType: {:?}", e);
-                selected.0 = e.clone();
+            CoreCommand::EventType(e) => {
+                info!("🧠　EventType: {:?}", e);
+                *event_type = e.clone();
             }
         }
     }
+}
+
+fn apply_global_state(
+    event_type: Res<EventType>,
+    mut global_state: EventWriter<GlobalState>,
+    mut keyboard_events: EventReader<KeyboardEvent>,
+    mut keyboard_inputs: EventReader<KeyboardInput>,
+    mut received_characters: EventReader<ReceivedCharacter>,
+) {
+    if event_type.is_changed() {
+        global_state.send(GlobalState::EventType(event_type.clone()));
+    }
+    
+    match event_type.clone() {
+        EventType::KeyboardEvent => {
+            for e in keyboard_events.iter() {
+                global_state.send(GlobalState::InputResult(InputResult::KeyboardEvent(e.clone())));
+            }
+            
+        }
+        EventType::KeyboardInput => {
+            for e in keyboard_inputs.iter() {
+                global_state.send(GlobalState::InputResult(InputResult::KeyboardInput(e.clone())));
+            }
+            
+        }
+        EventType::ReceivedCharacter => {
+            for e in received_characters.iter() {
+                global_state.send(GlobalState::InputResult(InputResult::ReceivedCharacter(e.clone())));
+            }
+            
+        }
+    };
 }
 
 fn log_keyboard_event(
     mut keyboard_events: EventReader<KeyboardEvent>,
     mut keyboard_input_events: EventReader<KeyboardInput>,
     mut received_character_events: EventReader<ReceivedCharacter>,
-    query: Query<&SelectedType>,
+    event_type: Res<EventType>,
 ) {
-    let selected = query.single();
-    match selected.0 {
+    match *event_type {
         EventType::KeyboardEvent => {
             for event in keyboard_events.iter() {
                 info!("🧠 {:?}", event.clone());

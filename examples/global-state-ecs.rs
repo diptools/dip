@@ -64,7 +64,7 @@ fn update_global_state(
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
     let name = use_read(&cx, NAME);
-    let window = use_window::<CoreCommand, ()>(&cx);
+    let window = use_window::<CoreCommand>(&cx);
 
     cx.render(rsx! {
         h1 { "Hello, {name} !" }
