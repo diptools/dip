@@ -1,10 +1,10 @@
-use bevy::{
-    log::{self, LogPlugin},
-    prelude::*,
-    time::TimePlugin,
+use bevy_dioxus::{
+    bevy::{
+        log::{self, LogPlugin},
+        time::TimePlugin,
+    },
+    desktop::prelude::*,
 };
-use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
 
 /// This example illustrates how to customize render setting
 fn main() {

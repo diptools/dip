@@ -1,11 +1,9 @@
-use bevy::prelude::*;
 use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
 
 fn main() {
     App::new()
         .add_plugin(GlobalStatePlugin)
-        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand, ()>::new(Root))
+        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
         .add_event::<UpdateGlobalState>()
         .add_startup_system(setup)
         .add_system(handle_core_cmd)

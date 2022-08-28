@@ -1,4 +1,4 @@
-use bevy::ecs::prelude::*;
+use bevy_dioxus::desktop::prelude::*;
 use chrono::{DateTime, Utc};
 
 // Component Bundle

@@ -1,6 +1,7 @@
-use bevy::{log::LogPlugin, prelude::*, time::TimePlugin, window::PresentMode};
-use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
+use bevy_dioxus::{
+    bevy::{log::LogPlugin, time::TimePlugin, window::PresentMode},
+    desktop::prelude::*,
+};
 
 /// This example illustrates how to customize the default window settings
 fn main() {

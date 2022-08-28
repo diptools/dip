@@ -1,6 +1,5 @@
 use crate::{component::*, resource::*};
-use bevy::prelude::*;
-use bevy_dioxus::core::prelude::*;
+use bevy_dioxus::desktop::prelude::*;
 use chrono::{DateTime, Utc};
 
 #[global_state]

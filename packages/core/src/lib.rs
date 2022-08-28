@@ -1,6 +1,6 @@
 //! Shared resources across platforms
 
-use fermi::AtomRoot;
+use dioxus::fermi::AtomRoot;
 use std::rc::Rc;
 
 /// Trait to provide custom handerl for global states. This trait is automatically implemented with GlobalStatePlugin macro.
@@ -18,5 +18,7 @@ impl GlobalStateHandler for EmptyGlobalState {
 
 pub mod prelude {
     pub use crate::{EmptyGlobalState, GlobalStateHandler};
+    pub use bevy::prelude::*;
     pub use bevy_dioxus_macro::global_state;
+    pub use dioxus::prelude::*;
 }

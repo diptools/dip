@@ -38,4 +38,3 @@ core-foundation = "0.9"
 # for examples in docs
 [dev-dependencies]
 bevy_dioxus = { version = "0.1", path = "../.." }
-dioxus = "0.2"

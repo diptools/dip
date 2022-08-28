@@ -111,9 +111,7 @@ where
     /// Initialize DioxusPlugin with root component and channel types
     ///
     /// ```no_run
-    /// use bevy::prelude::*;
     /// use bevy_dioxus::desktop::prelude::*;
-    /// use dioxus::prelude::*;
     ///
     /// // DioxusPlugin accepts any types as command. Pass empty tuple if channel is not necessary.
     /// type CoreCommand = ();

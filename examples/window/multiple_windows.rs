@@ -1,10 +1,10 @@
-use bevy::{
-    log::LogPlugin,
-    prelude::*,
-    window::{CreateWindow, WindowDescriptor, WindowId},
+use bevy_dioxus::{
+    bevy::{
+        log::LogPlugin,
+        window::{CreateWindow, WindowDescriptor, WindowId},
+    },
+    desktop::prelude::*,
 };
-use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
 
 /// This example attemps to create a second window then warning shows up
 fn main() {

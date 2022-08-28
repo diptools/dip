@@ -1,5 +1,5 @@
 use crate::{global_state::UiTodo, resource::*};
-use bevy::ecs::prelude::*;
+use bevy_dioxus::desktop::prelude::*;
 
 // UI -> Core
 

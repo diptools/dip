@@ -7,8 +7,7 @@ mod system;
 mod ui;
 
 use crate::{channel::*, event::*, global_state::*, resource::*, system::*, ui::Root};
-use bevy::{log::LogPlugin, prelude::*};
-use bevy_dioxus::desktop::prelude::*;
+use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
 
 fn main() {
     App::new()

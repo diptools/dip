@@ -1,12 +1,10 @@
-use bevy::{log::LogPlugin, prelude::*};
-use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
+use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
 
 fn main() {
     App::new()
         .add_plugin(LogPlugin)
         .add_plugin(GlobalStatePlugin)
-        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand, ()>::new(Root))
+        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
         .add_plugin(GlobalStatePlugin)
         .init_resource::<Count>()
         .add_system(handle_core_cmd)
