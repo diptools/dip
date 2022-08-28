@@ -1,6 +1,4 @@
-use bevy::prelude::*;
 use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
 
 fn main() {
     App::new()

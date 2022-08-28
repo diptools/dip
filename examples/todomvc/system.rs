@@ -1,5 +1,5 @@
 use crate::{channel::*, component::*, event::*, global_state::*, resource::*};
-use bevy::ecs::prelude::*;
+use bevy_dioxus::desktop::prelude::*;
 
 pub fn handle_core_cmd(
     mut events: EventReader<CoreCommand>,

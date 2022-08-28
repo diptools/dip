@@ -1,6 +1,4 @@
-use bevy::prelude::*;
 use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
 
 fn main() {
     App::new()
@@ -8,7 +6,7 @@ fn main() {
             title: "Local State".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), ()>::new(Root))
+        .add_plugin(DioxusPlugin::<EmptyGlobalState, ()>::new(Root))
         .run();
 }
 

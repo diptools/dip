@@ -2,6 +2,9 @@
 
 #![deny(missing_docs)]
 
+pub use bevy_dioxus_core::*;
+pub use futures_intrusive;
+
 mod context;
 mod converter;
 pub mod event;
@@ -26,5 +29,4 @@ pub mod prelude {
         stage::UiStage,
     };
     pub use bevy_dioxus_core::prelude::*;
-    pub use futures_intrusive::channel::{shared::Sender, TrySendError};
 }

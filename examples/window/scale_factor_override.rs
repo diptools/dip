@@ -1,6 +1,4 @@
-use bevy::{log::LogPlugin, prelude::*};
-use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
+use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
 
 /// This example open window with specific size then resize
 fn main() {

@@ -15,12 +15,11 @@ bevy = { version = "0.8", default-features = false }
 bevy_dioxus_core = { version = "0.1", path = "./packages/core" }
 bevy_dioxus_desktop = { version = "0.1", path = "./packages/desktop", optional = true }
 bevy_dioxus_macro = { version = "0.1", path = "./packages/macro" }
+dioxus = { version = "0.2", features = ["fermi"] }
 
 [dev-dependencies]
 chrono = "0.4"
-dioxus = { version = "0.2", features = ["fermi"] }
 leafwing-input-manager = { version = "0.5", default-features = false }
-futures-intrusive = "0.4"
 
 [features]
 default = ["desktop"]

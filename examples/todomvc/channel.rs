@@ -1,5 +1,5 @@
 use crate::{event::*, resource::*};
-use bevy::ecs::prelude::*;
+use bevy_dioxus::desktop::prelude::*;
 
 #[derive(Clone, Debug)]
 pub enum CoreCommand {

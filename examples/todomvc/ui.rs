@@ -1,7 +1,5 @@
 use crate::{channel::CoreCommand, global_state::*};
-use bevy::ecs::prelude::*;
 use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
 
 #[allow(non_snake_case)]
 pub fn Root(cx: Scope) -> Element {

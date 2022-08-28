@@ -1,6 +1,7 @@
-use bevy::{input::keyboard::KeyboardInput, log::LogPlugin, prelude::*};
-use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
+use bevy_dioxus::{
+    bevy::{input::keyboard::KeyboardInput, log::LogPlugin},
+    desktop::prelude::*,
+};
 
 fn main() {
     App::new()
@@ -146,25 +147,28 @@ fn apply_global_state(
     if event_type.is_changed() {
         global_state.send(GlobalState::EventType(event_type.clone()));
     }
-    
+
     match event_type.clone() {
         EventType::KeyboardEvent => {
             for e in keyboard_events.iter() {
-                global_state.send(GlobalState::InputResult(InputResult::KeyboardEvent(e.clone())));
+                global_state.send(GlobalState::InputResult(InputResult::KeyboardEvent(
+                    e.clone(),
+                )));
             }
-            
         }
         EventType::KeyboardInput => {
             for e in keyboard_inputs.iter() {
-                global_state.send(GlobalState::InputResult(InputResult::KeyboardInput(e.clone())));
+                global_state.send(GlobalState::InputResult(InputResult::KeyboardInput(
+                    e.clone(),
+                )));
             }
-            
         }
         EventType::ReceivedCharacter => {
             for e in received_characters.iter() {
-                global_state.send(GlobalState::InputResult(InputResult::ReceivedCharacter(e.clone())));
+                global_state.send(GlobalState::InputResult(InputResult::ReceivedCharacter(
+                    e.clone(),
+                )));
             }
-            
         }
     };
 }

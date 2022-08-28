@@ -1,12 +1,12 @@
-use bevy::{
-    input::keyboard::KeyCode,
-    log::LogPlugin,
-    prelude::*,
-    time::TimePlugin,
-    window::{WindowCloseRequested, WindowId},
+use bevy_dioxus::{
+    bevy::{
+        input::keyboard::KeyCode,
+        log::LogPlugin,
+        time::TimePlugin,
+        window::{WindowCloseRequested, WindowId},
+    },
+    desktop::prelude::*,
 };
-use bevy_dioxus::desktop::prelude::*;
-use dioxus::prelude::*;
 use leafwing_input_manager::prelude::*;
 
 fn main() {

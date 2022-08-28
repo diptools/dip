@@ -11,5 +11,6 @@ documentation = "https://docs.rs/bevy_dioxus/latest/bevy_dioxus/"
 keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
 [dependencies]
+bevy = { version = "0.8", default-features = false }
 bevy_dioxus_macro = { version = "0.1", path = "../macro"}
-fermi = "0.2"
+dioxus = { version = "0.2", features = ["fermi"] }
