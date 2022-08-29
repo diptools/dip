@@ -19,7 +19,7 @@ jobs:
       - name: Install prerequisites
         run: |
           sudo apt-get install -y \
-            libudev-sys \
+            libudev-dev \
             libwebkit2gtk-4.0-dev \
             build-essential \
             curl \
@@ -38,7 +38,7 @@ jobs:
       - name: Install prerequisites
         run: |
           sudo apt-get install -y \
-            libudev-sys \
+            libudev-dev \
             libwebkit2gtk-4.0-dev \
             build-essential \
             curl \
@@ -57,7 +57,7 @@ jobs:
       - name: Install prerequisites
         run: |
           sudo apt-get install -y \
-            libudev-sys \
+            libudev-dev \
             libwebkit2gtk-4.0-dev \
             build-essential \
             curl \
