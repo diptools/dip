@@ -6,7 +6,6 @@ use crate::{
     event::{KeyboardEvent, UiEvent, VirtualDomCommand},
     event_loop::start_event_loop,
     setting::DioxusSettings,
-    stage::UiStage,
     system::change_window,
     virtual_dom::VirtualDom,
     window::DioxusWindows,
@@ -70,7 +69,6 @@ where
         let edit_queue_clone = edit_queue.clone();
         let vdom_scheduler_tx_clone = vdom_scheduler_tx.clone();
         app.add_plugin(WindowPlugin::default())
-            .add_plugin(UiStagePlugin)
             .add_plugin(InputPlugin)
             .add_event::<KeyboardEvent>()
             .add_event::<CoreCommand>()
@@ -82,7 +80,7 @@ where
             .insert_non_send_resource(settings)
             .insert_non_send_resource(event_loop)
             .set_runner(|app| start_event_loop::<CoreCommand, Props>(app))
-            .add_system_to_stage(UiStage::Update, change_window.label(ModifiesWindows));
+            .add_system_to_stage(CoreStage::PostUpdate, change_window.label(ModifiesWindows));
 
         std::thread::spawn(move || {
             Runtime::new().unwrap().block_on(async move {
@@ -158,25 +156,5 @@ where
                 id: create_window_event.id,
             });
         }
-    }
-}
-
-struct UiStagePlugin;
-
-impl Plugin for UiStagePlugin {
-    fn build(&self, app: &mut App) {
-        app.add_stage_after(
-            CoreStage::PostUpdate,
-            UiStage::First,
-            SystemStage::parallel(),
-        )
-        .add_stage_after(UiStage::First, UiStage::PreUpdate, SystemStage::parallel())
-        .add_stage_after(UiStage::PreUpdate, UiStage::Update, SystemStage::parallel())
-        .add_stage_after(
-            UiStage::Update,
-            UiStage::PostUpdate,
-            SystemStage::parallel(),
-        )
-        .add_stage_after(UiStage::PostUpdate, UiStage::Last, SystemStage::parallel());
     }
 }
