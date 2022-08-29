@@ -13,7 +13,6 @@ pub mod hooks;
 pub mod plugin;
 mod protocol;
 pub mod setting;
-pub mod stage;
 mod system;
 mod virtual_dom;
 mod window;
@@ -26,7 +25,6 @@ pub mod prelude {
         hooks::*,
         plugin::DioxusPlugin,
         setting::{DioxusSettings, UpdateMode},
-        stage::UiStage,
     };
     pub use bevy_dioxus_core::prelude::*;
 }
