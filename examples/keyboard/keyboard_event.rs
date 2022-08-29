@@ -119,7 +119,7 @@ fn Root(cx: Scope) -> Element {
                 }
             }
         }
-        
+
         code {
             [format_args!("Input result: {:#?}", input_result)],
         }

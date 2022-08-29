@@ -11,21 +11,21 @@ env:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
       - name: Build
         run: cargo build
   build-examples:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
       - name: Build Examples
         run: cargo build --examples
   test:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
@@ -33,6 +33,14 @@ jobs:
         run: cargo install cargo-workspaces
       - name: Run tests
         run: cargo ws exec cargo test
+  format:
+    runs-on: ubuntu-latest
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v1
+      - name: Check format
+        run: cargo fmt --check
+    steps:
+      - uses: actions/checkout@v2
   changelog:
     runs-on: ubuntu-latest
     steps:
