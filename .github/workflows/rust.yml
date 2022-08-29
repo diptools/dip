@@ -35,12 +35,11 @@ jobs:
         run: cargo ws exec cargo test
   format:
     runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
       - name: Check format
         run: cargo fmt --check
-    steps:
-      - uses: actions/checkout@v2
   changelog:
     runs-on: ubuntu-latest
     steps:
