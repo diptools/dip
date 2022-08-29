@@ -16,6 +16,16 @@ jobs:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
       - run: sudo apt-get install libudev-dev
+      - name: Install prerequisites
+        run: |
+          sudo apt-get install -y libwebkit2gtk-4.0-dev \
+            build-essential \
+            curl \
+            wget \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
       - name: Build
         run: cargo build
   build-examples:
@@ -23,7 +33,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
-      - run: sudo apt-get install libudev-dev
+      - name: Install prerequisites
+        run: |
+          sudo apt-get install -y libwebkit2gtk-4.0-dev \
+            build-essential \
+            curl \
+            wget \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
       - name: Build Examples
         run: cargo build --examples
   test:
@@ -31,7 +50,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v1
-      - run: sudo apt-get install libudev-dev
+      - name: Install prerequisites
+        run: |
+          sudo apt-get install -y libwebkit2gtk-4.0-dev \
+            build-essential \
+            curl \
+            wget \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
       - name: Install cargo-workspaces
         run: cargo install cargo-workspaces
       - name: Run tests
