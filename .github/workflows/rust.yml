@@ -18,7 +18,9 @@ jobs:
       - run: sudo apt-get install libudev-dev
       - name: Install prerequisites
         run: |
-          sudo apt-get install -y libwebkit2gtk-4.0-dev \
+          sudo apt-get install -y \
+            libudev-sys \
+            libwebkit2gtk-4.0-dev \
             build-essential \
             curl \
             wget \
@@ -35,7 +37,9 @@ jobs:
       - uses: Swatinem/rust-cache@v1
       - name: Install prerequisites
         run: |
-          sudo apt-get install -y libwebkit2gtk-4.0-dev \
+          sudo apt-get install -y \
+            libudev-sys \
+            libwebkit2gtk-4.0-dev \
             build-essential \
             curl \
             wget \
@@ -52,7 +56,9 @@ jobs:
       - uses: Swatinem/rust-cache@v1
       - name: Install prerequisites
         run: |
-          sudo apt-get install -y libwebkit2gtk-4.0-dev \
+          sudo apt-get install -y \
+            libudev-sys \
+            libwebkit2gtk-4.0-dev \
             build-essential \
             curl \
             wget \
