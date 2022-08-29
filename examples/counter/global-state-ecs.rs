@@ -3,7 +3,6 @@ use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
 fn main() {
     App::new()
         .add_plugin(LogPlugin)
-        .add_plugin(GlobalStatePlugin)
         .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
         .add_plugin(GlobalStatePlugin)
         .init_resource::<Count>()
