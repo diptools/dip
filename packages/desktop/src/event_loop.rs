@@ -360,12 +360,6 @@ where
                             }
                         }
                     };
-
-                    let mut request_redraw = app
-                        .world
-                        .get_resource_mut::<Events<RequestRedraw>>()
-                        .unwrap();
-                    request_redraw.send(RequestRedraw);
                 }
                 Event::DeviceEvent {
                     event: DeviceEvent::MouseMotion { delta, .. },
