@@ -3,7 +3,7 @@
 
 use crate::{
     context::UiContext,
-    event::{KeyboardEvent, UiEvent, VirtualDomCommand},
+    event::{KeyboardEvent, UiEvent},
     event_loop::start_event_loop,
     setting::DioxusSettings,
     system::change_window,
@@ -12,8 +12,8 @@ use crate::{
 };
 
 use bevy::{
-    app::{App, Plugin, CoreStage},
-    ecs::{event::Events, world::World, schedule::ParallelSystemDescriptorCoercion},
+    app::{App, CoreStage, Plugin},
+    ecs::{event::Events, schedule::ParallelSystemDescriptorCoercion, world::World},
     input::InputPlugin,
     window::{CreateWindow, ModifiesWindows, WindowCreated, WindowPlugin, Windows},
 };
@@ -42,7 +42,7 @@ where
 {
     fn build(&self, app: &mut App) {
         let (vdom_scheduler_tx, vdom_scheduler_rx) = mpsc::unbounded::<SchedulerMsg>();
-        let (vdom_command_tx, vdom_command_rx) = channel::<VirtualDomCommand<GlobalState>>(8);
+        let (global_state_tx, global_state_rx) = channel::<GlobalState>(8);
         let (core_tx, core_rx) = channel::<CoreCommand>(8);
 
         let event_loop = EventLoop::<UiEvent<CoreCommand>>::with_user_event();
@@ -75,7 +75,7 @@ where
             .add_event::<CoreCommand>()
             .insert_resource(runtime)
             .insert_resource(vdom_scheduler_tx)
-            .insert_resource(vdom_command_tx)
+            .insert_resource(global_state_tx)
             .insert_resource(edit_queue)
             .init_non_send_resource::<DioxusWindows>()
             .insert_non_send_resource(settings)
@@ -90,7 +90,7 @@ where
                     props_clone,
                     edit_queue_clone,
                     (vdom_scheduler_tx_clone, vdom_scheduler_rx),
-                    vdom_command_rx,
+                    global_state_rx,
                 );
                 virtual_dom.provide_ui_context(UiContext::new(proxy.clone(), core_tx));
                 virtual_dom.run().await;

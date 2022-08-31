@@ -25,10 +25,7 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
                 log::{error, trace},
             },
             core::schedule::UiStage,
-            desktop::{
-                futures_intrusive::channel::{shared::Sender, TrySendError},
-                event::VirtualDomCommand,
-            },
+            desktop::futures_intrusive::channel::{shared::Sender, TrySendError},
             dioxus::fermi::{Atom, AtomRoot, Readable},
         };
         use std::rc::Rc;
@@ -59,11 +56,11 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
 
         fn apply_global_state_command(
             mut events: EventReader<GlobalState>,
-            vdom_tx: Res<Sender<VirtualDomCommand<GlobalState>>>,
+            global_state_tx: Res<Sender<GlobalState>>,
         ) {
             for e in events.iter() {
                 trace!("apply_global_state_command");
-                match vdom_tx.try_send(VirtualDomCommand::GlobalState(e.clone())) {
+                match global_state_tx.try_send(e.clone()) {
                     Ok(()) => {}
                     Err(e) => match e {
                         TrySendError::Full(e) => {

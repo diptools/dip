@@ -13,7 +13,6 @@ fn main() {
         .add_plugin(TimePlugin)
         .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
         .add_plugin(GlobalStatePlugin)
-        // .insert_non_send_resource(DioxusSettings::<()>::game())
         .init_resource::<Frame>()
         .init_resource::<RenderMode>()
         .add_system(increment_frame)

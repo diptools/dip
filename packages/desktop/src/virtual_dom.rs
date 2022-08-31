@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::{context::UiContext, event::VirtualDomCommand};
+use crate::context::UiContext;
 use bevy_dioxus_core::global_state::GlobalStateHandler;
 use dioxus_core::{Component, SchedulerMsg, ScopeId, VirtualDom as DioxusVirtualDom};
 use dioxus_hooks::{UnboundedReceiver, UnboundedSender};
@@ -17,7 +17,7 @@ use tokio::select;
 pub struct VirtualDom<GlobalState: 'static, CoreCommand> {
     virtual_dom: DioxusVirtualDom,
     edit_queue: Arc<Mutex<Vec<String>>>,
-    command_rx: Receiver<VirtualDomCommand<GlobalState>>,
+    global_state_rx: Receiver<GlobalState>,
     scheduler_tx: UnboundedSender<SchedulerMsg>,
     core_cmd_type: PhantomData<CoreCommand>,
 }
@@ -35,7 +35,7 @@ where
             UnboundedSender<SchedulerMsg>,
             UnboundedReceiver<SchedulerMsg>,
         ),
-        command_rx: Receiver<VirtualDomCommand<GlobalState>>,
+        global_state_rx: Receiver<GlobalState>,
     ) -> Self
     where
         Props: 'static,
@@ -49,7 +49,7 @@ where
         Self {
             virtual_dom,
             edit_queue,
-            command_rx,
+            global_state_rx,
             scheduler_tx,
             core_cmd_type: PhantomData,
         }
@@ -77,20 +77,13 @@ where
                     }
                 }
                 // 2) when global state is changed or injected window.document event is emitted
-                cmd = self.command_rx.receive() => {
-                    if let Some(cmd) = cmd {
-                        match cmd {
-                            VirtualDomCommand::UpdateDom => {
-                                log::trace!("VirtualDomCommand::UpdateDom");
-                            }
-                            VirtualDomCommand::GlobalState(state) => {
-                                log::trace!("VirtualDomCommand::GlobalState");
-                                let root = self.atom_root();
-                                state.handler(root.clone());
+                state = self.global_state_rx.receive() => {
+                    if let Some(state) = state {
+                        log::trace!("GlobalState");
+                        let root = self.atom_root();
+                        state.handler(root.clone());
 
-                                self.scheduler_tx.start_send(SchedulerMsg::NewTask(ScopeId(0))).unwrap();
-                            }
-                        };
+                        self.scheduler_tx.start_send(SchedulerMsg::NewTask(ScopeId(0))).unwrap();
                     }
                 }
             }
