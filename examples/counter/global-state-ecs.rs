@@ -3,10 +3,10 @@ use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
 fn main() {
     App::new()
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
+        .add_plugin(DioxusPlugin::<GlobalState, UiAction>::new(Root))
         .add_plugin(GlobalStatePlugin)
         .init_resource::<Count>()
-        .add_system(handle_core_cmd)
+        .add_system(handle_ui_action)
         .add_system(update_global_state)
         .run();
 }
@@ -23,26 +23,26 @@ struct Count {
 }
 
 #[derive(Clone, Debug)]
-enum CoreCommand {
+enum UiAction {
     Increment,
     Decrement,
     Reset,
 }
 
-fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut count: ResMut<Count>) {
-    for cmd in events.iter() {
-        match cmd {
-            CoreCommand::Increment => {
+fn handle_ui_action(mut events: EventReader<UiAction>, mut count: ResMut<Count>) {
+    for action in events.iter() {
+        match action {
+            UiAction::Increment => {
                 info!("🧠 Increment");
                 count.value += 1;
             }
-            CoreCommand::Decrement => {
+            UiAction::Decrement => {
                 if count.value > 0 {
                     info!("🧠 Decrement");
                     count.value -= 1;
                 }
             }
-            CoreCommand::Reset => {
+            UiAction::Reset => {
                 if count.value != 0 {
                     info!("🧠 Reset");
                     count.value = 0;
@@ -63,23 +63,23 @@ fn Root(cx: Scope) -> Element {
     let count = use_read(&cx, COUNT);
     let disabled = *count == 0;
 
-    let window = use_window::<CoreCommand>(&cx);
+    let window = use_window::<UiAction>(&cx);
 
     cx.render(rsx! {
         h1 { "Counter Example" }
         p { "count: {count}" }
         button {
-            onclick: move |_| window.send(CoreCommand::Decrement),
+            onclick: move |_| window.send(UiAction::Decrement),
             disabled: "{disabled}",
             "-",
         }
         button {
-            onclick: move |_| window.send(CoreCommand::Reset),
+            onclick: move |_| window.send(UiAction::Reset),
             disabled: "{disabled}",
             "Reset"
         }
         button {
-            onclick: move |_| window.send(CoreCommand::Increment),
+            onclick: move |_| window.send(UiAction::Increment),
             "+",
         }
     })

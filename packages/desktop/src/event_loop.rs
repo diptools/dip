@@ -26,21 +26,21 @@ use wry::application::{
     event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget},
 };
 
-pub fn start_event_loop<CoreCommand, Props>(mut app: App)
+pub fn start_event_loop<UiAction, Props>(mut app: App)
 where
-    CoreCommand: 'static + Send + Sync + Clone + Debug,
+    UiAction: 'static + Send + Sync + Clone + Debug,
     Props: 'static + Send + Sync + Clone + Default,
 {
     let event_loop = app
         .world
-        .remove_non_send_resource::<EventLoop<UiEvent<CoreCommand>>>()
+        .remove_non_send_resource::<EventLoop<UiEvent<UiAction>>>()
         .unwrap();
 
     let mut tao_state = TaoPersistentState::default();
 
     event_loop.run(
-        move |event: Event<UiEvent<CoreCommand>>,
-              _event_loop: &EventLoopWindowTarget<UiEvent<CoreCommand>>,
+        move |event: Event<UiEvent<UiAction>>,
+              _event_loop: &EventLoopWindowTarget<UiEvent<UiAction>>,
               control_flow: &mut ControlFlow| {
             log::trace!("{event:?}");
             match event {
@@ -329,12 +329,12 @@ where
                                 }
                             };
                         }
-                        UiEvent::CoreCommand(cmd) => {
+                        UiEvent::UiAction(action) => {
                             let mut events = app
                                 .world
-                                .get_resource_mut::<Events<CoreCommand>>()
-                                .expect("Provide CoreCommand event to bevy");
-                            events.send(cmd);
+                                .get_resource_mut::<Events<UiAction>>()
+                                .expect("Provide UiAction event to bevy");
+                            events.send(action);
                         }
                         UiEvent::KeyboardEvent(event) => {
                             let mut keyboard_events = app
@@ -378,7 +378,7 @@ where
                     tao_state.active = true;
                 }
                 Event::MainEventsCleared => {
-                    handle_create_window_events::<CoreCommand, Props>(&mut app.world);
+                    handle_create_window_events::<UiAction, Props>(&mut app.world);
                     let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
                     let update = if !tao_state.active {
                         false
@@ -446,9 +446,9 @@ where
     );
 }
 
-fn handle_create_window_events<CoreCommand, Props>(world: &mut World)
+fn handle_create_window_events<UiAction, Props>(world: &mut World)
 where
-    CoreCommand: 'static + Send + Sync + Clone + Debug,
+    UiAction: 'static + Send + Sync + Clone + Debug,
     Props: 'static + Send + Sync + Clone,
 {
     let world = world.cell();
@@ -460,7 +460,7 @@ where
 
     for create_window_event in create_window_events_reader.iter(&create_window_events) {
         warn!("Multiple Windows isn't supported yet!");
-        let window = dioxus_windows.create::<CoreCommand, Props>(
+        let window = dioxus_windows.create::<UiAction, Props>(
             &world,
             create_window_event.id,
             &create_window_event.descriptor,

@@ -1,9 +1,9 @@
-use crate::{channel::CoreCommand, global_state::*};
+use crate::{channel::UiAction, global_state::*};
 use bevy_dioxus::desktop::prelude::*;
 
 #[allow(non_snake_case)]
 pub fn Root(cx: Scope) -> Element {
-    let window = use_window::<CoreCommand>(&cx);
+    let window = use_window::<UiAction>(&cx);
 
     let todo_list = use_read(&cx, TODO_LIST);
     let settings = use_read(&cx, SETTINGS);
@@ -29,9 +29,9 @@ pub fn Root(cx: Scope) -> Element {
                         value: format_args!("{:?}", settings.filter),
                         onchange: |e| {
                             match e.value.as_str() {
-                                "All" => { window.send(CoreCommand::filter_all()) }
-                                "Active" => { window.send(CoreCommand::filter_active()) }
-                                "Completed" => { window.send(CoreCommand::filter_completed()) }
+                                "All" => { window.send(UiAction::filter_all()) }
+                                "Active" => { window.send(UiAction::filter_active()) }
+                                "Completed" => { window.send(UiAction::filter_completed()) }
                                 _ => {}
                             }
                         },
@@ -55,13 +55,13 @@ pub fn Root(cx: Scope) -> Element {
                     li {
                         button {
                             onclick: |_| {
-                                window.send(CoreCommand::toggle_all());
+                                window.send(UiAction::toggle_all());
                             },
                             "Toggle all"
                         }
                         button {
                             onclick: |_| {
-                                window.send(CoreCommand::clear_completed());
+                                window.send(UiAction::clear_completed());
                             },
                             "Clear completed"
                         }
@@ -75,7 +75,7 @@ pub fn Root(cx: Scope) -> Element {
                     new_todo.set(e.value.clone());
                 },
                 onchange: |e| {
-                    window.send(CoreCommand::create_todo(&e.value));
+                    window.send(UiAction::create_todo(&e.value));
                     new_todo.set("".to_string());
                 }
             }
@@ -97,14 +97,14 @@ pub fn Root(cx: Scope) -> Element {
                             div {
                                 style: "padding-right: 1rem;",
                                 onclick: |_| {
-                                    window.send(CoreCommand::toggle_done(&todo.entity));
+                                    window.send(UiAction::toggle_done(&todo.entity));
                                 },
                                 [format_args!("{}", if todo.done_at.is_some() { "✅" } else { "❎" })],
                             }
                             input {
                                 value: "{todo.title}",
                                 oninput: |e| {
-                                    window.send(CoreCommand::change_title(&todo.entity, &e.value));
+                                    window.send(UiAction::change_title(&todo.entity, &e.value));
                                 }
                             }
                         }
@@ -115,7 +115,7 @@ pub fn Root(cx: Scope) -> Element {
                                     button {
                                         style: "align-self: flex-end",
                                         onclick: |_| {
-                                            window.send(CoreCommand::remove_todo(&todo.entity));
+                                            window.send(UiAction::remove_todo(&todo.entity));
                                         },
                                         "X"
                                     }

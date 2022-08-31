@@ -9,11 +9,11 @@ fn main() {
             keyboard_event: true,
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
+        .add_plugin(DioxusPlugin::<GlobalState, UiAction>::new(Root))
         .add_plugin(GlobalStatePlugin)
         .init_resource::<EventType>()
         .add_plugin(LogPlugin)
-        .add_system(handle_core_cmd)
+        .add_system(handle_ui_action)
         .add_system(apply_global_state)
         .add_system(log_keyboard_event)
         .run();
@@ -29,13 +29,13 @@ struct GlobalState {
 #[derive(Component, Debug, Clone, Default)]
 struct SelectedType(EventType);
 
-// UI -> Core
+// UI -> ECS
 #[derive(Debug, Clone)]
-enum CoreCommand {
+enum UiAction {
     EventType(EventType),
 }
 
-impl CoreCommand {
+impl UiAction {
     fn keyboard_event() -> Self {
         Self::EventType(EventType::KeyboardEvent)
     }
@@ -81,7 +81,7 @@ impl Default for EventType {
 fn Root(cx: Scope) -> Element {
     let event_type = use_read(&cx, EVENT_TYPE);
     let input_result = use_read(&cx, INPUT_RESULT);
-    let window = use_window::<CoreCommand>(&cx);
+    let window = use_window::<UiAction>(&cx);
 
     cx.render(rsx! {
         h1 { "Keyboard Event Example" }
@@ -93,13 +93,13 @@ fn Root(cx: Scope) -> Element {
                 onchange: |e| {
                     match e.value.as_str() {
                         "KeyboardEvent" => {
-                            window.send(CoreCommand::keyboard_event());
+                            window.send(UiAction::keyboard_event());
                         },
                         "KeyboardInput" => {
-                            window.send(CoreCommand::keyboard_input());
+                            window.send(UiAction::keyboard_input());
                         },
                         "ReceivedCharacter" => {
-                            window.send(CoreCommand::received_char());
+                            window.send(UiAction::received_char());
                         }
                         _ => {}
                     };
@@ -126,10 +126,10 @@ fn Root(cx: Scope) -> Element {
     })
 }
 
-fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut event_type: ResMut<EventType>) {
-    for cmd in events.iter() {
-        match cmd {
-            CoreCommand::EventType(e) => {
+fn handle_ui_action(mut events: EventReader<UiAction>, mut event_type: ResMut<EventType>) {
+    for action in events.iter() {
+        match action {
+            UiAction::EventType(e) => {
                 info!("🧠　EventType: {:?}", e);
                 *event_type = e.clone();
             }

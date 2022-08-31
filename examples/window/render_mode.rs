@@ -11,7 +11,7 @@ fn main() {
     App::new()
         .add_plugin(LogPlugin)
         .add_plugin(TimePlugin)
-        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
+        .add_plugin(DioxusPlugin::<GlobalState, UiAction>::new(Root))
         .add_plugin(GlobalStatePlugin)
         .init_resource::<Frame>()
         .init_resource::<RenderMode>()
@@ -28,11 +28,11 @@ struct GlobalState {
 }
 
 #[derive(Clone, Debug)]
-enum CoreCommand {
+enum UiAction {
     RenderMode(RenderMode),
 }
 
-impl CoreCommand {
+impl UiAction {
     fn application() -> Self {
         Self::RenderMode(RenderMode::Application)
     }
@@ -79,14 +79,14 @@ fn handle_global_state_change(
 }
 
 fn update_render_mode(
-    mut events: EventReader<CoreCommand>,
+    mut events: EventReader<UiAction>,
     mut render_mode: ResMut<RenderMode>,
     mut dioxus_settings: NonSendMut<DioxusSettings<()>>,
     mut global_state: EventWriter<GlobalState>,
 ) {
-    for cmd in events.iter() {
-        match cmd {
-            CoreCommand::RenderMode(mode) => {
+    for action in events.iter() {
+        match action {
+            UiAction::RenderMode(mode) => {
                 *render_mode = mode.clone();
                 *dioxus_settings = match mode {
                     RenderMode::Application => DioxusSettings::application(),
@@ -101,7 +101,7 @@ fn update_render_mode(
 
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
-    let window = use_window::<CoreCommand>(&cx);
+    let window = use_window::<UiAction>(&cx);
 
     let frame = use_read(&cx, FRAME);
     let render_mode = use_read(&cx, RENDER_MODE);
@@ -114,8 +114,8 @@ fn Root(cx: Scope) -> Element {
             onchange: |e| {
                 log::trace!("onchange: {:#?}", e.value.as_str());
                 match e.value.as_str() {
-                    "Application" => { window.send(CoreCommand::application()) }
-                    "Game" => { window.send(CoreCommand::game()) }
+                    "Application" => { window.send(UiAction::application()) }
+                    "Game" => { window.send(UiAction::game()) }
                     _ => {}
                 }
             },

@@ -1,8 +1,8 @@
 use crate::{channel::*, component::*, event::*, global_state::*, resource::*};
 use bevy_dioxus::desktop::prelude::*;
 
-pub fn handle_core_cmd(
-    mut events: EventReader<CoreCommand>,
+pub fn handle_ui_action(
+    mut events: EventReader<UiAction>,
     mut create_todo: EventWriter<CreateTodo>,
     mut change_title: EventWriter<ChangeTitle>,
     mut toggle_done: EventWriter<ToggleDone>,
@@ -11,27 +11,27 @@ pub fn handle_core_cmd(
     mut change_filter: EventWriter<ChangeFilter>,
     mut clear_completed: EventWriter<ClearCompleted>,
 ) {
-    for cmd in events.iter() {
-        match cmd {
-            CoreCommand::CreateTodo(event) => {
+    for action in events.iter() {
+        match action {
+            UiAction::CreateTodo(event) => {
                 create_todo.send(event.clone());
             }
-            CoreCommand::ChangeTitle(event) => {
+            UiAction::ChangeTitle(event) => {
                 change_title.send(event.clone());
             }
-            CoreCommand::ToggleDone(event) => {
+            UiAction::ToggleDone(event) => {
                 toggle_done.send(event.clone());
             }
-            CoreCommand::RemoveTodo(event) => {
+            UiAction::RemoveTodo(event) => {
                 remove_todo.send(event.clone());
             }
-            CoreCommand::ToggleAll(event) => {
+            UiAction::ToggleAll(event) => {
                 toggle_all.send(event.clone());
             }
-            CoreCommand::ChangeFilter(event) => {
+            UiAction::ChangeFilter(event) => {
                 change_filter.send(event.clone());
             }
-            CoreCommand::ClearCompleted(event) => {
+            UiAction::ClearCompleted(event) => {
                 clear_completed.send(event.clone());
             }
         }

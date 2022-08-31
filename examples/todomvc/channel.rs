@@ -2,7 +2,7 @@ use crate::{event::*, resource::*};
 use bevy_dioxus::desktop::prelude::*;
 
 #[derive(Clone, Debug)]
-pub enum CoreCommand {
+pub enum UiAction {
     CreateTodo(CreateTodo),
     ChangeTitle(ChangeTitle),
     ToggleDone(ToggleDone),
@@ -12,7 +12,7 @@ pub enum CoreCommand {
     ToggleAll(ToggleAll),
 }
 
-impl CoreCommand {
+impl UiAction {
     pub fn create_todo(title: &String) -> Self {
         Self::CreateTodo(CreateTodo {
             title: title.clone(),

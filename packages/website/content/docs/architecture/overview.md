@@ -7,7 +7,7 @@ weight = 0
 ```rust
 let (vdom_scheduler_tx, vdom_scheduler_rx) = mpsc::unbounded::<SchedulerMsg>();
 let (global_state_tx, global_state_rx) = channel::<GlobalState>(8);
-let (core_tx, core_rx) = channel::<CoreCommand>(8);
+let (ui_action_tx, ui_action_rx) = channel::<UiAction>(8);
 let proxy = event_loop.create_proxy();
 ```
 
@@ -64,7 +64,7 @@ sequenceDiagram
     EventLoop ->> Systems: app.update()
 ```
 
-### CoreCommand
+### UiAction
 
 ```mermaid
 sequenceDiagram
@@ -75,8 +75,8 @@ sequenceDiagram
     participant Systems
     participant VirtualDom
 
-    Window ->> Plugin: window.send(cmd)
-    Plugin ->> EventLoop: proxy.send_event(UiEvent::CoreCommand(cmd));
+    Window ->> Plugin: window.send(action)
+    Plugin ->> EventLoop: proxy.send_event(UiEvent::UiAction(action));
     EventLoop ->> EventLoop: MainEventsCleared
     EventLoop ->> Systems: app.update()
     Note right of Systems: apply_globao_state_command

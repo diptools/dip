@@ -14,18 +14,18 @@ use std::{
 };
 use tokio::select;
 
-pub struct VirtualDom<GlobalState: 'static, CoreCommand> {
+pub struct VirtualDom<GlobalState: 'static, UiAction> {
     virtual_dom: DioxusVirtualDom,
     edit_queue: Arc<Mutex<Vec<String>>>,
     global_state_rx: Receiver<GlobalState>,
     scheduler_tx: UnboundedSender<SchedulerMsg>,
-    core_cmd_type: PhantomData<CoreCommand>,
+    ui_action_type: PhantomData<UiAction>,
 }
 
-impl<GlobalState, CoreCommand> VirtualDom<GlobalState, CoreCommand>
+impl<GlobalState, UiAction> VirtualDom<GlobalState, UiAction>
 where
     GlobalState: GlobalStateHandler,
-    CoreCommand: 'static + Clone + Debug,
+    UiAction: 'static + Clone + Debug,
 {
     pub fn new<Props>(
         Root: Component<Props>,
@@ -51,7 +51,7 @@ where
             edit_queue,
             global_state_rx,
             scheduler_tx,
-            core_cmd_type: PhantomData,
+            ui_action_type: PhantomData,
         }
     }
 
@@ -90,9 +90,9 @@ where
         }
     }
 
-    pub fn provide_ui_context(&self, context: UiContext<CoreCommand>)
+    pub fn provide_ui_context(&self, context: UiContext<UiAction>)
     where
-        CoreCommand: Clone + Debug,
+        UiAction: Clone + Debug,
     {
         self.virtual_dom.base_scope().provide_context(context);
     }
@@ -116,7 +116,7 @@ where
     }
 
     fn rerender(&self) {
-        let ui_context: UiContext<CoreCommand> =
+        let ui_context: UiContext<UiAction> =
             self.virtual_dom.base_scope().consume_context().unwrap();
         ui_context.rerender();
     }

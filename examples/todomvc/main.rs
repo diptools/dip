@@ -11,7 +11,7 @@ use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
 
 fn main() {
     App::new()
-        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
+        .add_plugin(DioxusPlugin::<GlobalState, UiAction>::new(Root))
         .add_plugin(LogPlugin)
         .add_plugin(GlobalStatePlugin)
         .init_resource::<Settings>()
@@ -25,7 +25,7 @@ fn main() {
         .add_event::<ClearCompleted>()
         .add_event::<NewUiTodoListRequested>()
         .add_event::<NewUiTodoListReady>()
-        .add_system_to_stage(UiStage::Action, handle_core_cmd)
+        .add_system_to_stage(UiStage::Action, handle_ui_action)
         .add_system(create_todo)
         .add_system(change_todo_title)
         .add_system(toggle_done.before(update_todo_meta))
