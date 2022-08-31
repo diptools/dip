@@ -164,7 +164,6 @@ pub fn toggle_all(
     mut events: EventReader<ToggleAll>,
     query: Query<(Entity, Option<&DoneAt>), With<Todo>>,
     mut toggle_done: EventWriter<ToggleDone>,
-    mut new_ui_todo_list_requested: EventWriter<NewUiTodoListRequested>,
 ) {
     for _ in events.iter() {
         let mut active_entities = vec![];
@@ -190,8 +189,6 @@ pub fn toggle_all(
                 });
             }
         }
-
-        new_ui_todo_list_requested.send(NewUiTodoListRequested);
     }
 }
 
