@@ -31,7 +31,7 @@ fn main() {
         .add_system(toggle_done.before(update_todo_meta))
         .add_system(update_todo_meta)
         .add_system(remove_todo)
-        .add_system(toggle_all)
+        .add_system(toggle_all.before(toggle_done))
         .add_system(change_filter)
         .add_system(clear_completed)
         .add_system_to_stage(UiStage::Prepare, new_ui_todo_list)
