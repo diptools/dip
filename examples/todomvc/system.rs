@@ -84,7 +84,7 @@ pub fn new_ui_todo_list(
 
 pub fn log_ui_todo_list(mut events: EventReader<NewUiTodoListReady>) {
     for e in events.iter() {
-        println!("{:#?}", e.todo_list);
+        println!("{:#?}\n", e.todo_list);
     }
 }
 

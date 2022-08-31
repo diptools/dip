@@ -19,7 +19,12 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
 
     let gen = quote! {
         use bevy_dioxus::{
-            bevy::{app::Plugin, ecs::system::Res, log::error},
+            bevy::{
+                app::Plugin,
+                ecs::system::Res,
+                log,
+            },
+            core::schedule::UiStage,
             desktop::{
                 futures_intrusive::channel::{shared::Sender, TrySendError},
                 event::VirtualDomCommand,
@@ -48,7 +53,7 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
         impl Plugin for GlobalStatePlugin {
             fn build(&self, app: &mut App) {
                 app.add_event::<GlobalState>()
-                    .add_system(apply_global_state_command);
+                    .add_system_to_stage(UiStage::Render, apply_global_state_command);
             }
         }
 
@@ -57,17 +62,18 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
             vdom_tx: Res<Sender<VirtualDomCommand<GlobalState>>>,
         ) {
             for e in events.iter() {
+                log::trace!("apply_global_state_command");
                 match vdom_tx.try_send(VirtualDomCommand::GlobalState(e.clone())) {
                     Ok(()) => {}
                     Err(e) => match e {
                         TrySendError::Full(e) => {
-                            error!(
+                            log::error!(
                                 "Failed to send VDomCommand: channel is full: event: {:?}",
                                 e
                             );
                         }
                         TrySendError::Closed(e) => {
-                            error!(
+                            log::error!(
                                 "Failed to send VDomCommand: channel is closed: event: {:?}",
                                 e
                             );

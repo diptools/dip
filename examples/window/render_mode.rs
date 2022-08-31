@@ -62,7 +62,7 @@ impl Default for RenderMode {
 
 fn increment_frame(mut frame: ResMut<Frame>) {
     frame.value += 1;
-    log::debug!("update_frame system: frame: {}", frame.value);
+    log::trace!("update_frame system: frame: {}", frame.value);
 }
 
 fn handle_global_state_change(
@@ -113,7 +113,7 @@ fn Root(cx: Scope) -> Element {
         select {
             value: format_args!("{:?}", render_mode),
             onchange: |e| {
-                log::debug!("onchange: {:#?}", e.value.as_str());
+                log::trace!("onchange: {:#?}", e.value.as_str());
                 match e.value.as_str() {
                     "Application" => { window.send(CoreCommand::application()) }
                     "Game" => { window.send(CoreCommand::game()) }

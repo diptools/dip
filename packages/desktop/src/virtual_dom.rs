@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
 use crate::{context::UiContext, event::VirtualDomCommand};
-use bevy_dioxus_core::GlobalStateHandler;
-use dioxus_core::{Component, SchedulerMsg, VirtualDom as DioxusVirtualDom};
+use bevy_dioxus_core::global_state::GlobalStateHandler;
+use dioxus_core::{Component, SchedulerMsg, ScopeId, VirtualDom as DioxusVirtualDom};
 use dioxus_hooks::{UnboundedReceiver, UnboundedSender};
 use fermi::AtomRoot;
 use futures_intrusive::channel::shared::Receiver;
@@ -18,6 +18,7 @@ pub struct VirtualDom<GlobalState: 'static, CoreCommand> {
     virtual_dom: DioxusVirtualDom,
     edit_queue: Arc<Mutex<Vec<String>>>,
     command_rx: Receiver<VirtualDomCommand<GlobalState>>,
+    scheduler_tx: UnboundedSender<SchedulerMsg>,
     core_cmd_type: PhantomData<CoreCommand>,
 }
 
@@ -42,13 +43,14 @@ where
         let virtual_dom = DioxusVirtualDom::new_with_props_and_scheduler(
             Root,
             props,
-            (scheduler_tx, scheduler_rx),
+            (scheduler_tx.clone(), scheduler_rx),
         );
 
         Self {
             virtual_dom,
             edit_queue,
             command_rx,
+            scheduler_tx,
             core_cmd_type: PhantomData,
         }
     }
@@ -65,33 +67,32 @@ where
         loop {
             // wait for either
             select! {
-                // 1) when no work
+                // 1) pull for work
                 () = self.virtual_dom.wait_for_work() => {
-                    log::debug!("pulling work");
+                    log::trace!("New task");
                     self.apply_edits();
+
+                    if !self.edit_queue.lock().unwrap().is_empty() {
+                        self.rerender();
+                    }
                 }
                 // 2) when global state is changed or injected window.document event is emitted
                 cmd = self.command_rx.receive() => {
                     if let Some(cmd) = cmd {
                         match cmd {
                             VirtualDomCommand::UpdateDom => {
-                                log::debug!("VirtualDomCommand::UpdateDom");
-                                self.apply_edits();
+                                log::trace!("VirtualDomCommand::UpdateDom");
                             }
                             VirtualDomCommand::GlobalState(state) => {
-                                log::debug!("VirtualDomCommand::GlobalState");
+                                log::trace!("VirtualDomCommand::GlobalState");
                                 let root = self.atom_root();
                                 state.handler(root.clone());
 
-                                self.apply_edits();
+                                self.scheduler_tx.start_send(SchedulerMsg::NewTask(ScopeId(0))).unwrap();
                             }
                         };
                     }
                 }
-            }
-
-            if !self.edit_queue.lock().unwrap().is_empty() {
-                self.rerender();
             }
         }
     }

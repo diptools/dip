@@ -343,21 +343,21 @@ impl DioxusWindows {
                     .map(|message| match message.method() {
                         "user_event" => {
                             let event = trigger_from_serialized(message.params());
-                            log::debug!("IpcMessage user_event: {event:?}");
+                            log::trace!("IpcMessage user_event: {event:?}");
                             dom_tx.unbounded_send(SchedulerMsg::Event(event)).unwrap();
                         }
                         "keyboard_event" => {
-                            log::debug!("IpcMessage: keyboard_event");
+                            log::trace!("IpcMessage: keyboard_event");
                             let event = KeyboardEvent::from_value(message.params());
                             proxy.send_event(UiEvent::KeyboardEvent(event)).unwrap();
                         }
                         "initialize" => {
-                            log::debug!("IpcMessage: initialize");
+                            log::trace!("IpcMessage: initialize");
                             is_ready_clone.store(true, std::sync::atomic::Ordering::Relaxed);
                             let _ = proxy.send_event(UiEvent::WindowEvent(WindowEvent::Rerender));
                         }
                         "browser_open" => {
-                            log::debug!("IpcMessage: browser_open");
+                            log::trace!("IpcMessage: browser_open");
                             let data = message.params();
                             log::trace!("Open browser: {:?}", data);
                             if let Some(temp) = data.as_object() {
@@ -495,7 +495,7 @@ impl Window {
     }
 
     pub fn rerender(&mut self) {
-        log::debug!("rerender: webview.evaluate_script()");
+        log::trace!("rerender: webview.evaluate_script()");
         if self.is_ready.load(std::sync::atomic::Ordering::Relaxed) {
             let mut queue = self.edit_queue.lock().unwrap();
 

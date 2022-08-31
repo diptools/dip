@@ -12,12 +12,12 @@ use crate::{
 };
 
 use bevy::{
-    app::prelude::*,
-    ecs::{event::Events, prelude::*},
+    app::{App, Plugin, CoreStage},
+    ecs::{event::Events, world::World, schedule::ParallelSystemDescriptorCoercion},
     input::InputPlugin,
     window::{CreateWindow, ModifiesWindows, WindowCreated, WindowPlugin, Windows},
 };
-use bevy_dioxus_core::prelude::GlobalStateHandler;
+use bevy_dioxus_core::{global_state::GlobalStateHandler, schedule::UiSchedulePlugin};
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg};
 use futures_channel::mpsc;
 use futures_intrusive::channel::shared::channel;
@@ -59,7 +59,7 @@ where
         let proxy_clone = proxy.clone();
         runtime.spawn(async move {
             while let Some(cmd) = core_rx.clone().receive().await {
-                log::debug!("CoreCommand: {:#?}", cmd);
+                log::trace!("CoreCommand: {:#?}", cmd);
                 proxy_clone.send_event(UiEvent::CoreCommand(cmd)).unwrap();
             }
         });
@@ -69,6 +69,7 @@ where
         let edit_queue_clone = edit_queue.clone();
         let vdom_scheduler_tx_clone = vdom_scheduler_tx.clone();
         app.add_plugin(WindowPlugin::default())
+            .add_plugin(UiSchedulePlugin)
             .add_plugin(InputPlugin)
             .add_event::<KeyboardEvent>()
             .add_event::<CoreCommand>()
