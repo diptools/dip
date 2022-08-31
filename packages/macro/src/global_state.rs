@@ -46,7 +46,7 @@ pub struct GlobalStateTokens {
     pub variant_handlers: Vec<TokenStream2>,
 }
 
-pub struct GlobalStateField {
+struct GlobalStateField {
     ident: Ident, // "todo_list"
     r#type: Type, // ["Vec<UiTodo>"]
 }

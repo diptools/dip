@@ -1,42 +1,5 @@
-use crate::{channel::*, component::*, event::*, global_state::*, resource::*};
+use crate::{component::*, event::*, global_state::*, resource::*};
 use bevy_dioxus::desktop::prelude::*;
-
-pub fn handle_ui_action(
-    mut events: EventReader<UiAction>,
-    mut create_todo: EventWriter<CreateTodo>,
-    mut change_title: EventWriter<ChangeTitle>,
-    mut toggle_done: EventWriter<ToggleDone>,
-    mut remove_todo: EventWriter<RemoveTodo>,
-    mut toggle_all: EventWriter<ToggleAll>,
-    mut change_filter: EventWriter<ChangeFilter>,
-    mut clear_completed: EventWriter<ClearCompleted>,
-) {
-    for action in events.iter() {
-        match action {
-            UiAction::CreateTodo(event) => {
-                create_todo.send(event.clone());
-            }
-            UiAction::ChangeTitle(event) => {
-                change_title.send(event.clone());
-            }
-            UiAction::ToggleDone(event) => {
-                toggle_done.send(event.clone());
-            }
-            UiAction::RemoveTodo(event) => {
-                remove_todo.send(event.clone());
-            }
-            UiAction::ToggleAll(event) => {
-                toggle_all.send(event.clone());
-            }
-            UiAction::ChangeFilter(event) => {
-                change_filter.send(event.clone());
-            }
-            UiAction::ClearCompleted(event) => {
-                clear_completed.send(event.clone());
-            }
-        }
-    }
-}
 
 pub fn update_ui_settings(settings: Res<Settings>, mut global_state: EventWriter<GlobalState>) {
     if settings.is_changed() {

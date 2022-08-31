@@ -1,11 +1,13 @@
 extern crate proc_macro;
 
 mod global_state;
+mod ui_action;
 
 use global_state::{GlobalStateParser, GlobalStateTokens};
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
+use ui_action::{UiActionParser, UiActionTokens};
 
 #[proc_macro_attribute]
 pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
@@ -80,5 +82,47 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
             }
         }
     };
+    gen.into()
+}
+
+#[proc_macro_attribute]
+pub fn ui_action(_attr: TokenStream, input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let UiActionTokens {
+        enum_variants,
+        handler_args,
+        handlers,
+    } = UiActionParser::from(input).parse();
+
+    let gen = quote! {
+        use bevy::app::{App, Plugin};
+        use bevy_dioxus::core::schedule::UiStage;
+
+        #[derive(Clone, Debug)]
+        pub enum UiAction {
+            #(#enum_variants)*
+        }
+
+        pub fn send_ui_action_event(
+            mut events: EventReader<UiAction>,
+            #(#handler_args)*
+        ) {
+            for action in events.iter() {
+                match action {
+                    #(#handlers)*
+                }
+            }
+        }
+
+        pub struct UiActionPlugin;
+
+        impl Plugin for UiActionPlugin {
+            fn build(&self, app: &mut App) {
+                app.add_system_to_stage(UiStage::Action, send_ui_action_event);
+            }
+        }
+    };
+
     gen.into()
 }

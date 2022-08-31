@@ -9,6 +9,6 @@ pub mod prelude {
         schedule::{UiSchedulePlugin, UiStage},
     };
     pub use bevy::prelude::*;
-    pub use bevy_dioxus_macro::global_state;
+    pub use bevy_dioxus_macro::{global_state, ui_action};
     pub use dioxus::prelude::*;
 }

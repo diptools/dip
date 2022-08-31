@@ -1,17 +1,18 @@
 use crate::{event::*, resource::*};
 use bevy_dioxus::desktop::prelude::*;
 
-#[derive(Clone, Debug)]
-pub enum UiAction {
-    CreateTodo(CreateTodo),
-    ChangeTitle(ChangeTitle),
-    ToggleDone(ToggleDone),
-    RemoveTodo(RemoveTodo),
-    ChangeFilter(ChangeFilter),
-    ClearCompleted(ClearCompleted),
-    ToggleAll(ToggleAll),
+#[ui_action]
+struct UiAction {
+    create_todo: CreateTodo,
+    change_title: ChangeTitle,
+    toggle_done: ToggleDone,
+    remove_todo: RemoveTodo,
+    change_filter: ChangeFilter,
+    clear_completed: ClearCompleted,
+    toggle_all: ToggleAll,
 }
 
+// Action Creator
 impl UiAction {
     pub fn create_todo(title: &String) -> Self {
         Self::CreateTodo(CreateTodo {
