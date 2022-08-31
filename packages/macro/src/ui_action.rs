@@ -31,8 +31,9 @@ impl UiActionParser {
 
         for i in &self.fields {
             tokens.enum_variants.push(i.to_enum_variant());
+            tokens.add_events.push(i.to_add_event());
             tokens.handler_args.push(i.to_handler_arg());
-            tokens.handlers.push(i.to_handlers());
+            tokens.handlers.push(i.to_handler());
         }
 
         tokens
@@ -42,6 +43,7 @@ impl UiActionParser {
 #[derive(Default)]
 pub struct UiActionTokens {
     pub enum_variants: Vec<TokenStream2>,
+    pub add_events: Vec<TokenStream2>,
     pub handler_args: Vec<TokenStream2>,
     pub handlers: Vec<TokenStream2>,
 }
@@ -75,6 +77,16 @@ impl UiActionField {
         }
     }
 
+    // example: .add_event::<CreateTodo>()
+    fn to_add_event(&self) -> TokenStream2 {
+        let name_upper_camel =
+            TokenStream2::from_str(&self.ident.to_string().to_case(Case::UpperCamel)).unwrap();
+
+        quote! {
+            .add_event::<#name_upper_camel>()
+        }
+    }
+
     // example: mut create_todo: EventWriter<CreateTodo>,
     fn to_handler_arg(&self) -> TokenStream2 {
         let name_snake =
@@ -91,7 +103,7 @@ impl UiActionField {
     // UiAction::CreateTodo(event) => {
     //     create_todo.send(event.clone());
     // }
-    fn to_handlers(&self) -> TokenStream2 {
+    fn to_handler(&self) -> TokenStream2 {
         let name_snake =
             TokenStream2::from_str(&self.ident.to_string().to_case(Case::Snake)).unwrap();
         let name_upper_camel =

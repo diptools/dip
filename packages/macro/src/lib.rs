@@ -91,6 +91,7 @@ pub fn ui_action(_attr: TokenStream, input: TokenStream) -> TokenStream {
 
     let UiActionTokens {
         enum_variants,
+        add_events,
         handler_args,
         handlers,
     } = UiActionParser::from(input).parse();
@@ -119,7 +120,9 @@ pub fn ui_action(_attr: TokenStream, input: TokenStream) -> TokenStream {
 
         impl Plugin for UiActionPlugin {
             fn build(&self, app: &mut App) {
-                app.add_system_to_stage(UiStage::Action, send_ui_action_event);
+                app
+                    #(#add_events)*
+                    .add_system_to_stage(UiStage::Action, send_ui_action_event);
             }
         }
     };
