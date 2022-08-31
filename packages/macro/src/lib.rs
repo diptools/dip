@@ -22,7 +22,7 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
             bevy::{
                 app::Plugin,
                 ecs::system::Res,
-                log,
+                log::{error, trace},
             },
             core::schedule::UiStage,
             desktop::{
@@ -62,18 +62,18 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
             vdom_tx: Res<Sender<VirtualDomCommand<GlobalState>>>,
         ) {
             for e in events.iter() {
-                log::trace!("apply_global_state_command");
+                trace!("apply_global_state_command");
                 match vdom_tx.try_send(VirtualDomCommand::GlobalState(e.clone())) {
                     Ok(()) => {}
                     Err(e) => match e {
                         TrySendError::Full(e) => {
-                            log::error!(
+                            error!(
                                 "Failed to send VDomCommand: channel is full: event: {:?}",
                                 e
                             );
                         }
                         TrySendError::Closed(e) => {
-                            log::error!(
+                            error!(
                                 "Failed to send VDomCommand: channel is closed: event: {:?}",
                                 e
                             );
