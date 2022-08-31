@@ -76,7 +76,7 @@ where
                         self.rerender();
                     }
                 }
-                // 2) when global state is changed or injected window.document event is emitted
+                // 2) when global state is changed
                 state = self.global_state_rx.receive() => {
                     if let Some(state) = state {
                         log::trace!("GlobalState");
