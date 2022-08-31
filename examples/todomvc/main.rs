@@ -25,18 +25,21 @@ fn main() {
         .add_event::<ClearCompleted>()
         .add_event::<NewUiTodoListRequested>()
         .add_event::<NewUiTodoListReady>()
-        .add_system(handle_core_cmd)
-        .add_system(new_ui_todo_list)
-        .add_system(update_ui_settings)
-        .add_system(update_ui_todo_list)
-        .add_system(log_ui_todo_list)
+        .add_system_to_stage(UiStage::Action, handle_core_cmd)
         .add_system(create_todo)
         .add_system(change_todo_title)
-        .add_system(toggle_done)
+        .add_system(toggle_done.before(update_todo_meta))
         .add_system(update_todo_meta)
         .add_system(remove_todo)
-        .add_system(toggle_all)
+        .add_system(toggle_all.before(toggle_done))
         .add_system(change_filter)
         .add_system(clear_completed)
+        .add_system_to_stage(UiStage::Prepare, new_ui_todo_list)
+        .add_system_to_stage(UiStage::Prepare, update_ui_settings.after(new_ui_todo_list))
+        .add_system_to_stage(
+            UiStage::Prepare,
+            update_ui_todo_list.after(new_ui_todo_list),
+        )
+        .add_system_to_stage(UiStage::Render, log_ui_todo_list)
         .run();
 }

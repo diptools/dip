@@ -19,11 +19,13 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
 
     let gen = quote! {
         use bevy_dioxus::{
-            bevy::{app::Plugin, ecs::system::Res, log::error},
-            desktop::{
-                futures_intrusive::channel::{shared::Sender, TrySendError},
-                event::VirtualDomCommand,
+            bevy::{
+                app::Plugin,
+                ecs::system::Res,
+                log::{error, trace},
             },
+            core::schedule::UiStage,
+            desktop::futures_intrusive::channel::{shared::Sender, TrySendError},
             dioxus::fermi::{Atom, AtomRoot, Readable},
         };
         use std::rc::Rc;
@@ -48,16 +50,17 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
         impl Plugin for GlobalStatePlugin {
             fn build(&self, app: &mut App) {
                 app.add_event::<GlobalState>()
-                    .add_system(apply_global_state_command);
+                    .add_system_to_stage(UiStage::Render, apply_global_state_command);
             }
         }
 
         fn apply_global_state_command(
             mut events: EventReader<GlobalState>,
-            vdom_tx: Res<Sender<VirtualDomCommand<GlobalState>>>,
+            global_state_tx: Res<Sender<GlobalState>>,
         ) {
             for e in events.iter() {
-                match vdom_tx.try_send(VirtualDomCommand::GlobalState(e.clone())) {
+                trace!("apply_global_state_command");
+                match global_state_tx.try_send(e.clone()) {
                     Ok(()) => {}
                     Err(e) => match e {
                         TrySendError::Full(e) => {

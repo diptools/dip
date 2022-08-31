@@ -84,7 +84,7 @@ pub fn new_ui_todo_list(
 
 pub fn log_ui_todo_list(mut events: EventReader<NewUiTodoListReady>) {
     for e in events.iter() {
-        println!("{:#?}", e.todo_list);
+        println!("{:#?}\n", e.todo_list);
     }
 }
 
@@ -164,7 +164,6 @@ pub fn toggle_all(
     mut events: EventReader<ToggleAll>,
     query: Query<(Entity, Option<&DoneAt>), With<Todo>>,
     mut toggle_done: EventWriter<ToggleDone>,
-    mut new_ui_todo_list_requested: EventWriter<NewUiTodoListRequested>,
 ) {
     for _ in events.iter() {
         let mut active_entities = vec![];
@@ -190,8 +189,6 @@ pub fn toggle_all(
                 });
             }
         }
-
-        new_ui_todo_list_requested.send(NewUiTodoListRequested);
     }
 }
 

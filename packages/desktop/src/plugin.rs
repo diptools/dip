@@ -3,7 +3,7 @@
 
 use crate::{
     context::UiContext,
-    event::{KeyboardEvent, UiEvent, VirtualDomCommand},
+    event::{KeyboardEvent, UiEvent},
     event_loop::start_event_loop,
     setting::DioxusSettings,
     system::change_window,
@@ -12,12 +12,12 @@ use crate::{
 };
 
 use bevy::{
-    app::prelude::*,
-    ecs::{event::Events, prelude::*},
+    app::{App, CoreStage, Plugin},
+    ecs::{event::Events, schedule::ParallelSystemDescriptorCoercion, world::World},
     input::InputPlugin,
     window::{CreateWindow, ModifiesWindows, WindowCreated, WindowPlugin, Windows},
 };
-use bevy_dioxus_core::prelude::GlobalStateHandler;
+use bevy_dioxus_core::{global_state::GlobalStateHandler, schedule::UiSchedulePlugin};
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg};
 use futures_channel::mpsc;
 use futures_intrusive::channel::shared::channel;
@@ -42,7 +42,7 @@ where
 {
     fn build(&self, app: &mut App) {
         let (vdom_scheduler_tx, vdom_scheduler_rx) = mpsc::unbounded::<SchedulerMsg>();
-        let (vdom_command_tx, vdom_command_rx) = channel::<VirtualDomCommand<GlobalState>>(8);
+        let (global_state_tx, global_state_rx) = channel::<GlobalState>(8);
         let (core_tx, core_rx) = channel::<CoreCommand>(8);
 
         let event_loop = EventLoop::<UiEvent<CoreCommand>>::with_user_event();
@@ -59,7 +59,7 @@ where
         let proxy_clone = proxy.clone();
         runtime.spawn(async move {
             while let Some(cmd) = core_rx.clone().receive().await {
-                log::debug!("CoreCommand: {:#?}", cmd);
+                log::trace!("CoreCommand: {:#?}", cmd);
                 proxy_clone.send_event(UiEvent::CoreCommand(cmd)).unwrap();
             }
         });
@@ -69,12 +69,13 @@ where
         let edit_queue_clone = edit_queue.clone();
         let vdom_scheduler_tx_clone = vdom_scheduler_tx.clone();
         app.add_plugin(WindowPlugin::default())
+            .add_plugin(UiSchedulePlugin)
             .add_plugin(InputPlugin)
             .add_event::<KeyboardEvent>()
             .add_event::<CoreCommand>()
             .insert_resource(runtime)
             .insert_resource(vdom_scheduler_tx)
-            .insert_resource(vdom_command_tx)
+            .insert_resource(global_state_tx)
             .insert_resource(edit_queue)
             .init_non_send_resource::<DioxusWindows>()
             .insert_non_send_resource(settings)
@@ -89,7 +90,7 @@ where
                     props_clone,
                     edit_queue_clone,
                     (vdom_scheduler_tx_clone, vdom_scheduler_rx),
-                    vdom_command_rx,
+                    global_state_rx,
                 );
                 virtual_dom.provide_ui_context(UiContext::new(proxy.clone(), core_tx));
                 virtual_dom.run().await;

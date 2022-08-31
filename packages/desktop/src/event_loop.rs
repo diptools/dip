@@ -42,7 +42,7 @@ where
         move |event: Event<UiEvent<CoreCommand>>,
               _event_loop: &EventLoopWindowTarget<UiEvent<CoreCommand>>,
               control_flow: &mut ControlFlow| {
-            log::debug!("{event:?}");
+            log::trace!("{event:?}");
             match event {
                 Event::NewEvents(start) => {
                     let world = app.world.cell();
@@ -398,12 +398,12 @@ where
 
                     if update {
                         tao_state.last_update = Instant::now();
-                        log::debug!("app.update()");
+                        log::trace!("app.update()");
                         app.update();
                     }
                 }
                 Event::RedrawEventsCleared => {
-                    log::debug!("");
+                    log::trace!("");
                     tao_state.prevent_app_update = true;
 
                     let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
