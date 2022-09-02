@@ -1,18 +1,48 @@
-use crate::{event::*, resource::*};
+use crate::{component::*, event::*, resource::*};
 use bevy_dioxus::desktop::prelude::*;
+use chrono::{DateTime, Utc};
 
-#[ui_action]
-struct UiAction {
-    create_todo: CreateTodo,
-    change_title: ChangeTitle,
-    toggle_done: ToggleDone,
-    remove_todo: RemoveTodo,
-    change_filter: ChangeFilter,
-    clear_completed: ClearCompleted,
-    toggle_all: ToggleAll,
+#[ui_state]
+pub struct UiState {
+    todo_list: Vec<UiTodo>,
+    settings: Settings,
 }
 
-#[ui_action_creator]
+#[derive(Component, Clone, Debug)]
+pub struct UiTodo {
+    pub entity: Entity,
+    pub title: String,
+    pub done_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+impl From<(Entity, &Title, Option<&DoneAt>, &Timestamp)> for UiTodo {
+    fn from(
+        (entity, title, done_at, timestamp): (Entity, &Title, Option<&DoneAt>, &Timestamp),
+    ) -> Self {
+        Self {
+            entity,
+            title: title.value.clone(),
+            done_at: match done_at {
+                Some(done_at) => Some(done_at.time),
+                None => None,
+            },
+            created_at: timestamp.created_at,
+            updated_at: timestamp.updated_at,
+        }
+    }
+}
+
+#[ui_action(
+    CreateTodo,
+    ChangeTitle,
+    ToggleDone,
+    RemoveTodo,
+    ChangeFilter,
+    ClearCompleted,
+    ToggleAll
+)]
 impl ActionCreator {
     pub fn create_todo(title: &String) -> CreateTodo {
         CreateTodo {

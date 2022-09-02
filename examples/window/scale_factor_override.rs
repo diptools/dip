@@ -8,11 +8,24 @@ fn main() {
             height: 300.,
             ..default()
         })
+        .insert_non_send_resource(DioxusSettings::<NoRootProps> {
+            keyboard_event: true,
+            ..Default::default()
+        })
+        .add_plugin(DioxusPlugin::<NoUiState, NoUiAction>::new(Root))
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), ()>::new(Root))
         .add_system(toggle_override)
         .add_system(change_scale_factor)
         .run();
+}
+
+#[allow(non_snake_case)]
+fn Root(cx: Scope) -> Element {
+    cx.render(rsx! {
+        h1 { "Scale Factor Override" }
+        p { "💡 Press \"Enter\" to toggle scale factor overrides when enter is pressed. (TODO: You might need to click screen to focus.)" }
+        p { "Press \"Up\" or \"Down\" key to increase/decrease scale factor" }
+    })
 }
 
 /// This system toggles scale factor overrides when enter is pressed
@@ -31,13 +44,4 @@ fn change_scale_factor(input: Res<Input<KeyCode>>, mut windows: ResMut<Windows>)
     } else if input.just_pressed(KeyCode::Down) {
         window.set_scale_factor_override(window.scale_factor_override().map(|n| (n - 1.).max(1.)));
     }
-}
-
-#[allow(non_snake_case)]
-fn Root(cx: Scope) -> Element {
-    cx.render(rsx! {
-        h1 { "Scale Factor Override" }
-        p { "💡 Press \"Enter\" to toggle scale factor overrides when enter is pressed. (TODO: You might need to click screen to focus.)" }
-        p { "Press \"Up\" or \"Down\" key to increase/decrease scale factor" }
-    })
 }

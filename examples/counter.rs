@@ -2,86 +2,16 @@ use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
 
 fn main() {
     App::new()
-        .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<GlobalState, UiAction>::new(Root))
-        .add_plugin(GlobalStatePlugin)
+        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
+        .add_plugin(LogPlugin)
         .init_resource::<Count>()
-        .add_system_to_stage(UiStage::Prepare, update_global_state)
+        .add_system_to_stage(UiStage::Prepare, update_ui_state)
         .add_system(handle_increment)
         .add_system(handle_decrement)
         .add_system(handle_reset)
         .run();
-}
-
-#[global_state]
-struct GlobalState {
-    count: u32,
-    disabled: bool,
-}
-
-#[derive(Clone, Debug, Default)]
-struct Count {
-    value: u32,
-}
-
-#[ui_action]
-#[derive(Clone, Debug)]
-struct UiAction {
-    increment: Increment,
-    decrement: Decrement,
-    reset: Reset,
-}
-
-#[ui_action_creator]
-impl ActionCreator {
-    fn increment() -> Increment {
-        Increment
-    }
-
-    fn decrement() -> Decrement {
-        Decrement
-    }
-
-    fn reset() -> Reset {
-        Reset
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct Increment;
-
-#[derive(Clone, Debug)]
-pub struct Decrement;
-
-#[derive(Clone, Debug)]
-pub struct Reset;
-
-fn update_global_state(count: Res<Count>, mut global_state: EventWriter<GlobalState>) {
-    if count.is_changed() {
-        global_state.send(GlobalState::Count(count.value));
-    }
-}
-
-fn handle_increment(mut events: EventReader<Increment>, mut count: ResMut<Count>) {
-    for _ in events.iter() {
-        info!("🧠 Increment");
-        count.value += 1;
-    }
-}
-
-fn handle_decrement(mut events: EventReader<Decrement>, mut count: ResMut<Count>) {
-    for _ in events.iter() {
-        info!("🧠 Decrement");
-        count.value -= 1;
-    }
-}
-
-fn handle_reset(mut events: EventReader<Reset>, mut count: ResMut<Count>) {
-    for _ in events.iter() {
-        info!("🧠 Reset");
-        count.value = 0;
-    }
 }
 
 #[allow(non_snake_case)]
@@ -109,4 +39,66 @@ fn Root(cx: Scope) -> Element {
             "+",
         }
     })
+}
+
+#[ui_state]
+struct UiState {
+    count: u32,
+    disabled: bool,
+}
+
+#[derive(Clone, Debug, Default)]
+struct Count {
+    value: u32,
+}
+
+#[ui_action(Increment, Decrement, Reset)]
+impl ActionCreator {
+    fn increment() -> Increment {
+        Increment
+    }
+
+    fn decrement() -> Decrement {
+        Decrement
+    }
+
+    fn reset() -> Reset {
+        Reset
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Increment;
+
+#[derive(Clone, Debug)]
+pub struct Decrement;
+
+#[derive(Clone, Debug)]
+pub struct Reset;
+
+fn update_ui_state(count: Res<Count>, mut ui_state: EventWriter<UiState>) {
+    if count.is_changed() {
+        ui_state.send(UiState::Count(count.value));
+    }
+}
+
+fn handle_increment(mut events: EventReader<Increment>, mut count: ResMut<Count>) {
+    for _ in events.iter() {
+        info!("🧠 Increment");
+        count.value += 1;
+    }
+}
+
+fn handle_decrement(mut events: EventReader<Decrement>, mut count: ResMut<Count>) {
+    for _ in events.iter() {
+        info!("🧠 Decrement");
+        count.value -= 1;
+    }
+}
+
+fn handle_reset(mut events: EventReader<Reset>, mut count: ResMut<Count>) {
+    for _ in events.iter() {
+        info!("🧠 Reset");
+        count.value = 0;
+    }
 }

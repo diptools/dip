@@ -1,7 +1,7 @@
-use crate::{global_state::UiTodo, resource::*};
+use crate::{resource::*, ui_state::UiTodo};
 use bevy_dioxus::desktop::prelude::*;
 
-// UI -> Core
+// UI -> ECS
 
 #[derive(Clone, Debug)]
 pub struct CreateTodo {

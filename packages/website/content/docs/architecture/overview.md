@@ -6,7 +6,7 @@ weight = 0
 ## Channels
 ```rust
 let (vdom_scheduler_tx, vdom_scheduler_rx) = mpsc::unbounded::<SchedulerMsg>();
-let (global_state_tx, global_state_rx) = channel::<GlobalState>(8);
+let (ui_state_tx, ui_state_rx) = channel::<UiState>(8);
 let (ui_action_tx, ui_action_rx) = channel::<UiAction>(8);
 let proxy = event_loop.create_proxy();
 ```
@@ -24,8 +24,8 @@ sequenceDiagram
     VirtualDom ->> EventLoop: proxy.send()
     EventLoop ->> Systems: app.update()
 
-    Systems ->> EventLoop: global_state.send()
-    EventLoop ->> VirtualDom: global_state_tx.send()
+    Systems ->> EventLoop: ui_state.send()
+    EventLoop ->> VirtualDom: ui_state_tx.send()
     VirtualDom ->> Window: dioxus_window.rerender()
     Window ->> WebView: webviwe.evaluate_script()
 ```
@@ -39,7 +39,7 @@ sequenceDiagram
     participant Systems
     
     VirtualDom ->> VirtualDom: Wait For Work
-    Note left of VirtualDom: GlobalState
+    Note left of VirtualDom: UiState
     Note left of VirtualDom: rerender();
     VirtualDom ->> EventLoop: Event::UserEvent(WindowEvent::Rerender)
     EventLoop ->> EventLoop: NewEvents(Init)
@@ -80,7 +80,7 @@ sequenceDiagram
     EventLoop ->> EventLoop: MainEventsCleared
     EventLoop ->> Systems: app.update()
     Note right of Systems: apply_globao_state_command
-    Systems ->> VirtualDom: global_state.try_send(state);
+    Systems ->> VirtualDom: ui_state.try_send(state);
     Note right of VirtualDom: apply_edits()
     Note right of VirtualDom: rerender()
     VirtualDom ->> EventLoop: Event::UserEvent(WindowEvent::Rerender)

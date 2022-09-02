@@ -1,18 +1,18 @@
-use crate::{component::*, event::*, global_state::*, resource::*};
+use crate::{component::*, event::*, resource::*, ui_state::*};
 use bevy_dioxus::desktop::prelude::*;
 
-pub fn update_ui_settings(settings: Res<Settings>, mut global_state: EventWriter<GlobalState>) {
+pub fn update_ui_settings(settings: Res<Settings>, mut ui_state: EventWriter<UiState>) {
     if settings.is_changed() {
-        global_state.send(GlobalState::Settings(settings.into_inner().clone()));
+        ui_state.send(UiState::Settings(settings.into_inner().clone()));
     }
 }
 
 pub fn update_ui_todo_list(
     mut events: EventReader<NewUiTodoListReady>,
-    mut global_state: EventWriter<GlobalState>,
+    mut ui_state: EventWriter<UiState>,
 ) {
     for e in events.iter() {
-        global_state.send(GlobalState::TodoList(e.todo_list.clone()));
+        ui_state.send(UiState::TodoList(e.todo_list.clone()));
     }
 }
 

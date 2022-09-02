@@ -1,19 +1,18 @@
 mod component;
 mod event;
-mod global_state;
 mod resource;
 mod system;
 mod ui;
-mod ui_action;
+mod ui_state;
 
-use crate::{event::*, global_state::*, resource::*, system::*, ui::Root, ui_action::*};
+use crate::{event::*, resource::*, system::*, ui::Root, ui_state::*};
 use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
 
 fn main() {
     App::new()
-        .add_plugin(DioxusPlugin::<GlobalState, UiAction>::new(Root))
+        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(LogPlugin)
-        .add_plugin(GlobalStatePlugin)
+        .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
         .init_resource::<Settings>()
         .add_event::<UpdateTodoMeta>()

@@ -26,10 +26,10 @@ use wry::application::{
     event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget},
 };
 
-pub fn start_event_loop<UiAction, Props>(mut app: App)
+pub fn start_event_loop<UiAction, RootProps>(mut app: App)
 where
     UiAction: 'static + Send + Sync + Clone + Debug,
-    Props: 'static + Send + Sync + Clone + Default,
+    RootProps: 'static + Send + Sync + Clone + Default,
 {
     let event_loop = app
         .world
@@ -46,7 +46,7 @@ where
             match event {
                 Event::NewEvents(start) => {
                     let world = app.world.cell();
-                    let dioxus_settings = world.non_send_resource::<DioxusSettings<Props>>();
+                    let dioxus_settings = world.non_send_resource::<DioxusSettings<RootProps>>();
                     let windows = world.resource::<Windows>();
                     let focused = windows.iter().any(|w| w.is_focused());
                     let auto_timeout_reached =
@@ -378,8 +378,9 @@ where
                     tao_state.active = true;
                 }
                 Event::MainEventsCleared => {
-                    handle_create_window_events::<UiAction, Props>(&mut app.world);
-                    let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
+                    handle_create_window_events::<UiAction, RootProps>(&mut app.world);
+                    let dioxus_settings =
+                        app.world.non_send_resource::<DioxusSettings<RootProps>>();
                     let update = if !tao_state.active {
                         false
                     } else {
@@ -406,7 +407,8 @@ where
                     log::trace!("");
                     tao_state.prevent_app_update = true;
 
-                    let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
+                    let dioxus_settings =
+                        app.world.non_send_resource::<DioxusSettings<RootProps>>();
                     let windows = app.world.non_send_resource::<Windows>();
                     let focused = windows.iter().any(|w| w.is_focused());
                     let now = Instant::now();
@@ -446,10 +448,10 @@ where
     );
 }
 
-fn handle_create_window_events<UiAction, Props>(world: &mut World)
+fn handle_create_window_events<UiAction, RootProps>(world: &mut World)
 where
     UiAction: 'static + Send + Sync + Clone + Debug,
-    Props: 'static + Send + Sync + Clone,
+    RootProps: 'static + Send + Sync + Clone,
 {
     let world = world.cell();
     let mut dioxus_windows = world.get_non_send_resource_mut::<DioxusWindows>().unwrap();
@@ -460,7 +462,7 @@ where
 
     for create_window_event in create_window_events_reader.iter(&create_window_events) {
         warn!("Multiple Windows isn't supported yet!");
-        let window = dioxus_windows.create::<UiAction, Props>(
+        let window = dioxus_windows.create::<UiAction, RootProps>(
             &world,
             create_window_event.id,
             &create_window_event.descriptor,

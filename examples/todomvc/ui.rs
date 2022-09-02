@@ -1,4 +1,4 @@
-use crate::{global_state::*, ui_action::UiAction};
+use crate::ui_state::*;
 use bevy_dioxus::desktop::prelude::*;
 
 #[allow(non_snake_case)]

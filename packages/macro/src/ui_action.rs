@@ -2,100 +2,65 @@ use convert_case::{Case, Casing};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use std::str::FromStr;
-use syn::{Data, DeriveInput, Field, Ident, Type};
+use syn::{Ident, Type};
 
 pub struct UiActionParser {
-    fields: Vec<UiActionField>,
+    actions: Vec<Ident>,
 }
 
-impl From<DeriveInput> for UiActionParser {
-    fn from(input: DeriveInput) -> Self {
-        match input.data {
-            Data::Struct(data) => {
-                let mut fields = vec![];
-                for f in data.fields {
-                    fields.push(UiActionField::from(f));
+impl From<Vec<Type>> for UiActionParser {
+    fn from(args: Vec<Type>) -> Self {
+        let mut actions = vec![];
+        for arg in args.into_iter() {
+            match arg {
+                Type::Path(type_path) => {
+                    let action = &type_path.path.segments.first().unwrap().ident;
+                    actions.push(action.clone());
                 }
-                Self { fields }
-            }
-            _ => {
-                panic!("ui_action macro can only be used for struct.");
+                _ => {}
             }
         }
+
+        Self { actions }
     }
 }
 
 impl UiActionParser {
-    pub fn parse(&self) -> UiActionTokens {
-        let mut tokens = UiActionTokens::default();
+    pub fn parse(&self) -> UiActionTokenStreams {
+        let mut tokens = UiActionTokenStreams::default();
 
-        for i in &self.fields {
-            tokens.enum_variants.push(i.to_enum_variant());
-            tokens.add_events.push(i.to_add_event());
-            tokens.handler_args.push(i.to_handler_arg());
-            tokens.handlers.push(i.to_handler());
+        for action in self.actions.iter() {
+            let action = quote! { #action };
+            let action_snake =
+                TokenStream2::from_str(&action.to_string().to_case(Case::Snake)).unwrap();
+            tokens.enum_variants.push(Self::enum_variant(&action));
+            tokens.add_events.push(Self::add_event(&action));
+            tokens
+                .handler_args
+                .push(Self::handler_arg(&action, &action_snake));
+            tokens.handlers.push(Self::handler(&action, &action_snake));
         }
-
         tokens
     }
-}
 
-#[derive(Default)]
-pub struct UiActionTokens {
-    pub enum_variants: Vec<TokenStream2>,
-    pub add_events: Vec<TokenStream2>,
-    pub handler_args: Vec<TokenStream2>,
-    pub handlers: Vec<TokenStream2>,
-}
-
-struct UiActionField {
-    ident: Ident, // "create_todo"
-    r#type: Type, // ["CreateTodo"]
-}
-
-impl From<Field> for UiActionField {
-    fn from(f: Field) -> Self {
-        Self {
-            ident: f
-                .clone()
-                .ident
-                .expect("Make sure to name each field in GlobalState struct"),
-            r#type: f.ty,
-        }
-    }
-}
-
-impl UiActionField {
-    // example: TodoList(Vec<UiTodo>),
-    fn to_enum_variant(&self) -> TokenStream2 {
-        let name_upper_camel =
-            TokenStream2::from_str(&self.ident.to_string().to_case(Case::UpperCamel)).unwrap();
-        let r#type = &self.r#type;
-
+    // example: CreateTodo(CreateTodo),
+    fn enum_variant(action: &TokenStream2) -> TokenStream2 {
         quote! {
-            #name_upper_camel(#r#type),
+            #action(#r#action),
         }
     }
 
     // example: .add_event::<CreateTodo>()
-    fn to_add_event(&self) -> TokenStream2 {
-        let name_upper_camel =
-            TokenStream2::from_str(&self.ident.to_string().to_case(Case::UpperCamel)).unwrap();
-
+    fn add_event(action: &TokenStream2) -> TokenStream2 {
         quote! {
-            .add_event::<#name_upper_camel>()
+            .add_event::<#action>()
         }
     }
 
     // example: mut create_todo: EventWriter<CreateTodo>,
-    fn to_handler_arg(&self) -> TokenStream2 {
-        let name_snake =
-            TokenStream2::from_str(&self.ident.to_string().to_case(Case::Snake)).unwrap();
-        let name_upper_camel =
-            TokenStream2::from_str(&self.ident.to_string().to_case(Case::UpperCamel)).unwrap();
-
+    fn handler_arg(action: &TokenStream2, action_snake: &TokenStream2) -> TokenStream2 {
         quote! {
-            mut #name_snake: EventWriter<#name_upper_camel>,
+            mut #action_snake: EventWriter<#action>,
         }
     }
 
@@ -103,16 +68,60 @@ impl UiActionField {
     // UiAction::CreateTodo(event) => {
     //     create_todo.send(event.clone());
     // }
-    fn to_handler(&self) -> TokenStream2 {
-        let name_snake =
-            TokenStream2::from_str(&self.ident.to_string().to_case(Case::Snake)).unwrap();
-        let name_upper_camel =
-            TokenStream2::from_str(&self.ident.to_string().to_case(Case::UpperCamel)).unwrap();
-
+    fn handler(action: &TokenStream2, action_snake: &TokenStream2) -> TokenStream2 {
         quote! {
-            UiAction::#name_upper_camel(event) => {
-                #name_snake.send(event.clone());
+            UiAction::#action(event) => {
+                #action_snake.send(event.clone());
             }
         }
+    }
+}
+
+#[derive(Default)]
+pub struct UiActionTokenStreams {
+    pub enum_variants: Vec<TokenStream2>,
+    pub add_events: Vec<TokenStream2>,
+    pub handler_args: Vec<TokenStream2>,
+    pub handlers: Vec<TokenStream2>,
+}
+
+impl UiActionTokenStreams {
+    pub fn gen(&self) -> TokenStream2 {
+        let Self {
+            enum_variants,
+            add_events,
+            handler_args,
+            handlers,
+        } = self;
+
+        let gen = quote! {
+            #[derive(Clone, Debug)]
+            pub enum UiAction {
+                #(#enum_variants)*
+            }
+
+            pub fn send_ui_action_event(
+                mut events: EventReader<UiAction>,
+                #(#handler_args)*
+            ) {
+                for action in events.iter() {
+                    match action {
+                        #(#handlers)*
+                    }
+                }
+            }
+
+            pub struct UiActionPlugin;
+
+            impl Plugin for UiActionPlugin {
+                fn build(&self, app: &mut App) {
+                    app
+                        #(#add_events)*
+                        .add_system_to_stage(UiStage::Action, send_ui_action_event);
+                }
+            }
+        };
+
+        gen.into()
     }
 }

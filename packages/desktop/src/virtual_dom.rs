@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
 use crate::context::UiContext;
-use bevy_dioxus_core::global_state::GlobalStateHandler;
+use bevy_dioxus_core::ui_state::UiStateHandler;
 use dioxus_core::{Component, SchedulerMsg, ScopeId, VirtualDom as DioxusVirtualDom};
 use dioxus_hooks::{UnboundedReceiver, UnboundedSender};
 use fermi::AtomRoot;
@@ -14,42 +14,42 @@ use std::{
 };
 use tokio::select;
 
-pub struct VirtualDom<GlobalState: 'static, UiAction> {
+pub struct VirtualDom<UiState: 'static, UiAction> {
     virtual_dom: DioxusVirtualDom,
     edit_queue: Arc<Mutex<Vec<String>>>,
-    global_state_rx: Receiver<GlobalState>,
+    ui_state_rx: Receiver<UiState>,
     scheduler_tx: UnboundedSender<SchedulerMsg>,
     ui_action_type: PhantomData<UiAction>,
 }
 
-impl<GlobalState, UiAction> VirtualDom<GlobalState, UiAction>
+impl<UiState, UiAction> VirtualDom<UiState, UiAction>
 where
-    GlobalState: GlobalStateHandler,
+    UiState: UiStateHandler,
     UiAction: 'static + Clone + Debug,
 {
-    pub fn new<Props>(
-        Root: Component<Props>,
-        props: Props,
+    pub fn new<RootProps>(
+        Root: Component<RootProps>,
+        root_props: RootProps,
         edit_queue: Arc<Mutex<Vec<String>>>,
         (scheduler_tx, scheduler_rx): (
             UnboundedSender<SchedulerMsg>,
             UnboundedReceiver<SchedulerMsg>,
         ),
-        global_state_rx: Receiver<GlobalState>,
+        ui_state_rx: Receiver<UiState>,
     ) -> Self
     where
-        Props: 'static,
+        RootProps: 'static,
     {
         let virtual_dom = DioxusVirtualDom::new_with_props_and_scheduler(
             Root,
-            props,
+            root_props,
             (scheduler_tx.clone(), scheduler_rx),
         );
 
         Self {
             virtual_dom,
             edit_queue,
-            global_state_rx,
+            ui_state_rx,
             scheduler_tx,
             ui_action_type: PhantomData,
         }
@@ -76,10 +76,10 @@ where
                         self.rerender();
                     }
                 }
-                // 2) when global state is changed
-                state = self.global_state_rx.receive() => {
+                // 2) when Ui state is changed
+                state = self.ui_state_rx.receive() => {
                     if let Some(state) = state {
-                        log::trace!("GlobalState");
+                        log::trace!("UiState");
                         let root = self.atom_root();
                         state.handler(root.clone());
 

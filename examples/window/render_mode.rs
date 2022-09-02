@@ -11,92 +11,14 @@ fn main() {
     App::new()
         .add_plugin(LogPlugin)
         .add_plugin(TimePlugin)
-        .add_plugin(DioxusPlugin::<GlobalState, UiAction>::new(Root))
-        .add_plugin(GlobalStatePlugin)
+        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(UiStatePlugin)
         .init_resource::<Frame>()
         .init_resource::<RenderMode>()
         .add_system(increment_frame)
-        .add_system(handle_global_state_change)
         .add_system(update_render_mode)
+        .add_system_to_stage(UiStage::Prepare, update_ui_state)
         .run();
-}
-
-#[global_state]
-struct GlobalState {
-    frame: u32,
-    render_mode: RenderMode,
-}
-
-#[derive(Clone, Debug)]
-enum UiAction {
-    RenderMode(RenderMode),
-}
-
-impl UiAction {
-    fn application() -> Self {
-        Self::RenderMode(RenderMode::Application)
-    }
-
-    fn game() -> Self {
-        Self::RenderMode(RenderMode::Game)
-    }
-}
-
-#[derive(Default)]
-struct Frame {
-    value: u32,
-}
-
-#[derive(Component, Clone, Debug)]
-pub enum RenderMode {
-    Application,
-    Game,
-}
-
-impl Default for RenderMode {
-    fn default() -> Self {
-        Self::Application
-    }
-}
-
-fn increment_frame(mut frame: ResMut<Frame>) {
-    frame.value += 1;
-    log::trace!("update_frame system: frame: {}", frame.value);
-}
-
-fn handle_global_state_change(
-    frame: Res<Frame>,
-    render_mode: Res<RenderMode>,
-    mut global_state: EventWriter<GlobalState>,
-) {
-    if frame.is_changed() {
-        global_state.send(GlobalState::Frame(frame.value));
-    }
-
-    if render_mode.is_changed() {
-        global_state.send(GlobalState::RenderMode(render_mode.clone()));
-    }
-}
-
-fn update_render_mode(
-    mut events: EventReader<UiAction>,
-    mut render_mode: ResMut<RenderMode>,
-    mut dioxus_settings: NonSendMut<DioxusSettings<()>>,
-    mut global_state: EventWriter<GlobalState>,
-) {
-    for action in events.iter() {
-        match action {
-            UiAction::RenderMode(mode) => {
-                *render_mode = mode.clone();
-                *dioxus_settings = match mode {
-                    RenderMode::Application => DioxusSettings::application(),
-                    RenderMode::Game => DioxusSettings::game(),
-                }
-            }
-        }
-
-        global_state.send(GlobalState::RenderMode(render_mode.clone()));
-    }
 }
 
 #[allow(non_snake_case)]
@@ -135,4 +57,75 @@ fn Root(cx: Scope) -> Element {
             p { [format_args!("Frame: {}", frame)] }
         }
     })
+}
+
+#[ui_state]
+struct UiState {
+    frame: u32,
+    render_mode: RenderMode,
+}
+
+#[ui_action(RenderMode)]
+impl ActionCreator {
+    fn application() -> RenderMode {
+        RenderMode::Application
+    }
+
+    fn game() -> RenderMode {
+        RenderMode::Game
+    }
+}
+
+#[derive(Default)]
+struct Frame {
+    value: u32,
+}
+
+#[derive(Component, Clone, Debug)]
+pub enum RenderMode {
+    Application,
+    Game,
+}
+
+impl Default for RenderMode {
+    fn default() -> Self {
+        Self::Application
+    }
+}
+
+fn increment_frame(mut frame: ResMut<Frame>) {
+    frame.value += 1;
+    log::trace!("update_frame system: frame: {}", frame.value);
+}
+
+fn update_ui_state(
+    frame: Res<Frame>,
+    render_mode: Res<RenderMode>,
+    mut ui_state: EventWriter<UiState>,
+) {
+    if frame.is_changed() {
+        ui_state.send(UiState::Frame(frame.value));
+    }
+
+    if render_mode.is_changed() {
+        ui_state.send(UiState::RenderMode(render_mode.clone()));
+    }
+}
+
+fn update_render_mode(
+    mut events: EventReader<UiAction>,
+    mut render_mode: ResMut<RenderMode>,
+    mut dioxus_settings: NonSendMut<DioxusSettings<()>>,
+) {
+    for action in events.iter() {
+        match action {
+            UiAction::RenderMode(mode) => {
+                *render_mode = mode.clone();
+                *dioxus_settings = match mode {
+                    RenderMode::Application => DioxusSettings::application(),
+                    RenderMode::Game => DioxusSettings::game(),
+                }
+            }
+        }
+    }
 }

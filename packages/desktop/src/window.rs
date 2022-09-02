@@ -76,7 +76,7 @@ impl DioxusWindows {
         self.windows.remove(&tao_window_id)
     }
 
-    pub fn create<UiAction, Props>(
+    pub fn create<UiAction, RootProps>(
         &mut self,
         world: &WorldCell,
         window_id: WindowId,
@@ -84,7 +84,7 @@ impl DioxusWindows {
     ) -> BevyWindow
     where
         UiAction: 'static + Send + Sync + Clone + Debug,
-        Props: 'static + Send + Sync + Clone,
+        RootProps: 'static + Send + Sync + Clone,
     {
         let event_loop = world
             .get_non_send_resource_mut::<EventLoop<UiEvent<UiAction>>>()
@@ -102,7 +102,7 @@ impl DioxusWindows {
         let tao_window_id = tao_window.id();
 
         let bevy_window = Self::create_bevy_window(window_id, &tao_window, &window_descriptor);
-        let (webview, is_ready) = Self::create_webview::<UiAction, Props>(
+        let (webview, is_ready) = Self::create_webview::<UiAction, RootProps>(
             world,
             window_descriptor,
             tao_window,
@@ -311,7 +311,7 @@ impl DioxusWindows {
         )
     }
 
-    fn create_webview<UiAction, Props>(
+    fn create_webview<UiAction, RootProps>(
         world: &WorldCell,
         window_descriptor: &WindowDescriptor,
         tao_window: TaoWindow,
@@ -320,10 +320,10 @@ impl DioxusWindows {
     ) -> (WebView, Arc<AtomicBool>)
     where
         UiAction: 'static + Send + Sync + Clone + Debug,
-        Props: 'static,
+        RootProps: 'static,
     {
         let mut settings = world
-            .get_non_send_resource_mut::<DioxusSettings<Props>>()
+            .get_non_send_resource_mut::<DioxusSettings<RootProps>>()
             .unwrap();
         let is_ready = Arc::new(AtomicBool::new(false));
 
