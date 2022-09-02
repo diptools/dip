@@ -19,7 +19,7 @@ impl From<DeriveInput> for GlobalStateParser {
                 Self { fields }
             }
             _ => {
-                panic!("GlobalState derive macro can only be used for struct.");
+                panic!("global_state macro can only be used for struct.");
             }
         }
     }

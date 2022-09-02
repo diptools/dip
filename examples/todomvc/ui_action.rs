@@ -12,56 +12,56 @@ struct UiAction {
     toggle_all: ToggleAll,
 }
 
-// Action Creator
-impl UiAction {
-    pub fn create_todo(title: &String) -> Self {
-        Self::CreateTodo(CreateTodo {
+#[ui_action_creator]
+impl ActionCreator {
+    pub fn create_todo(title: &String) -> CreateTodo {
+        CreateTodo {
             title: title.clone(),
-        })
+        }
     }
 
-    pub fn change_title(entity: &Entity, title: &String) -> Self {
-        Self::ChangeTitle(ChangeTitle {
+    pub fn change_title(entity: &Entity, title: &String) -> ChangeTitle {
+        ChangeTitle {
             entity: entity.clone(),
             title: title.clone(),
-        })
+        }
     }
 
-    pub fn toggle_done(entity: &Entity) -> Self {
-        Self::ToggleDone(ToggleDone {
+    pub fn toggle_done(entity: &Entity) -> ToggleDone {
+        ToggleDone {
             entity: entity.clone(),
-        })
+        }
     }
 
-    pub fn remove_todo(entity: &Entity) -> Self {
-        Self::RemoveTodo(RemoveTodo {
+    pub fn remove_todo(entity: &Entity) -> RemoveTodo {
+        RemoveTodo {
             entity: entity.clone(),
-        })
+        }
     }
 
-    pub fn filter_all() -> Self {
-        Self::ChangeFilter(ChangeFilter {
+    pub fn filter_all() -> ChangeFilter {
+        ChangeFilter {
             filter: Filter::All,
-        })
+        }
     }
 
-    pub fn filter_active() -> Self {
-        Self::ChangeFilter(ChangeFilter {
+    pub fn filter_active() -> ChangeFilter {
+        ChangeFilter {
             filter: Filter::Active,
-        })
+        }
     }
 
-    pub fn filter_completed() -> Self {
-        Self::ChangeFilter(ChangeFilter {
+    pub fn filter_completed() -> ChangeFilter {
+        ChangeFilter {
             filter: Filter::Completed,
-        })
+        }
     }
 
-    pub fn toggle_all() -> Self {
-        Self::ToggleAll(ToggleAll)
+    pub fn toggle_all() -> ToggleAll {
+        ToggleAll
     }
 
-    pub fn clear_completed() -> Self {
-        Self::ClearCompleted(ClearCompleted)
+    pub fn clear_completed() -> ClearCompleted {
+        ClearCompleted
     }
 }

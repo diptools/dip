@@ -5,9 +5,12 @@ fn main() {
         .add_plugin(LogPlugin)
         .add_plugin(DioxusPlugin::<GlobalState, UiAction>::new(Root))
         .add_plugin(GlobalStatePlugin)
+        .add_plugin(UiActionPlugin)
         .init_resource::<Count>()
-        .add_system(handle_ui_action)
-        .add_system(update_global_state)
+        .add_system_to_stage(UiStage::Prepare, update_global_state)
+        .add_system(handle_increment)
+        .add_system(handle_decrement)
+        .add_system(handle_reset)
         .run();
 }
 
@@ -22,39 +25,62 @@ struct Count {
     value: u32,
 }
 
+#[ui_action]
 #[derive(Clone, Debug)]
-enum UiAction {
-    Increment,
-    Decrement,
-    Reset,
+struct UiAction {
+    increment: Increment,
+    decrement: Decrement,
+    reset: Reset,
 }
 
-fn handle_ui_action(mut events: EventReader<UiAction>, mut count: ResMut<Count>) {
-    for action in events.iter() {
-        match action {
-            UiAction::Increment => {
-                info!("🧠 Increment");
-                count.value += 1;
-            }
-            UiAction::Decrement => {
-                if count.value > 0 {
-                    info!("🧠 Decrement");
-                    count.value -= 1;
-                }
-            }
-            UiAction::Reset => {
-                if count.value != 0 {
-                    info!("🧠 Reset");
-                    count.value = 0;
-                }
-            }
-        };
+#[ui_action_creator]
+impl ActionCreator {
+    fn increment() -> Increment {
+        Increment
+    }
+
+    fn decrement() -> Decrement {
+        Decrement
+    }
+
+    fn reset() -> Reset {
+        Reset
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct Increment;
+
+#[derive(Clone, Debug)]
+pub struct Decrement;
+
+#[derive(Clone, Debug)]
+pub struct Reset;
 
 fn update_global_state(count: Res<Count>, mut global_state: EventWriter<GlobalState>) {
     if count.is_changed() {
         global_state.send(GlobalState::Count(count.value));
+    }
+}
+
+fn handle_increment(mut events: EventReader<Increment>, mut count: ResMut<Count>) {
+    for _ in events.iter() {
+        info!("🧠 Increment");
+        count.value += 1;
+    }
+}
+
+fn handle_decrement(mut events: EventReader<Decrement>, mut count: ResMut<Count>) {
+    for _ in events.iter() {
+        info!("🧠 Decrement");
+        count.value -= 1;
+    }
+}
+
+fn handle_reset(mut events: EventReader<Reset>, mut count: ResMut<Count>) {
+    for _ in events.iter() {
+        info!("🧠 Reset");
+        count.value = 0;
     }
 }
 
@@ -69,17 +95,17 @@ fn Root(cx: Scope) -> Element {
         h1 { "Counter Example" }
         p { "count: {count}" }
         button {
-            onclick: move |_| window.send(UiAction::Decrement),
+            onclick: move |_| window.send(UiAction::decrement()),
             disabled: "{disabled}",
             "-",
         }
         button {
-            onclick: move |_| window.send(UiAction::Reset),
+            onclick: move |_| window.send(UiAction::reset()),
             disabled: "{disabled}",
             "Reset"
         }
         button {
-            onclick: move |_| window.send(UiAction::Increment),
+            onclick: move |_| window.send(UiAction::increment()),
             "+",
         }
     })

@@ -2,12 +2,14 @@ extern crate proc_macro;
 
 mod global_state;
 mod ui_action;
+mod ui_action_creator;
 
 use global_state::{GlobalStateParser, GlobalStateTokens};
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput};
+use syn::{parse_macro_input, DeriveInput, ItemImpl};
 use ui_action::{UiActionParser, UiActionTokens};
+use ui_action_creator::UiActionCreatorParser;
 
 #[proc_macro_attribute]
 pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
@@ -22,11 +24,9 @@ pub fn global_state(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let gen = quote! {
         use bevy_dioxus::{
             bevy::{
-                app::Plugin,
                 ecs::system::Res,
                 log::{error, trace},
             },
-            core::schedule::UiStage,
             desktop::futures_intrusive::channel::{shared::Sender, TrySendError},
             dioxus::fermi::{Atom, AtomRoot, Readable},
         };
@@ -97,9 +97,6 @@ pub fn ui_action(_attr: TokenStream, input: TokenStream) -> TokenStream {
     } = UiActionParser::from(input).parse();
 
     let gen = quote! {
-        use bevy::app::{App, Plugin};
-        use bevy_dioxus::core::schedule::UiStage;
-
         #[derive(Clone, Debug)]
         pub enum UiAction {
             #(#enum_variants)*
@@ -124,6 +121,27 @@ pub fn ui_action(_attr: TokenStream, input: TokenStream) -> TokenStream {
                     #(#add_events)*
                     .add_system_to_stage(UiStage::Action, send_ui_action_event);
             }
+        }
+    };
+
+    gen.into()
+}
+
+#[proc_macro_attribute]
+pub fn ui_action_creator(_attr: TokenStream, tokens: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(tokens as ItemImpl);
+
+    let parser = UiActionCreatorParser::from(input);
+    let action_creator_impl = parser.action_creator_impl();
+    let methods = parser.methods();
+
+    let gen = quote! {
+        struct ActionCreator;
+
+        #action_creator_impl
+
+        impl UiAction {
+            #(#methods)*
         }
     };
 

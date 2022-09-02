@@ -19,7 +19,7 @@ impl From<DeriveInput> for UiActionParser {
                 Self { fields }
             }
             _ => {
-                panic!("GlobalState derive macro can only be used for struct.");
+                panic!("ui_action macro can only be used for struct.");
             }
         }
     }
@@ -49,8 +49,8 @@ pub struct UiActionTokens {
 }
 
 struct UiActionField {
-    ident: Ident, // "todo_list"
-    r#type: Type, // ["Vec<UiTodo>"]
+    ident: Ident, // "create_todo"
+    r#type: Type, // ["CreateTodo"]
 }
 
 impl From<Field> for UiActionField {
