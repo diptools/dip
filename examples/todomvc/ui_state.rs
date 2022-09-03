@@ -1,11 +1,11 @@
-use crate::{component::*, resource::*};
+use crate::component::*;
 use bevy_dioxus::desktop::prelude::*;
 use chrono::{DateTime, Utc};
 
 #[ui_state]
 pub struct UiState {
     todo_list: Vec<UiTodo>,
-    settings: Settings,
+    filter: Filter,
 }
 
 #[derive(Clone, Debug)]
@@ -31,6 +31,19 @@ impl From<(Entity, &Title, Option<&DoneAt>, &Timestamp)> for UiTodo {
             created_at: timestamp.created_at,
             updated_at: timestamp.updated_at,
         }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum Filter {
+    All,
+    Active,
+    Completed,
+}
+
+impl Default for Filter {
+    fn default() -> Self {
+        Self::All
     }
 }
 

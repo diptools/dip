@@ -6,7 +6,7 @@ pub fn Root(cx: Scope) -> Element {
     let window = use_window::<UiAction>(&cx);
 
     let todo_list = use_read(&cx, TODO_LIST);
-    let settings = use_read(&cx, SETTINGS);
+    let filter = use_read(&cx, FILTER);
 
     let new_todo = use_state(&cx, || "".to_string());
     let hovered = use_state(&cx, || None::<Entity>);
@@ -26,7 +26,7 @@ pub fn Root(cx: Scope) -> Element {
                         "Choose a filter:"
                     }
                     select {
-                        value: format_args!("{:?}", settings.filter),
+                        value: format_args!("{:?}", filter),
                         onchange: |e| {
                             match e.value.as_str() {
                                 "All" => { window.send(UiAction::filter_all()) }
