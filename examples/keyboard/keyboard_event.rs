@@ -80,7 +80,7 @@ struct UiState {
 struct SelectedType(EventType);
 
 // UI -> ECS
-#[ui_action(EventType)]
+#[ui_action]
 impl ActionCreator {
     fn keyboard_event() -> EventType {
         EventType::KeyboardEvent

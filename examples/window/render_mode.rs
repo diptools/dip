@@ -65,7 +65,7 @@ struct UiState {
     render_mode: RenderMode,
 }
 
-#[ui_action(RenderMode)]
+#[ui_action]
 impl ActionCreator {
     fn application() -> RenderMode {
         RenderMode::Application

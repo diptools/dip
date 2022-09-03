@@ -50,7 +50,7 @@ pub struct UpdateName {
     value: String,
 }
 
-#[ui_action(UpdateName)]
+#[ui_action]
 impl ActionCreator {
     fn update_name(value: String) -> UpdateName {
         UpdateName { value }

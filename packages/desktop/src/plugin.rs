@@ -113,12 +113,9 @@ where
     /// ```no_run
     /// use bevy_dioxus::desktop::prelude::*;
     ///
-    /// // DioxusPlugin accepts any types as command. Pass empty tuple if channel is not necessary.
-    /// type UiAction = ();
-    ///
     /// fn main() {
     ///    App::new()
-    ///         .add_plugin(DioxusPlugin::<EmptyUiState, UiAction>::new(Root))
+    ///         .add_plugin(DioxusPlugin::<NoUiState, NoUiAction>::new(Root))
     ///         .run();
     /// }
     ///

@@ -52,7 +52,7 @@ struct Count {
     value: u32,
 }
 
-#[ui_action(Increment, Decrement, Reset)]
+#[ui_action]
 impl ActionCreator {
     fn increment() -> Increment {
         Increment
