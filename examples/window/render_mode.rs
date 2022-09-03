@@ -14,8 +14,6 @@ fn main() {
         .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
-        .init_resource::<Frame>()
-        .init_resource::<RenderMode>()
         .add_system(increment_frame)
         .add_system(update_render_mode)
         .run();
