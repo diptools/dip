@@ -67,6 +67,10 @@ gh repo clone JunichiSugiura/bevy_dioxus
 cd bevy_dioxus
 
 cargo run --example counter
+
+// requires npm for styling
+npm install
+// this script compiles Tailwind CSS and starts Rust example
 cargo run --example todomvc
 ```
 

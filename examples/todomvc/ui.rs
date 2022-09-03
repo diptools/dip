@@ -13,11 +13,12 @@ pub fn Root(cx: Scope) -> Element {
 
     cx.render(rsx! {
         main {
-            style: "display: flex; flex-direction: column; align-items: center;",
+            class: "bg-neutral-100",
+            // style: "display: flex; flex-direction: column; align-items: center;",
             h1 { "todos" }
 
             div {
-                style: "display: flex; flex-direction: column; align-items: center;",
+                // style: "display: flex; flex-direction: column; align-items: center;",
                 div {
                     style: "display: flex;",
                     label {
