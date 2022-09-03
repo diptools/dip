@@ -17,7 +17,7 @@ use bevy::{
     input::InputPlugin,
     window::{CreateWindow, ModifiesWindows, WindowCreated, WindowPlugin, Windows},
 };
-use bevy_dioxus_core::{ui_state::UiStateHandler, schedule::UiSchedulePlugin};
+use bevy_dioxus_core::{schedule::UiSchedulePlugin, ui_state::UiStateHandler};
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg};
 use futures_channel::mpsc;
 use futures_intrusive::channel::shared::channel;
