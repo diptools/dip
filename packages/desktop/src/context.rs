@@ -2,8 +2,8 @@ use crate::event::{
     UiEvent::{self, *},
     WindowEvent::*,
 };
-use futures_intrusive::channel::shared::Sender;
 use std::fmt::Debug;
+use tokio::sync::mpsc::Sender;
 use wry::application::event_loop::EventLoopProxy;
 
 pub type ProxyType<UiAction> = EventLoopProxy<UiEvent<UiAction>>;
