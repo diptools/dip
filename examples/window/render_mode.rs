@@ -13,6 +13,7 @@ fn main() {
         .add_plugin(TimePlugin)
         .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(UiStatePlugin)
+        .add_plugin(UiActionPlugin)
         .init_resource::<Frame>()
         .init_resource::<RenderMode>()
         .add_system(increment_frame)
@@ -81,7 +82,7 @@ struct Frame {
     value: u32,
 }
 
-#[derive(Component, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub enum RenderMode {
     Application,
     Game,
@@ -113,19 +114,15 @@ fn update_ui_state(
 }
 
 fn update_render_mode(
-    mut events: EventReader<UiAction>,
+    mut actions: EventReader<RenderMode>,
     mut render_mode: ResMut<RenderMode>,
     mut dioxus_settings: NonSendMut<DioxusSettings<()>>,
 ) {
-    for action in events.iter() {
-        match action {
-            UiAction::RenderMode(mode) => {
-                *render_mode = mode.clone();
-                *dioxus_settings = match mode {
-                    RenderMode::Application => DioxusSettings::application(),
-                    RenderMode::Game => DioxusSettings::game(),
-                }
-            }
-        }
+    for mode in actions.iter() {
+        *render_mode = mode.clone();
+        *dioxus_settings = match mode {
+            RenderMode::Application => DioxusSettings::application(),
+            RenderMode::Game => DioxusSettings::game(),
+        };
     }
 }
