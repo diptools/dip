@@ -6,9 +6,16 @@ fn main() {
             title: "Props Example".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), RootProps>::new(Root))
+        .add_plugin(DioxusPlugin::<NoUiState, NoUiAction, RootProps>::new(Root))
         .add_plugin(LogPlugin)
         .run();
+}
+
+#[allow(non_snake_case)]
+fn Root(cx: Scope<RootProps>) -> Element {
+    cx.render(rsx! {
+        h1 { "Hello, {cx.props.name} !" }
+    })
 }
 
 #[derive(Props, PartialEq, Clone)]
@@ -22,11 +29,4 @@ impl Default for RootProps {
             name: "Ferris the 🦀".to_string(),
         }
     }
-}
-
-#[allow(non_snake_case)]
-fn Root(cx: Scope<RootProps>) -> Element {
-    cx.render(rsx! {
-        h1 { "Hello, {cx.props.name} !" }
-    })
 }

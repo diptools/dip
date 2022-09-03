@@ -1,31 +1,23 @@
-mod channel;
 mod component;
 mod event;
-mod global_state;
 mod resource;
 mod system;
 mod ui;
+mod ui_state;
 
-use crate::{channel::*, event::*, global_state::*, resource::*, system::*, ui::Root};
+use crate::{event::*, resource::*, system::*, ui::Root, ui_state::*};
 use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
 
 fn main() {
     App::new()
-        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
+        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(LogPlugin)
-        .add_plugin(GlobalStatePlugin)
+        .add_plugin(UiStatePlugin)
+        .add_plugin(UiActionPlugin)
         .init_resource::<Settings>()
-        .add_event::<CreateTodo>()
-        .add_event::<ChangeTitle>()
-        .add_event::<ToggleDone>()
         .add_event::<UpdateTodoMeta>()
-        .add_event::<RemoveTodo>()
-        .add_event::<ToggleAll>()
-        .add_event::<ChangeFilter>()
-        .add_event::<ClearCompleted>()
         .add_event::<NewUiTodoListRequested>()
         .add_event::<NewUiTodoListReady>()
-        .add_system_to_stage(UiStage::Action, handle_core_cmd)
         .add_system(create_todo)
         .add_system(change_todo_title)
         .add_system(toggle_done.before(update_todo_meta))

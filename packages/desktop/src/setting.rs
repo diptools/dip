@@ -14,7 +14,7 @@ use wry::{
 };
 
 /// A resource for configuring usage of the `dioxous (tao/wry)` library.
-pub struct DioxusSettings<Props> {
+pub struct DioxusSettings<RootProps = ()> {
     /// Configures how the tao event loop updates while the window is focused.
     pub focused_mode: UpdateMode,
     /// Configures how the tao event loop updates while the window is *not* focused.
@@ -36,7 +36,7 @@ pub struct DioxusSettings<Props> {
     /// Stores custom index.html to be used instead of the default Dioxus one
     pub custom_index: Option<String>,
     /// Props for Root component
-    pub props: Option<Props>,
+    pub root_props: Option<RootProps>,
 
     /// Enable keyboard event. This will also emit other keyboard related events such as KeyboardInput and ReceivedCaracter.
     pub keyboard_event: bool,
@@ -49,7 +49,7 @@ type WryProtocol = (
 
 // type DynEventHandlerFn = dyn Fn(&mut EventLoop<()>, &mut WebView);
 
-impl<Props> Debug for DioxusSettings<Props> {
+impl<RootProps> Debug for DioxusSettings<RootProps> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("DioxusWindows")
             .field("focused_mode", &self.focused_mode)
@@ -58,9 +58,9 @@ impl<Props> Debug for DioxusSettings<Props> {
     }
 }
 
-impl<Props> DioxusSettings<Props>
+impl<RootProps> DioxusSettings<RootProps>
 where
-    Props: Default,
+    RootProps: Default,
 {
     /// Configure tao with common settings for a game.
     pub fn game() -> Self {
@@ -89,7 +89,7 @@ where
             resource_dir: None,
             custom_head: None,
             custom_index: None,
-            props: Some(Props::default()),
+            root_props: Some(RootProps::default()),
 
             keyboard_event: false,
         }
@@ -195,9 +195,9 @@ where
     }
 }
 
-impl<Props> Default for DioxusSettings<Props>
+impl<RootProps> Default for DioxusSettings<RootProps>
 where
-    Props: Default,
+    RootProps: Default,
 {
     fn default() -> Self {
         Self::application()

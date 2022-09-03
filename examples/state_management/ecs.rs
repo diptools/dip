@@ -2,67 +2,19 @@ use bevy_dioxus::desktop::prelude::*;
 
 fn main() {
     App::new()
-        .add_plugin(GlobalStatePlugin)
-        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
-        .add_event::<UpdateGlobalState>()
-        .add_startup_system(setup)
-        .add_system(handle_core_cmd)
-        .add_system(update_global_state)
+        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(UiStatePlugin)
+        .add_plugin(UiActionPlugin)
+        .init_resource::<Name>()
+        .add_system(update_name)
+        .add_system_to_stage(UiStage::Prepare, update_ui_state)
         .run();
-}
-
-#[global_state]
-struct GlobalState {
-    name: String,
-}
-
-#[derive(Component, Clone, Debug)]
-struct Name(String);
-
-impl Default for Name {
-    fn default() -> Self {
-        Self("world".to_string())
-    }
-}
-
-#[derive(Clone, Debug)]
-struct CoreCommand(String);
-
-struct UpdateGlobalState;
-
-fn setup(mut commands: Commands, mut update_global_state: EventWriter<UpdateGlobalState>) {
-    commands.spawn().insert(Name::default());
-    update_global_state.send(UpdateGlobalState);
-}
-
-fn handle_core_cmd(
-    mut events: EventReader<CoreCommand>,
-    mut query: Query<&mut Name>,
-    mut update_global_state: EventWriter<UpdateGlobalState>,
-) {
-    for cmd in events.iter() {
-        let mut name = query.single_mut();
-        name.0 = cmd.0.clone();
-
-        update_global_state.send(UpdateGlobalState);
-    }
-}
-
-fn update_global_state(
-    mut events: EventReader<UpdateGlobalState>,
-    query: Query<&Name>,
-    mut global_state: EventWriter<GlobalState>,
-) {
-    for _ in events.iter() {
-        let name = query.single();
-        global_state.send(GlobalState::Name(name.0.clone()))
-    }
 }
 
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
     let name = use_read(&cx, NAME);
-    let window = use_window::<CoreCommand>(&cx);
+    let window = use_window::<UiAction>(&cx);
 
     cx.render(rsx! {
         h1 { "Hello, {name} !" }
@@ -70,8 +22,49 @@ fn Root(cx: Scope) -> Element {
         input {
             value: "{name}",
             oninput: |e| {
-                window.send(CoreCommand(e.value.to_string()));
+                window.send(UiAction::update_name(e.value.to_string()));
             },
         }
     })
+}
+
+#[ui_state]
+struct UiState {
+    name: String,
+}
+
+struct Name {
+    value: String,
+}
+
+impl Default for Name {
+    fn default() -> Self {
+        Self {
+            value: "world".to_string(),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct UpdateName {
+    value: String,
+}
+
+#[ui_action]
+impl ActionCreator {
+    fn update_name(value: String) -> UpdateName {
+        UpdateName { value }
+    }
+}
+
+fn update_name(mut events: EventReader<UpdateName>, mut name: ResMut<Name>) {
+    for action in events.iter() {
+        name.value = action.value.clone();
+    }
+}
+
+fn update_ui_state(name: Res<Name>, mut ui_state: EventWriter<UiState>) {
+    if name.is_changed() {
+        ui_state.send(UiState::Name(name.value.clone()))
+    }
 }

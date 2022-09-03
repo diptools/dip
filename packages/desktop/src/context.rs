@@ -6,26 +6,29 @@ use futures_intrusive::channel::shared::Sender;
 use std::fmt::Debug;
 use wry::application::event_loop::EventLoopProxy;
 
-pub type ProxyType<CoreCommand> = EventLoopProxy<UiEvent<CoreCommand>>;
+pub type ProxyType<UiAction> = EventLoopProxy<UiEvent<UiAction>>;
 
 #[derive(Clone)]
-pub struct UiContext<CoreCommand: Debug + 'static + Clone> {
-    proxy: ProxyType<CoreCommand>,
-    core_tx: Sender<CoreCommand>,
+pub struct UiContext<UiAction: Debug + 'static + Clone> {
+    proxy: ProxyType<UiAction>,
+    ui_action_tx: Sender<UiAction>,
 }
 
-impl<CoreCommand> UiContext<CoreCommand>
+impl<UiAction> UiContext<UiAction>
 where
-    CoreCommand: Debug + Clone,
+    UiAction: Debug + Clone,
 {
-    pub fn new(proxy: ProxyType<CoreCommand>, core_tx: Sender<CoreCommand>) -> Self {
-        Self { proxy, core_tx }
+    pub fn new(proxy: ProxyType<UiAction>, ui_action_tx: Sender<UiAction>) -> Self {
+        Self {
+            proxy,
+            ui_action_tx,
+        }
     }
 
-    pub fn send(&self, cmd: CoreCommand) {
-        self.core_tx
-            .try_send(cmd)
-            .expect("Failed to send CoreCommand");
+    pub fn send(&self, action: UiAction) {
+        self.ui_action_tx
+            .try_send(action)
+            .expect("Failed to send UiAction");
     }
 
     pub fn drag(&self) {

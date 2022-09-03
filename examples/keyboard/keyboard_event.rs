@@ -5,22 +5,72 @@ use bevy_dioxus::{
 
 fn main() {
     App::new()
-        .insert_non_send_resource(DioxusSettings::<()> {
+        .insert_non_send_resource(DioxusSettings::<NoRootProps> {
             keyboard_event: true,
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<GlobalState, CoreCommand>::new(Root))
-        .add_plugin(GlobalStatePlugin)
+        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(UiStatePlugin)
+        .add_plugin(UiActionPlugin)
         .init_resource::<EventType>()
         .add_plugin(LogPlugin)
-        .add_system(handle_core_cmd)
-        .add_system(apply_global_state)
+        .add_system(handle_ui_action)
+        .add_system(send_ui_state)
         .add_system(log_keyboard_event)
         .run();
 }
 
-#[global_state]
-struct GlobalState {
+#[allow(non_snake_case)]
+fn Root(cx: Scope) -> Element {
+    let event_type = use_read(&cx, EVENT_TYPE);
+    let input_result = use_read(&cx, INPUT_RESULT);
+    let window = use_window::<UiAction>(&cx);
+
+    cx.render(rsx! {
+        h1 { "Keyboard Event Example" }
+        p { "💡 Type any keys and checkout console. (TODO: You might need to click screen to focus.)" }
+
+        div {
+            select {
+                value: format_args!("{:?}", event_type),
+                onchange: |e| {
+                    match e.value.as_str() {
+                        "KeyboardEvent" => {
+                            window.send(UiAction::keyboard_event());
+                        },
+                        "KeyboardInput" => {
+                            window.send(UiAction::keyboard_input());
+                        },
+                        "ReceivedCharacter" => {
+                            window.send(UiAction::received_char());
+                        }
+                        _ => {}
+                    };
+                },
+
+                option {
+                    value: "KeyboardEvent",
+                    "KeyboardEvent"
+                }
+                option {
+                    value: "KeyboardInput",
+                    "KeyboardInput"
+                }
+                option {
+                    value: "ReceivedCharacter",
+                    "ReceivedCharacter"
+                }
+            }
+        }
+
+        code {
+            [format_args!("Input result: {:#?}", input_result)],
+        }
+    })
+}
+
+#[ui_state]
+struct UiState {
     event_type: EventType,
     input_result: InputResult,
 }
@@ -29,23 +79,19 @@ struct GlobalState {
 #[derive(Component, Debug, Clone, Default)]
 struct SelectedType(EventType);
 
-// UI -> Core
-#[derive(Debug, Clone)]
-enum CoreCommand {
-    EventType(EventType),
-}
-
-impl CoreCommand {
-    fn keyboard_event() -> Self {
-        Self::EventType(EventType::KeyboardEvent)
+// UI -> ECS
+#[ui_action]
+impl ActionCreator {
+    fn keyboard_event() -> EventType {
+        EventType::KeyboardEvent
     }
 
-    fn keyboard_input() -> Self {
-        Self::EventType(EventType::KeyboardInput)
+    fn keyboard_input() -> EventType {
+        EventType::KeyboardInput
     }
 
-    fn received_char() -> Self {
-        Self::EventType(EventType::ReceivedCharacter)
+    fn received_char() -> EventType {
+        EventType::ReceivedCharacter
     }
 }
 
@@ -76,60 +122,10 @@ impl Default for EventType {
     }
 }
 
-// UI Component
-#[allow(non_snake_case)]
-fn Root(cx: Scope) -> Element {
-    let event_type = use_read(&cx, EVENT_TYPE);
-    let input_result = use_read(&cx, INPUT_RESULT);
-    let window = use_window::<CoreCommand>(&cx);
-
-    cx.render(rsx! {
-        h1 { "Keyboard Event Example" }
-        p { "💡 Type any keys and checkout console. (TODO: You might need to click screen to focus.)" }
-
-        div {
-            select {
-                value: format_args!("{:?}", event_type),
-                onchange: |e| {
-                    match e.value.as_str() {
-                        "KeyboardEvent" => {
-                            window.send(CoreCommand::keyboard_event());
-                        },
-                        "KeyboardInput" => {
-                            window.send(CoreCommand::keyboard_input());
-                        },
-                        "ReceivedCharacter" => {
-                            window.send(CoreCommand::received_char());
-                        }
-                        _ => {}
-                    };
-                },
-
-                option {
-                    value: "KeyboardEvent",
-                    "KeyboardEvent"
-                }
-                option {
-                    value: "KeyboardInput",
-                    "KeyboardInput"
-                }
-                option {
-                    value: "ReceivedCharacter",
-                    "ReceivedCharacter"
-                }
-            }
-        }
-
-        code {
-            [format_args!("Input result: {:#?}", input_result)],
-        }
-    })
-}
-
-fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut event_type: ResMut<EventType>) {
-    for cmd in events.iter() {
-        match cmd {
-            CoreCommand::EventType(e) => {
+fn handle_ui_action(mut events: EventReader<UiAction>, mut event_type: ResMut<EventType>) {
+    for action in events.iter() {
+        match action {
+            UiAction::EventType(e) => {
                 info!("🧠　EventType: {:?}", e);
                 *event_type = e.clone();
             }
@@ -137,35 +133,31 @@ fn handle_core_cmd(mut events: EventReader<CoreCommand>, mut event_type: ResMut<
     }
 }
 
-fn apply_global_state(
+fn send_ui_state(
     event_type: Res<EventType>,
-    mut global_state: EventWriter<GlobalState>,
+    mut ui_state: EventWriter<UiState>,
     mut keyboard_events: EventReader<KeyboardEvent>,
     mut keyboard_inputs: EventReader<KeyboardInput>,
     mut received_characters: EventReader<ReceivedCharacter>,
 ) {
     if event_type.is_changed() {
-        global_state.send(GlobalState::EventType(event_type.clone()));
+        ui_state.send(UiState::EventType(event_type.clone()));
     }
 
     match event_type.clone() {
         EventType::KeyboardEvent => {
             for e in keyboard_events.iter() {
-                global_state.send(GlobalState::InputResult(InputResult::KeyboardEvent(
-                    e.clone(),
-                )));
+                ui_state.send(UiState::InputResult(InputResult::KeyboardEvent(e.clone())));
             }
         }
         EventType::KeyboardInput => {
             for e in keyboard_inputs.iter() {
-                global_state.send(GlobalState::InputResult(InputResult::KeyboardInput(
-                    e.clone(),
-                )));
+                ui_state.send(UiState::InputResult(InputResult::KeyboardInput(e.clone())));
             }
         }
         EventType::ReceivedCharacter => {
             for e in received_characters.iter() {
-                global_state.send(GlobalState::InputResult(InputResult::ReceivedCharacter(
+                ui_state.send(UiState::InputResult(InputResult::ReceivedCharacter(
                     e.clone(),
                 )));
             }

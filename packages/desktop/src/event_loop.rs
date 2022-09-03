@@ -26,27 +26,27 @@ use wry::application::{
     event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget},
 };
 
-pub fn start_event_loop<CoreCommand, Props>(mut app: App)
+pub fn start_event_loop<UiAction, RootProps>(mut app: App)
 where
-    CoreCommand: 'static + Send + Sync + Clone + Debug,
-    Props: 'static + Send + Sync + Clone + Default,
+    UiAction: 'static + Send + Sync + Clone + Debug,
+    RootProps: 'static + Send + Sync + Clone + Default,
 {
     let event_loop = app
         .world
-        .remove_non_send_resource::<EventLoop<UiEvent<CoreCommand>>>()
+        .remove_non_send_resource::<EventLoop<UiEvent<UiAction>>>()
         .unwrap();
 
     let mut tao_state = TaoPersistentState::default();
 
     event_loop.run(
-        move |event: Event<UiEvent<CoreCommand>>,
-              _event_loop: &EventLoopWindowTarget<UiEvent<CoreCommand>>,
+        move |event: Event<UiEvent<UiAction>>,
+              _event_loop: &EventLoopWindowTarget<UiEvent<UiAction>>,
               control_flow: &mut ControlFlow| {
             log::trace!("{event:?}");
             match event {
                 Event::NewEvents(start) => {
                     let world = app.world.cell();
-                    let dioxus_settings = world.non_send_resource::<DioxusSettings<Props>>();
+                    let dioxus_settings = world.non_send_resource::<DioxusSettings<RootProps>>();
                     let windows = world.resource::<Windows>();
                     let focused = windows.iter().any(|w| w.is_focused());
                     let auto_timeout_reached =
@@ -329,12 +329,12 @@ where
                                 }
                             };
                         }
-                        UiEvent::CoreCommand(cmd) => {
+                        UiEvent::UiAction(action) => {
                             let mut events = app
                                 .world
-                                .get_resource_mut::<Events<CoreCommand>>()
-                                .expect("Provide CoreCommand event to bevy");
-                            events.send(cmd);
+                                .get_resource_mut::<Events<UiAction>>()
+                                .expect("Provide UiAction event to bevy");
+                            events.send(action);
                         }
                         UiEvent::KeyboardEvent(event) => {
                             let mut keyboard_events = app
@@ -378,8 +378,9 @@ where
                     tao_state.active = true;
                 }
                 Event::MainEventsCleared => {
-                    handle_create_window_events::<CoreCommand, Props>(&mut app.world);
-                    let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
+                    handle_create_window_events::<UiAction, RootProps>(&mut app.world);
+                    let dioxus_settings =
+                        app.world.non_send_resource::<DioxusSettings<RootProps>>();
                     let update = if !tao_state.active {
                         false
                     } else {
@@ -406,7 +407,8 @@ where
                     log::trace!("");
                     tao_state.prevent_app_update = true;
 
-                    let dioxus_settings = app.world.non_send_resource::<DioxusSettings<Props>>();
+                    let dioxus_settings =
+                        app.world.non_send_resource::<DioxusSettings<RootProps>>();
                     let windows = app.world.non_send_resource::<Windows>();
                     let focused = windows.iter().any(|w| w.is_focused());
                     let now = Instant::now();
@@ -446,10 +448,10 @@ where
     );
 }
 
-fn handle_create_window_events<CoreCommand, Props>(world: &mut World)
+fn handle_create_window_events<UiAction, RootProps>(world: &mut World)
 where
-    CoreCommand: 'static + Send + Sync + Clone + Debug,
-    Props: 'static + Send + Sync + Clone,
+    UiAction: 'static + Send + Sync + Clone + Debug,
+    RootProps: 'static + Send + Sync + Clone,
 {
     let world = world.cell();
     let mut dioxus_windows = world.get_non_send_resource_mut::<DioxusWindows>().unwrap();
@@ -460,7 +462,7 @@ where
 
     for create_window_event in create_window_events_reader.iter(&create_window_events) {
         warn!("Multiple Windows isn't supported yet!");
-        let window = dioxus_windows.create::<CoreCommand, Props>(
+        let window = dioxus_windows.create::<UiAction, RootProps>(
             &world,
             create_window_event.id,
             &create_window_event.descriptor,

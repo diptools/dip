@@ -11,7 +11,7 @@ use leafwing_input_manager::prelude::*;
 
 fn main() {
     App::new()
-        .insert_non_send_resource(DioxusSettings::<()> {
+        .insert_non_send_resource(DioxusSettings::<NoRootProps> {
             keyboard_event: true,
             ..Default::default()
         })
@@ -21,19 +21,11 @@ fn main() {
         })
         .add_plugin(LogPlugin)
         .add_plugin(TimePlugin)
-        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), ()>::new(Root))
+        .add_plugin(DioxusPlugin::<NoUiState, NoUiAction>::new(Root))
         .add_plugin(InputManagerPlugin::<Action>::default())
         .add_startup_system(setup)
         .add_system(close_window)
         .run();
-}
-
-#[derive(Component)]
-struct User;
-
-#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug)]
-enum Action {
-    CloseWindow,
 }
 
 #[allow(non_snake_case)]
@@ -42,6 +34,14 @@ fn Root(cx: Scope) -> Element {
         h1 { "Key Bindings Example" }
         p { "💡 Press \"Ecs\" or \"Ctrl-C\" to close window. (TODO: You might need to click screen to focus.)" }
     })
+}
+
+#[derive(Component)]
+struct User;
+
+#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug)]
+enum Action {
+    CloseWindow,
 }
 
 fn setup(mut commands: Commands) {

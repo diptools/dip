@@ -1,14 +1,14 @@
 //! Shared resources across platforms
 
-pub mod global_state;
 pub mod schedule;
+pub mod ui_state;
 
 pub mod prelude {
     pub use crate::{
-        global_state::{EmptyGlobalState, GlobalStateHandler},
         schedule::{UiSchedulePlugin, UiStage},
+        ui_state::{NoRootProps, NoUiAction, NoUiState, UiStateHandler},
     };
     pub use bevy::prelude::*;
-    pub use bevy_dioxus_macro::global_state;
+    pub use bevy_dioxus_macro::*;
     pub use dioxus::prelude::*;
 }

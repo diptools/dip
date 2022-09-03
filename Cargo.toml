@@ -33,10 +33,6 @@ members = [
 ]
 
 [[example]]
-name = "counter"
-path = "examples/counter/global-state-ecs.rs"
-
-[[example]]
 name = "keyboard"
 path = "examples/keyboard/keyboard_event.rs"
 

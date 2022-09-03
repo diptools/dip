@@ -6,7 +6,7 @@ fn main() {
             title: "Minimum Example".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), ()>::new(Root))
+        .add_plugin(DioxusPlugin::<NoUiState, NoUiAction>::new(Root))
         .run();
 }
 

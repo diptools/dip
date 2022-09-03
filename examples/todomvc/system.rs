@@ -1,55 +1,18 @@
-use crate::{channel::*, component::*, event::*, global_state::*, resource::*};
+use crate::{component::*, event::*, resource::*, ui_state::*};
 use bevy_dioxus::desktop::prelude::*;
 
-pub fn handle_core_cmd(
-    mut events: EventReader<CoreCommand>,
-    mut create_todo: EventWriter<CreateTodo>,
-    mut change_title: EventWriter<ChangeTitle>,
-    mut toggle_done: EventWriter<ToggleDone>,
-    mut remove_todo: EventWriter<RemoveTodo>,
-    mut toggle_all: EventWriter<ToggleAll>,
-    mut change_filter: EventWriter<ChangeFilter>,
-    mut clear_completed: EventWriter<ClearCompleted>,
-) {
-    for cmd in events.iter() {
-        match cmd {
-            CoreCommand::CreateTodo(event) => {
-                create_todo.send(event.clone());
-            }
-            CoreCommand::ChangeTitle(event) => {
-                change_title.send(event.clone());
-            }
-            CoreCommand::ToggleDone(event) => {
-                toggle_done.send(event.clone());
-            }
-            CoreCommand::RemoveTodo(event) => {
-                remove_todo.send(event.clone());
-            }
-            CoreCommand::ToggleAll(event) => {
-                toggle_all.send(event.clone());
-            }
-            CoreCommand::ChangeFilter(event) => {
-                change_filter.send(event.clone());
-            }
-            CoreCommand::ClearCompleted(event) => {
-                clear_completed.send(event.clone());
-            }
-        }
-    }
-}
-
-pub fn update_ui_settings(settings: Res<Settings>, mut global_state: EventWriter<GlobalState>) {
+pub fn update_ui_settings(settings: Res<Settings>, mut ui_state: EventWriter<UiState>) {
     if settings.is_changed() {
-        global_state.send(GlobalState::Settings(settings.into_inner().clone()));
+        ui_state.send(UiState::Settings(settings.into_inner().clone()));
     }
 }
 
 pub fn update_ui_todo_list(
     mut events: EventReader<NewUiTodoListReady>,
-    mut global_state: EventWriter<GlobalState>,
+    mut ui_state: EventWriter<UiState>,
 ) {
     for e in events.iter() {
-        global_state.send(GlobalState::TodoList(e.todo_list.clone()));
+        ui_state.send(UiState::TodoList(e.todo_list.clone()));
     }
 }
 

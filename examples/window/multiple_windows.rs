@@ -10,23 +10,10 @@ use bevy_dioxus::{
 fn main() {
     App::new()
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<EmptyGlobalState, NewWindow>::new(Root))
+        .add_plugin(DioxusPlugin::<NoUiState, NewWindow>::new(Root))
         .add_event::<NewWindow>()
         .add_system(create_new_window)
         .run();
-}
-
-#[derive(Clone, Debug)]
-struct NewWindow;
-
-fn create_new_window(mut events: EventReader<NewWindow>, mut create: EventWriter<CreateWindow>) {
-    for _ in events.iter() {
-        let id = WindowId::new();
-        create.send(CreateWindow {
-            id,
-            descriptor: WindowDescriptor::default(),
-        });
-    }
 }
 
 #[allow(non_snake_case)]
@@ -44,4 +31,17 @@ fn Root(cx: Scope) -> Element {
         }
         p { "You'll see warning log" }
     })
+}
+
+#[derive(Clone, Debug)]
+struct NewWindow;
+
+fn create_new_window(mut events: EventReader<NewWindow>, mut create: EventWriter<CreateWindow>) {
+    for _ in events.iter() {
+        let id = WindowId::new();
+        create.send(CreateWindow {
+            id,
+            descriptor: WindowDescriptor::default(),
+        });
+    }
 }

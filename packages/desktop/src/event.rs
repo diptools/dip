@@ -1,4 +1,4 @@
-//! Includes Dioxus events coming from UI to Core runtime and Bevy events to communicate bewtween systems
+//! Includes events coming from UI to ECS runtime and to communicate bewtween systems
 
 use crate::converter;
 use bevy::{
@@ -13,11 +13,11 @@ use std::fmt::Debug;
 
 /// Tao events that emit from UI side
 #[derive(Debug)]
-pub enum UiEvent<CoreCommand: Debug> {
+pub enum UiEvent<UiAction: Debug> {
     /// UI events regards window manipulation
     WindowEvent(WindowEvent),
-    /// User defined CoreCommand coming from UI
-    CoreCommand(CoreCommand),
+    /// User defined UiAction coming from Ui
+    UiAction(UiAction),
     /// KeyboardEvent which dispatched from `window.document`. Make sure to pass `keyboard_event:
     /// true` to `DioxusSettings`.
     KeyboardEvent(KeyboardEvent),

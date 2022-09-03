@@ -15,7 +15,7 @@ fn main() {
         })
         .add_plugin(LogPlugin)
         .add_plugin(TimePlugin)
-        .add_plugin(DioxusPlugin::<EmptyGlobalState, (), ()>::new(Root))
+        .add_plugin(DioxusPlugin::<NoUiState, NoUiAction>::new(Root))
         .add_system(change_title)
         .add_system(toggle_cursor)
         // .add_system(cycle_cursor_icon)

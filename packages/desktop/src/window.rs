@@ -76,18 +76,18 @@ impl DioxusWindows {
         self.windows.remove(&tao_window_id)
     }
 
-    pub fn create<CoreCommand, Props>(
+    pub fn create<UiAction, RootProps>(
         &mut self,
         world: &WorldCell,
         window_id: WindowId,
         window_descriptor: &WindowDescriptor,
     ) -> BevyWindow
     where
-        CoreCommand: 'static + Send + Sync + Clone + Debug,
-        Props: 'static + Send + Sync + Clone,
+        UiAction: 'static + Send + Sync + Clone + Debug,
+        RootProps: 'static + Send + Sync + Clone,
     {
         let event_loop = world
-            .get_non_send_resource_mut::<EventLoop<UiEvent<CoreCommand>>>()
+            .get_non_send_resource_mut::<EventLoop<UiEvent<UiAction>>>()
             .unwrap();
         let proxy = event_loop.create_proxy();
         let dom_tx = world
@@ -98,11 +98,11 @@ impl DioxusWindows {
             .unwrap()
             .clone();
 
-        let tao_window = Self::create_tao_window::<CoreCommand>(&event_loop, &window_descriptor);
+        let tao_window = Self::create_tao_window::<UiAction>(&event_loop, &window_descriptor);
         let tao_window_id = tao_window.id();
 
         let bevy_window = Self::create_bevy_window(window_id, &tao_window, &window_descriptor);
-        let (webview, is_ready) = Self::create_webview::<CoreCommand, Props>(
+        let (webview, is_ready) = Self::create_webview::<UiAction, RootProps>(
             world,
             window_descriptor,
             tao_window,
@@ -163,12 +163,12 @@ impl DioxusWindows {
         modes.first().unwrap().clone()
     }
 
-    fn create_tao_window<CoreCommand>(
-        event_loop: &EventLoop<UiEvent<CoreCommand>>,
+    fn create_tao_window<UiAction>(
+        event_loop: &EventLoop<UiEvent<UiAction>>,
         window_descriptor: &WindowDescriptor,
     ) -> TaoWindow
     where
-        CoreCommand: Debug,
+        UiAction: Debug,
     {
         let mut tao_window_builder = WindowBuilder::new().with_title(&window_descriptor.title);
 
@@ -311,19 +311,19 @@ impl DioxusWindows {
         )
     }
 
-    fn create_webview<CoreCommand, Props>(
+    fn create_webview<UiAction, RootProps>(
         world: &WorldCell,
         window_descriptor: &WindowDescriptor,
         tao_window: TaoWindow,
-        proxy: ProxyType<CoreCommand>,
+        proxy: ProxyType<UiAction>,
         dom_tx: mpsc::UnboundedSender<SchedulerMsg>,
     ) -> (WebView, Arc<AtomicBool>)
     where
-        CoreCommand: 'static + Send + Sync + Clone + Debug,
-        Props: 'static,
+        UiAction: 'static + Send + Sync + Clone + Debug,
+        RootProps: 'static,
     {
         let mut settings = world
-            .get_non_send_resource_mut::<DioxusSettings<Props>>()
+            .get_non_send_resource_mut::<DioxusSettings<RootProps>>()
             .unwrap();
         let is_ready = Arc::new(AtomicBool::new(false));
 
