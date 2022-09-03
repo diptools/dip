@@ -1,26 +1,11 @@
-use crate::{component::*, event::*, resource::*, ui_state::*};
+use crate::{component::*, event::*, ui_state::*};
 use bevy_dioxus::desktop::prelude::*;
-
-pub fn update_ui_settings(settings: Res<Settings>, mut ui_state: EventWriter<UiState>) {
-    if settings.is_changed() {
-        ui_state.send(UiState::Settings(settings.into_inner().clone()));
-    }
-}
-
-pub fn update_ui_todo_list(
-    mut events: EventReader<NewUiTodoListReady>,
-    mut ui_state: EventWriter<UiState>,
-) {
-    for e in events.iter() {
-        ui_state.send(UiState::TodoList(e.todo_list.clone()));
-    }
-}
 
 pub fn new_ui_todo_list(
     mut events: EventReader<NewUiTodoListRequested>,
     query: Query<(Entity, &Title, Option<&DoneAt>, &Timestamp), With<Todo>>,
-    mut new_ui_todo_list_ready: EventWriter<NewUiTodoListReady>,
-    settings: Res<Settings>,
+    mut ui_todo_list: ResMut<Vec<UiTodo>>,
+    filter: Res<Filter>,
 ) {
     for _ in events.iter() {
         let mut todo_list = vec![];
@@ -29,7 +14,7 @@ pub fn new_ui_todo_list(
             todo_list.push(todo);
         }
 
-        match settings.filter {
+        match *filter {
             Filter::All => {}
             Filter::Active => {
                 todo_list.retain(|todo| todo.done_at.is_none());
@@ -41,13 +26,7 @@ pub fn new_ui_todo_list(
 
         todo_list.sort_by_key(|todo| todo.created_at);
 
-        new_ui_todo_list_ready.send(NewUiTodoListReady { todo_list });
-    }
-}
-
-pub fn log_ui_todo_list(mut events: EventReader<NewUiTodoListReady>) {
-    for e in events.iter() {
-        println!("{:#?}\n", e.todo_list);
+        *ui_todo_list = todo_list;
     }
 }
 
@@ -157,11 +136,11 @@ pub fn toggle_all(
 
 pub fn change_filter(
     mut events: EventReader<ChangeFilter>,
-    mut settings: ResMut<Settings>,
+    mut filter: ResMut<Filter>,
     mut new_ui_todo_list_requested: EventWriter<NewUiTodoListRequested>,
 ) {
     for e in events.iter() {
-        settings.filter = e.filter.clone();
+        *filter = e.filter.clone();
         new_ui_todo_list_requested.send(NewUiTodoListRequested);
     }
 }

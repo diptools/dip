@@ -6,8 +6,6 @@ fn main() {
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
         .add_plugin(LogPlugin)
-        .init_resource::<Count>()
-        .add_system_to_stage(UiStage::Prepare, update_ui_state)
         .add_system(handle_increment)
         .add_system(handle_decrement)
         .add_system(handle_reset)
@@ -17,13 +15,13 @@ fn main() {
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
     let count = use_read(&cx, COUNT);
-    let disabled = *count == 0;
+    let disabled = count.value == 0;
 
     let window = use_window::<UiAction>(&cx);
 
     cx.render(rsx! {
         h1 { "Counter Example" }
-        p { "count: {count}" }
+        p { "count: {count.value}" }
         button {
             onclick: move |_| window.send(UiAction::decrement()),
             disabled: "{disabled}",
@@ -43,12 +41,11 @@ fn Root(cx: Scope) -> Element {
 
 #[ui_state]
 struct UiState {
-    count: u32,
-    disabled: bool,
+    count: Count,
 }
 
 #[derive(Clone, Debug, Default)]
-struct Count {
+pub struct Count {
     value: u32,
 }
 
@@ -75,12 +72,6 @@ pub struct Decrement;
 
 #[derive(Clone, Debug)]
 pub struct Reset;
-
-fn update_ui_state(count: Res<Count>, mut ui_state: EventWriter<UiState>) {
-    if count.is_changed() {
-        ui_state.send(UiState::Count(count.value));
-    }
-}
 
 fn handle_increment(mut events: EventReader<Increment>, mut count: ResMut<Count>) {
     for _ in events.iter() {

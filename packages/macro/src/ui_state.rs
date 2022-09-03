@@ -21,6 +21,8 @@ impl UiStateParser {
 
         for f in &self.input.fields {
             let name_str = f.ident.as_ref().unwrap().to_string();
+            let ident = f.ident.as_ref().unwrap();
+            let name = quote! { #ident };
             let type_raw = &f.ty;
             let r#type = quote! { #type_raw };
             let name_upper_camel =
@@ -36,6 +38,8 @@ impl UiStateParser {
                     panic!("Make sure UiState struct has right structure");
                 }
             };
+            let system_name =
+                TokenStream2::from_str(format!("dispatch_{}", &name).as_str()).unwrap();
 
             tokens
                 .atom_quotes
@@ -45,11 +49,22 @@ impl UiStateParser {
                 .push(Self::enum_variant(&name_upper_camel, &r#type));
             tokens
                 .variant_handlers
-                .push(Self::variant_handler(&name_upper_snake, &name_upper_camel))
+                .push(Self::variant_handler(&name_upper_snake, &name_upper_camel));
+            tokens.init_resources.push(Self::init_resource(&r#type));
+            tokens
+                .add_dispatch_systems
+                .push(Self::add_dispatch_system(&system_name));
+            tokens.dispatch_systems.push(Self::dispatch_system(
+                &system_name,
+                &r#type,
+                &name,
+                &name_upper_camel,
+            ));
         }
 
         tokens
     }
+
     // example: pub static TODO_LIST: Atom<Vec<UiTodo>> = |_| Vec::default();
     fn atom_quote(
         name_upper_snake: &TokenStream2,
@@ -77,6 +92,76 @@ impl UiStateParser {
             UiState::#name_upper_camel(x) => root.set(#name_upper_snake.unique_id(), x),
         }
     }
+
+    // example: .init_resource::<Vec<UiTodo>>()
+    fn init_resource(r#type: &TokenStream2) -> TokenStream2 {
+        quote! {
+            .init_resource::<#r#type>()
+        }
+    }
+
+    // example: .add_system_to_stage(UiStage::Apply, dispatch_todo_list)
+    fn add_dispatch_system(system_name: &TokenStream2) -> TokenStream2 {
+        quote! {
+            .add_system_to_stage(UiStage::Apply, #system_name)
+        }
+    }
+
+    // example:
+    // fn dispatch_todo_list(
+    //     todo_list: Res<Vec<UiTodo>>,
+    //     mut ui_state_tx: Res<Sender<UiState>>,
+    // ) {
+    //     if todo_list.is_changed() {
+    //         trace!("dispatch_todo_list");
+    //         match ui_state_tx.try_send(UiState::todoList(todo_list.clone())) {
+    //             Ok(()) => {}
+    //             Err(e) => match e {
+    //                 TrySendError::Full(e) => {
+    //                     error!("Failed to send UiState: channel is full: event: {:?}", e);
+    //                 }
+    //                 TrySendError::Closed(e) => {
+    //                     error!("Failed to send UiState: channel is closed: event: {:?}", e);
+    //                 }
+    //             },
+    //         }
+    //     }
+    // }
+    fn dispatch_system(
+        system_name: &TokenStream2,
+        r#type: &TokenStream2,
+        name: &TokenStream2,
+        name_upper_camel: &TokenStream2,
+    ) -> TokenStream2 {
+        let system_name_str = system_name.to_string();
+        quote! {
+            fn #system_name(
+                #name: Res<#r#type>,
+                ui_state_tx: Res<Sender<UiState>>,
+            ) {
+                if #name.is_changed() {
+                    trace!(#system_name_str);
+                    match ui_state_tx.try_send(UiState::#name_upper_camel(#name.clone())) {
+                        Ok(()) => {}
+                        Err(e) => match e {
+                            TrySendError::Full(e) => {
+                                error!(
+                                    "Failed to send UiState: channel is full: event: {:?}",
+                                    e
+                                );
+                            }
+                            TrySendError::Closed(e) => {
+                                error!(
+                                    "Failed to send UiState: channel is closed: event: {:?}",
+                                    e
+                                );
+                            }
+                        },
+                    }
+                }
+            }
+        }
+    }
 }
 
 #[derive(Default)]
@@ -84,6 +169,9 @@ pub struct UiStateTokenStreams {
     atom_quotes: Vec<TokenStream2>,
     enum_variants: Vec<TokenStream2>,
     variant_handlers: Vec<TokenStream2>,
+    init_resources: Vec<TokenStream2>,
+    add_dispatch_systems: Vec<TokenStream2>,
+    dispatch_systems: Vec<TokenStream2>,
 }
 
 impl UiStateTokenStreams {
@@ -92,6 +180,9 @@ impl UiStateTokenStreams {
             atom_quotes,
             enum_variants,
             variant_handlers,
+            init_resources,
+            add_dispatch_systems,
+            dispatch_systems,
         } = self;
 
         let gen = quote! {
@@ -124,38 +215,14 @@ impl UiStateTokenStreams {
 
             impl Plugin for UiStatePlugin {
                 fn build(&self, app: &mut App) {
-                    app.add_event::<UiState>()
-                        .add_system_to_stage(UiStage::Render, apply_ui_state);
+                    app #(#init_resources)*
+                        #(#add_dispatch_systems)*;
                 }
             }
 
-            fn apply_ui_state(
-                mut events: EventReader<UiState>,
-                ui_state_tx: Res<Sender<UiState>>,
-            ) {
-                for e in events.iter() {
-                    trace!("apply_ui_state");
-
-                    match ui_state_tx.try_send(e.clone()) {
-                        Ok(()) => {}
-                        Err(e) => match e {
-                            TrySendError::Full(e) => {
-                                error!(
-                                    "Failed to send UiState: channel is full: event: {:?}",
-                                    e
-                                );
-                            }
-                            TrySendError::Closed(e) => {
-                                error!(
-                                    "Failed to send UiState: channel is closed: event: {:?}",
-                                    e
-                                );
-                            }
-                        },
-                    }
-                }
-            }
+            #(#dispatch_systems)*
         };
+
         gen.into()
     }
 }
