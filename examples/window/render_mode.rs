@@ -18,7 +18,6 @@ fn main() {
         .init_resource::<RenderMode>()
         .add_system(increment_frame)
         .add_system(update_render_mode)
-        .add_system_to_stage(UiStage::Prepare, update_ui_state)
         .run();
 }
 
@@ -55,14 +54,14 @@ fn Root(cx: Scope) -> Element {
         div {
             style: "background: #ddd; padding: 1rem;",
             p { [format_args!("Mode: {:?}", render_mode)] }
-            p { [format_args!("Frame: {}", frame)] }
+            p { [format_args!("Frame: {}", frame.value)] }
         }
     })
 }
 
 #[ui_state]
 struct UiState {
-    frame: u32,
+    frame: Frame,
     render_mode: RenderMode,
 }
 
@@ -77,8 +76,8 @@ impl ActionCreator {
     }
 }
 
-#[derive(Default)]
-struct Frame {
+#[derive(Clone, Debug, Default)]
+pub struct Frame {
     value: u32,
 }
 
@@ -99,24 +98,10 @@ fn increment_frame(mut frame: ResMut<Frame>) {
     log::trace!("update_frame system: frame: {}", frame.value);
 }
 
-fn update_ui_state(
-    frame: Res<Frame>,
-    render_mode: Res<RenderMode>,
-    mut ui_state: EventWriter<UiState>,
-) {
-    if frame.is_changed() {
-        ui_state.send(UiState::Frame(frame.value));
-    }
-
-    if render_mode.is_changed() {
-        ui_state.send(UiState::RenderMode(render_mode.clone()));
-    }
-}
-
 fn update_render_mode(
     mut actions: EventReader<RenderMode>,
     mut render_mode: ResMut<RenderMode>,
-    mut dioxus_settings: NonSendMut<DioxusSettings<()>>,
+    mut dioxus_settings: NonSendMut<DioxusSettings<NoRootProps>>,
 ) {
     for mode in actions.iter() {
         *render_mode = mode.clone();

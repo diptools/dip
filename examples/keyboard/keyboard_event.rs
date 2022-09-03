@@ -12,7 +12,6 @@ fn main() {
         .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
-        .init_resource::<EventType>()
         .add_plugin(LogPlugin)
         .add_system(handle_ui_action)
         .add_system(send_ui_state)
@@ -75,10 +74,6 @@ struct UiState {
     input_result: InputResult,
 }
 
-// Bevy Components
-#[derive(Component, Debug, Clone, Default)]
-struct SelectedType(EventType);
-
 // UI -> ECS
 #[ui_action]
 impl ActionCreator {
@@ -135,41 +130,35 @@ fn handle_ui_action(mut events: EventReader<UiAction>, mut event_type: ResMut<Ev
 
 fn send_ui_state(
     event_type: Res<EventType>,
-    mut ui_state: EventWriter<UiState>,
     mut keyboard_events: EventReader<KeyboardEvent>,
     mut keyboard_inputs: EventReader<KeyboardInput>,
     mut received_characters: EventReader<ReceivedCharacter>,
+    mut input_result: ResMut<InputResult>,
 ) {
-    if event_type.is_changed() {
-        ui_state.send(UiState::EventType(event_type.clone()));
-    }
-
-    match event_type.clone() {
+    match *event_type {
         EventType::KeyboardEvent => {
             for e in keyboard_events.iter() {
-                ui_state.send(UiState::InputResult(InputResult::KeyboardEvent(e.clone())));
+                *input_result = InputResult::KeyboardEvent(e.clone());
             }
         }
         EventType::KeyboardInput => {
             for e in keyboard_inputs.iter() {
-                ui_state.send(UiState::InputResult(InputResult::KeyboardInput(e.clone())));
+                *input_result = InputResult::KeyboardInput(e.clone());
             }
         }
         EventType::ReceivedCharacter => {
             for e in received_characters.iter() {
-                ui_state.send(UiState::InputResult(InputResult::ReceivedCharacter(
-                    e.clone(),
-                )));
+                *input_result = InputResult::ReceivedCharacter(e.clone());
             }
         }
     };
 }
 
 fn log_keyboard_event(
+    event_type: Res<EventType>,
     mut keyboard_events: EventReader<KeyboardEvent>,
     mut keyboard_input_events: EventReader<KeyboardInput>,
     mut received_character_events: EventReader<ReceivedCharacter>,
-    event_type: Res<EventType>,
 ) {
     match *event_type {
         EventType::KeyboardEvent => {

@@ -5,9 +5,7 @@ fn main() {
         .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
-        .init_resource::<Name>()
         .add_system(update_name)
-        .add_system_to_stage(UiStage::Prepare, update_ui_state)
         .run();
 }
 
@@ -17,10 +15,10 @@ fn Root(cx: Scope) -> Element {
     let window = use_window::<UiAction>(&cx);
 
     cx.render(rsx! {
-        h1 { "Hello, {name} !" }
+        h1 { "Hello, {name.value} !" }
 
         input {
-            value: "{name}",
+            value: "{name.value}",
             oninput: |e| {
                 window.send(UiAction::update_name(e.value.to_string()));
             },
@@ -30,10 +28,11 @@ fn Root(cx: Scope) -> Element {
 
 #[ui_state]
 struct UiState {
-    name: String,
+    name: Name,
 }
 
-struct Name {
+#[derive(Clone, Debug)]
+pub struct Name {
     value: String,
 }
 
@@ -60,11 +59,5 @@ impl ActionCreator {
 fn update_name(mut events: EventReader<UpdateName>, mut name: ResMut<Name>) {
     for action in events.iter() {
         name.value = action.value.clone();
-    }
-}
-
-fn update_ui_state(name: Res<Name>, mut ui_state: EventWriter<UiState>) {
-    if name.is_changed() {
-        ui_state.send(UiState::Name(name.value.clone()))
     }
 }
