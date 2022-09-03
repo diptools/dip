@@ -2,8 +2,7 @@
 
 #![deny(missing_docs)]
 
-pub use bevy_dioxus_core::*;
-pub use futures_intrusive;
+pub use tokio;
 
 mod context;
 mod converter;

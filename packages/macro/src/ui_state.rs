@@ -191,7 +191,7 @@ impl UiStateTokenStreams {
                     ecs::system::Res,
                     log::{error, trace},
                 },
-                desktop::futures_intrusive::channel::{shared::Sender, TrySendError},
+                desktop::tokio::sync::mpsc::{Sender, error::TrySendError},
                 dioxus::fermi::{Atom, AtomRoot, Readable},
             };
             use std::rc::Rc;

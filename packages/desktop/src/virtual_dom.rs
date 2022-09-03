@@ -5,14 +5,13 @@ use bevy_dioxus_core::ui_state::UiStateHandler;
 use dioxus_core::{Component, SchedulerMsg, ScopeId, VirtualDom as DioxusVirtualDom};
 use dioxus_hooks::{UnboundedReceiver, UnboundedSender};
 use fermi::AtomRoot;
-use futures_intrusive::channel::shared::Receiver;
 use std::{
     fmt::Debug,
     marker::PhantomData,
     rc::Rc,
     sync::{Arc, Mutex},
 };
-use tokio::select;
+use tokio::{select, sync::mpsc::Receiver};
 
 pub struct VirtualDom<UiState: 'static, UiAction> {
     virtual_dom: DioxusVirtualDom,
@@ -77,7 +76,7 @@ where
                     }
                 }
                 // 2) when Ui state is changed
-                state = self.ui_state_rx.receive() => {
+                state = self.ui_state_rx.recv() => {
                     if let Some(state) = state {
                         log::trace!("UiState");
                         let root = self.atom_root();

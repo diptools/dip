@@ -19,10 +19,9 @@ use bevy::{
 };
 use bevy_dioxus_core::{schedule::UiSchedulePlugin, ui_state::UiStateHandler};
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg};
-use futures_channel::mpsc;
-use futures_intrusive::channel::shared::channel;
+use futures_channel::mpsc as futures_mpsc;
 use std::{fmt::Debug, marker::PhantomData, sync::Arc, sync::Mutex};
-use tokio::runtime::Runtime;
+use tokio::{runtime::Runtime, sync::mpsc};
 use wry::application::event_loop::EventLoop;
 
 /// Dioxus Plugin for Bevy
@@ -41,9 +40,9 @@ where
     RootProps: 'static + Send + Sync + Clone + Default,
 {
     fn build(&self, app: &mut App) {
-        let (vdom_scheduler_tx, vdom_scheduler_rx) = mpsc::unbounded::<SchedulerMsg>();
-        let (ui_state_tx, ui_state_rx) = channel::<UiState>(8);
-        let (ui_action_tx, ui_action_rx) = channel::<UiAction>(8);
+        let (vdom_scheduler_tx, vdom_scheduler_rx) = futures_mpsc::unbounded::<SchedulerMsg>();
+        let (ui_state_tx, ui_state_rx) = mpsc::channel::<UiState>(8);
+        let (ui_action_tx, mut ui_action_rx) = mpsc::channel::<UiAction>(8);
 
         let event_loop = EventLoop::<UiEvent<UiAction>>::with_user_event();
         let settings = app
@@ -58,7 +57,7 @@ where
 
         let proxy_clone = proxy.clone();
         runtime.spawn(async move {
-            while let Some(action) = ui_action_rx.clone().receive().await {
+            while let Some(action) = ui_action_rx.recv().await {
                 log::trace!("UiAction: {:#?}", action);
                 proxy_clone.send_event(UiEvent::UiAction(action)).unwrap();
             }
