@@ -1,4 +1,4 @@
-use crate::{component::*, event::*, resource::*};
+use crate::{component::*, resource::*};
 use bevy_dioxus::desktop::prelude::*;
 use chrono::{DateTime, Utc};
 
@@ -8,7 +8,7 @@ pub struct UiState {
     settings: Settings,
 }
 
-#[derive(Component, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct UiTodo {
     pub entity: Entity,
     pub title: String,
@@ -33,6 +33,39 @@ impl From<(Entity, &Title, Option<&DoneAt>, &Timestamp)> for UiTodo {
         }
     }
 }
+
+// Actions
+#[derive(Clone, Debug)]
+pub struct CreateTodo {
+    pub title: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct ChangeTitle {
+    pub entity: Entity,
+    pub title: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct ToggleDone {
+    pub entity: Entity,
+}
+
+#[derive(Clone, Debug)]
+pub struct RemoveTodo {
+    pub entity: Entity,
+}
+
+#[derive(Clone, Debug)]
+pub struct ToggleAll;
+
+#[derive(Clone, Debug)]
+pub struct ChangeFilter {
+    pub filter: Filter,
+}
+
+#[derive(Clone, Debug)]
+pub struct ClearCompleted;
 
 #[ui_action]
 impl ActionCreator {
