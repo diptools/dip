@@ -34,15 +34,7 @@ impl From<(Entity, &Title, Option<&DoneAt>, &Timestamp)> for UiTodo {
     }
 }
 
-#[ui_action(
-    CreateTodo,
-    ChangeTitle,
-    ToggleDone,
-    RemoveTodo,
-    ChangeFilter,
-    ClearCompleted,
-    ToggleAll
-)]
+#[ui_action]
 impl ActionCreator {
     pub fn create_todo(title: &String) -> CreateTodo {
         CreateTodo {
