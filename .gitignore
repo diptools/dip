@@ -3,7 +3,9 @@
 /target
 Cargo.lock
 .DS_Store
+pnpm-lock.yaml
 
+/examples/todomvc/public
 /packages/website/public
 
 .vscode/*
