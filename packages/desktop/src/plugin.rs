@@ -17,8 +17,8 @@ use bevy::{
     input::InputPlugin,
     window::{CreateWindow, ModifiesWindows, WindowCreated, WindowPlugin, Windows},
 };
-use dip_core::{schedule::UiSchedulePlugin, ui_state::UiStateHandler};
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg};
+use dip_core::{schedule::UiSchedulePlugin, ui_state::UiStateHandler};
 use futures_channel::mpsc as futures_mpsc;
 use std::{fmt::Debug, marker::PhantomData, sync::Arc, sync::Mutex};
 use tokio::{runtime::Runtime, sync::mpsc};
