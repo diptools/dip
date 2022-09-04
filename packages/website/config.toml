@@ -1,5 +1,5 @@
-base_url = "www.bevydioxus.com"
-title = "bevy_dioxus"
+base_url = "www.dip.tools"
+title = "dip"
 description = "Write cross-platform application with React-like declarative UI framework and scalable ECS architecture all in Rust."
 build_search_index = true
 
