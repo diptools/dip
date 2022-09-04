@@ -9,6 +9,7 @@ use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
 use std::{fs, process::Command};
 
 fn main() {
+    // quick and dirty way to compile tailwind css on each run
     let script = "npm run todomvc:css";
     if cfg!(target_os = "windows") {
         Command::new("cmd")
