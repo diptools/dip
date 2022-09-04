@@ -1,4 +1,4 @@
-use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
+use dip::{bevy::log::LogPlugin, desktop::prelude::*};
 
 fn main() {
     App::new()
@@ -6,7 +6,7 @@ fn main() {
             title: "Props Example".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<NoUiState, NoUiAction, RootProps>::new(Root))
+        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction, RootProps>::new(Root))
         .add_plugin(LogPlugin)
         .run();
 }

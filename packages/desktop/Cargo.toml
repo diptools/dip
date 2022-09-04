@@ -1,19 +1,18 @@
 [package]
-name = "bevy_dioxus_desktop"
-version = "0.1.1"
+name = "dip_desktop"
+version = "0.1.0"
 authors = ["Junichi Sugiura"]
 edition = "2021"
 description = "Write cross-platform application with React-like declarative UI framework and scalable ECS architecture all in Rust."
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/JunichiSugiura/bevy_dioxus/"
-homepage = "https://github.com/JunichiSugiura/bevy_dioxus/"
-documentation = "https://docs.rs/bevy_dioxus/latest/bevy_dioxus/"
+repository = "https://github.com/diptools/dip/"
+homepage = "https://github.com/diptools/dip/"
+documentation = "https://docs.rs/dip/latest/dip/"
 keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
 [dependencies]
 approx = "0.5.1"
 bevy = { version = "0.8", default-features = false }
-bevy_dioxus_core = { version = "0.1", path = "../core"}
 dioxus-core = { version = "0.2", features = ["serialize"] }
 dioxus-hooks = "0.2"
 dioxus-html = { version = "0.2", features = ["serialize"] }
@@ -31,9 +30,11 @@ tokio = { version = "1.18", features = ["rt-multi-thread", "macros", "sync"], de
 webbrowser = "0.7"
 wry = "0.19"
 
+dip_core = { version = "0.1", path = "../core" }
+
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "0.9"
 
 # for examples in docs
 [dev-dependencies]
-bevy_dioxus = { version = "0.1", path = "../.." }
+dip = { version = "0.1", path = "../..", features = ["desktop"] }

@@ -1,4 +1,4 @@
-use bevy_dioxus::desktop::prelude::*;
+use dip::desktop::prelude::*;
 
 fn main() {
     App::new()
@@ -6,7 +6,7 @@ fn main() {
             title: "Local State".to_string(),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<NoUiState, NoUiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
         .run();
 }
 

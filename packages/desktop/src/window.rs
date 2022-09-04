@@ -2,7 +2,7 @@ use crate::{
     context::ProxyType,
     event::{trigger_from_serialized, IpcMessage, KeyboardEvent, UiEvent, WindowEvent},
     protocol,
-    setting::DioxusSettings,
+    setting::DesktopSettings,
 };
 use bevy::{
     ecs::world::WorldCell,
@@ -323,7 +323,7 @@ impl DioxusWindows {
         RootProps: 'static,
     {
         let mut settings = world
-            .get_non_send_resource_mut::<DioxusSettings<RootProps>>()
+            .get_non_send_resource_mut::<DesktopSettings<RootProps>>()
             .unwrap();
         let is_ready = Arc::new(AtomicBool::new(false));
 

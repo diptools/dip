@@ -1,8 +1,8 @@
-use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
+use dip::{bevy::log::LogPlugin, desktop::prelude::*};
 
 fn main() {
     App::new()
-        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
         .add_plugin(LogPlugin)

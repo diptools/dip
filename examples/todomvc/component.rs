@@ -1,5 +1,5 @@
-use bevy_dioxus::desktop::prelude::*;
 use chrono::{DateTime, Utc};
+use dip::desktop::prelude::*;
 
 // Component Bundle
 #[derive(Bundle, Default)]

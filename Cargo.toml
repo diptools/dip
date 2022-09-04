@@ -1,32 +1,36 @@
 [package]
-name = "bevy_dioxus"
-version = "0.1.1"
+name = "dip"
+version = "0.1.0"
 authors = ["Junichi Sugiura"]
 edition = "2021"
 description = "Write cross-platform application with React-like declarative UI framework and scalable ECS architecture all in Rust."
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/JunichiSugiura/bevy_dioxus/"
-homepage = "https://github.com/JunichiSugiura/bevy_dioxus/"
-documentation = "https://docs.rs/bevy_dioxus/latest/bevy_dioxus/"
+repository = "https://github.com/diptools/dip/"
+homepage = "https://github.com/diptools/dip/"
+documentation = "https://docs.rs/dip/latest/dip/"
 keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
 [dependencies]
 bevy = { version = "0.8", default-features = false }
-bevy_dioxus_core = { version = "0.1", path = "./packages/core" }
-bevy_dioxus_desktop = { version = "0.1", path = "./packages/desktop", optional = true }
-bevy_dioxus_macro = { version = "0.1", path = "./packages/macro" }
 dioxus = { version = "0.2", features = ["fermi"] }
+
+dip_core = { version = "0.1", path = "./packages/core" }
+dip_desktop = { version = "0.1", path = "./packages/desktop", optional = true }
+dip_macro = { version = "0.1", path = "./packages/macro" }
+dip_cli = { version = "0.1", path = "./packages/cli" }
 
 [dev-dependencies]
 chrono = "0.4"
 leafwing-input-manager = { version = "0.5", default-features = false }
 
 [features]
-default = ["desktop"]
-desktop = ["bevy_dioxus_desktop"]
+default = []
+desktop = ["dip_desktop"]
+full = ["desktop"]
 
 [workspace]
 members = [
+    "packages/cli",
     "packages/core",
     "packages/desktop",
     "packages/macro",

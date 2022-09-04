@@ -5,7 +5,7 @@ use crate::{
     context::UiContext,
     event::{KeyboardEvent, UiEvent},
     event_loop::start_event_loop,
-    setting::DioxusSettings,
+    setting::DesktopSettings,
     system::change_window,
     virtual_dom::VirtualDom,
     window::DioxusWindows,
@@ -17,7 +17,7 @@ use bevy::{
     input::InputPlugin,
     window::{CreateWindow, ModifiesWindows, WindowCreated, WindowPlugin, Windows},
 };
-use bevy_dioxus_core::{schedule::UiSchedulePlugin, ui_state::UiStateHandler};
+use dip_core::{schedule::UiSchedulePlugin, ui_state::UiStateHandler};
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg};
 use futures_channel::mpsc as futures_mpsc;
 use std::{fmt::Debug, marker::PhantomData, sync::Arc, sync::Mutex};
@@ -25,7 +25,7 @@ use tokio::{runtime::Runtime, sync::mpsc};
 use wry::application::event_loop::EventLoop;
 
 /// Dioxus Plugin for Bevy
-pub struct DioxusPlugin<UiState, UiAction, RootProps = ()> {
+pub struct DesktopPlugin<UiState, UiAction, RootProps = ()> {
     /// Root component
     pub Root: DioxusComponent<RootProps>,
 
@@ -33,7 +33,7 @@ pub struct DioxusPlugin<UiState, UiAction, RootProps = ()> {
     ui_action_type: PhantomData<UiAction>,
 }
 
-impl<UiState, UiAction, RootProps> Plugin for DioxusPlugin<UiState, UiAction, RootProps>
+impl<UiState, UiAction, RootProps> Plugin for DesktopPlugin<UiState, UiAction, RootProps>
 where
     UiState: 'static + Send + Sync + UiStateHandler,
     UiAction: 'static + Send + Sync + Clone + Debug,
@@ -47,7 +47,7 @@ where
         let event_loop = EventLoop::<UiEvent<UiAction>>::with_user_event();
         let settings = app
             .world
-            .remove_non_send_resource::<DioxusSettings<RootProps>>()
+            .remove_non_send_resource::<DesktopSettings<RootProps>>()
             .unwrap_or_default();
 
         let proxy = event_loop.create_proxy();
@@ -101,7 +101,7 @@ where
     }
 }
 
-impl<UiState, UiAction, RootProps> DioxusPlugin<UiState, UiAction, RootProps>
+impl<UiState, UiAction, RootProps> DesktopPlugin<UiState, UiAction, RootProps>
 where
     UiState: Send + Sync + UiStateHandler,
     UiAction: Clone + Debug + Send + Sync,
@@ -110,11 +110,11 @@ where
     /// Initialize DioxusPlugin with root component and channel types
     ///
     /// ```no_run
-    /// use bevy_dioxus::desktop::prelude::*;
+    /// use dip::desktop::prelude::*;
     ///
     /// fn main() {
     ///    App::new()
-    ///         .add_plugin(DioxusPlugin::<NoUiState, NoUiAction>::new(Root))
+    ///         .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
     ///         .run();
     /// }
     ///

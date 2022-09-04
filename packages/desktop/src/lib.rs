@@ -22,8 +22,8 @@ pub mod prelude {
     pub use crate::{
         event::*,
         hooks::*,
-        plugin::DioxusPlugin,
-        setting::{DioxusSettings, UpdateMode},
+        plugin::DesktopPlugin,
+        setting::{DesktopSettings, UpdateMode},
     };
-    pub use bevy_dioxus_core::prelude::*;
+    pub use dip_core::prelude::*;
 }

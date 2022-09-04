@@ -1,7 +1,7 @@
 #![allow(non_snake_case)]
 
 use crate::context::UiContext;
-use bevy_dioxus_core::ui_state::UiStateHandler;
+use dip_core::ui_state::UiStateHandler;
 use dioxus_core::{Component, SchedulerMsg, ScopeId, VirtualDom as DioxusVirtualDom};
 use dioxus_hooks::{UnboundedReceiver, UnboundedSender};
 use fermi::AtomRoot;

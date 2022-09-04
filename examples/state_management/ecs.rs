@@ -1,8 +1,8 @@
-use bevy_dioxus::desktop::prelude::*;
+use dip::desktop::prelude::*;
 
 fn main() {
     App::new()
-        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
         .add_system(update_name)

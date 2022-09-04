@@ -186,7 +186,7 @@ impl UiStateTokenStreams {
         } = self;
 
         let gen = quote! {
-            use bevy_dioxus::{
+            use dip::{
                 bevy::{
                     ecs::system::Res,
                     log::{error, trace},

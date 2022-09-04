@@ -1,15 +1,15 @@
-use bevy_dioxus::{
+use dip::{
     bevy::{input::keyboard::KeyboardInput, log::LogPlugin},
     desktop::prelude::*,
 };
 
 fn main() {
     App::new()
-        .insert_non_send_resource(DioxusSettings::<NoRootProps> {
+        .insert_non_send_resource(DesktopSettings::<NoRootProps> {
             keyboard_event: true,
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
         .add_plugin(LogPlugin)

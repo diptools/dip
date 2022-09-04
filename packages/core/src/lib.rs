@@ -9,6 +9,6 @@ pub mod prelude {
         ui_state::{NoRootProps, NoUiAction, NoUiState, UiStateHandler},
     };
     pub use bevy::prelude::*;
-    pub use bevy_dioxus_macro::*;
     pub use dioxus::prelude::*;
+    pub use dip_macro::*;
 }

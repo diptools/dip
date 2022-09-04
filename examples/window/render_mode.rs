@@ -1,4 +1,4 @@
-use bevy_dioxus::{
+use dip::{
     bevy::{
         log::{self, LogPlugin},
         time::TimePlugin,
@@ -11,7 +11,7 @@ fn main() {
     App::new()
         .add_plugin(LogPlugin)
         .add_plugin(TimePlugin)
-        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
         .add_system(increment_frame)
@@ -99,13 +99,13 @@ fn increment_frame(mut frame: ResMut<Frame>) {
 fn update_render_mode(
     mut actions: EventReader<RenderMode>,
     mut render_mode: ResMut<RenderMode>,
-    mut dioxus_settings: NonSendMut<DioxusSettings<NoRootProps>>,
+    mut desktop_settings: NonSendMut<DesktopSettings<NoRootProps>>,
 ) {
     for mode in actions.iter() {
         *render_mode = mode.clone();
-        *dioxus_settings = match mode {
-            RenderMode::Application => DioxusSettings::application(),
-            RenderMode::Game => DioxusSettings::game(),
+        *desktop_settings = match mode {
+            RenderMode::Application => DesktopSettings::application(),
+            RenderMode::Game => DesktopSettings::game(),
         };
     }
 }
