@@ -1,6 +1,6 @@
 use crate::{
     event::{KeyboardEvent, UiEvent, WindowEvent},
-    setting::{DioxusSettings, UpdateMode},
+    setting::{DesktopSettings, UpdateMode},
     window::DioxusWindows,
 };
 use bevy::{
@@ -46,13 +46,13 @@ where
             match event {
                 Event::NewEvents(start) => {
                     let world = app.world.cell();
-                    let dioxus_settings = world.non_send_resource::<DioxusSettings<RootProps>>();
+                    let desktop_settings = world.non_send_resource::<DesktopSettings<RootProps>>();
                     let windows = world.resource::<Windows>();
                     let focused = windows.iter().any(|w| w.is_focused());
                     let auto_timeout_reached =
                         matches!(start, StartCause::ResumeTimeReached { .. });
                     let now = Instant::now();
-                    let manual_timeout_reached = match dioxus_settings.update_mode(focused) {
+                    let manual_timeout_reached = match desktop_settings.update_mode(focused) {
                         UpdateMode::Continuous => false,
                         UpdateMode::Reactive { max_wait }
                         | UpdateMode::ReactiveLowPower { max_wait } => {
@@ -379,14 +379,14 @@ where
                 }
                 Event::MainEventsCleared => {
                     handle_create_window_events::<UiAction, RootProps>(&mut app.world);
-                    let dioxus_settings =
-                        app.world.non_send_resource::<DioxusSettings<RootProps>>();
+                    let desktop_settings =
+                        app.world.non_send_resource::<DesktopSettings<RootProps>>();
                     let update = if !tao_state.active {
                         false
                     } else {
                         let windows = app.world.resource::<Windows>();
                         let focused = windows.iter().any(|w| w.is_focused());
-                        match dioxus_settings.update_mode(focused) {
+                        match desktop_settings.update_mode(focused) {
                             UpdateMode::Continuous { .. } => true,
                             UpdateMode::Reactive { .. } => !tao_state.prevent_app_update,
                             UpdateMode::ReactiveLowPower { .. } => {
@@ -407,13 +407,13 @@ where
                     log::trace!("");
                     tao_state.prevent_app_update = true;
 
-                    let dioxus_settings =
-                        app.world.non_send_resource::<DioxusSettings<RootProps>>();
+                    let desktop_settings =
+                        app.world.non_send_resource::<DesktopSettings<RootProps>>();
                     let windows = app.world.non_send_resource::<Windows>();
                     let focused = windows.iter().any(|w| w.is_focused());
                     let now = Instant::now();
                     use UpdateMode::*;
-                    *control_flow = match dioxus_settings.update_mode(focused) {
+                    *control_flow = match desktop_settings.update_mode(focused) {
                         Continuous => ControlFlow::Poll,
                         Reactive { max_wait } | ReactiveLowPower { max_wait } => {
                             ControlFlow::WaitUntil(now + *max_wait)

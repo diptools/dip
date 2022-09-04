@@ -14,7 +14,7 @@ use wry::{
 };
 
 /// A resource for configuring usage of the `dioxous (tao/wry)` library.
-pub struct DioxusSettings<RootProps = ()> {
+pub struct DesktopSettings<RootProps = ()> {
     /// Configures how the tao event loop updates while the window is focused.
     pub focused_mode: UpdateMode,
     /// Configures how the tao event loop updates while the window is *not* focused.
@@ -49,7 +49,7 @@ type WryProtocol = (
 
 // type DynEventHandlerFn = dyn Fn(&mut EventLoop<()>, &mut WebView);
 
-impl<RootProps> Debug for DioxusSettings<RootProps> {
+impl<RootProps> Debug for DesktopSettings<RootProps> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("DioxusWindows")
             .field("focused_mode", &self.focused_mode)
@@ -58,13 +58,13 @@ impl<RootProps> Debug for DioxusSettings<RootProps> {
     }
 }
 
-impl<RootProps> DioxusSettings<RootProps>
+impl<RootProps> DesktopSettings<RootProps>
 where
     RootProps: Default,
 {
     /// Configure tao with common settings for a game.
     pub fn game() -> Self {
-        DioxusSettings {
+        DesktopSettings {
             focused_mode: UpdateMode::Continuous,
             unfocused_mode: UpdateMode::Continuous,
             ..Default::default()
@@ -73,7 +73,7 @@ where
 
     /// Configure tao with common settings for a desktop application.
     pub fn application() -> Self {
-        DioxusSettings {
+        DesktopSettings {
             focused_mode: UpdateMode::Reactive {
                 max_wait: Duration::from_secs(5),
             },
@@ -195,7 +195,7 @@ where
     }
 }
 
-impl<RootProps> Default for DioxusSettings<RootProps>
+impl<RootProps> Default for DesktopSettings<RootProps>
 where
     RootProps: Default,
 {

@@ -1,5 +1,5 @@
 use crate::{component::*, event::*, ui_state::*};
-use bevy_dioxus::desktop::prelude::*;
+use dip::desktop::prelude::*;
 
 pub fn new_ui_todo_list(
     mut events: EventReader<NewUiTodoListRequested>,

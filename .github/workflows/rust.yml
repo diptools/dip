@@ -29,7 +29,29 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev
       - name: Build
-        run: cargo build
+        run: cargo build --all-features
+  build-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+      - run: sudo apt-get install libudev-dev
+      - name: Install cargo-workspaces
+        run: cargo install cargo-workspaces
+      - name: Install prerequisites
+        run: |
+          sudo apt-get install -y \
+            libudev-dev \
+            libwebkit2gtk-4.0-dev \
+            build-essential \
+            curl \
+            wget \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+      - name: Build
+        run: cargo ws exec cargo build --all-features
   build-examples:
     runs-on: ubuntu-latest
     steps:
@@ -48,12 +70,14 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev
       - name: Build Examples
-        run: cargo build --examples
+        run: cargo build --examples --all-features
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
+      - name: Install cargo-workspaces
+        run: cargo install cargo-workspaces
       - name: Install prerequisites
         run: |
           sudo apt-get install -y \
@@ -66,10 +90,8 @@ jobs:
             libgtk-3-dev \
             libayatana-appindicator3-dev \
             librsvg2-dev
-      - name: Install cargo-workspaces
-        run: cargo install cargo-workspaces
       - name: Run tests
-        run: cargo ws exec cargo test
+        run: cargo ws exec cargo test --all-features
   format:
     runs-on: ubuntu-latest
     steps:

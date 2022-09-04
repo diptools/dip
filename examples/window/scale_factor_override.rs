@@ -1,4 +1,4 @@
-use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
+use dip::{bevy::log::LogPlugin, desktop::prelude::*};
 
 /// This example open window with specific size then resize
 fn main() {
@@ -8,11 +8,11 @@ fn main() {
             height: 300.,
             ..default()
         })
-        .insert_non_send_resource(DioxusSettings::<NoRootProps> {
+        .insert_non_send_resource(DesktopSettings::<NoRootProps> {
             keyboard_event: true,
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<NoUiState, NoUiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
         .add_plugin(LogPlugin)
         .add_system(toggle_override)
         .add_system(change_scale_factor)

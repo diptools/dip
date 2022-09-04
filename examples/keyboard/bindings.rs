@@ -1,4 +1,4 @@
-use bevy_dioxus::{
+use dip::{
     bevy::{
         input::keyboard::KeyCode,
         log::LogPlugin,
@@ -11,7 +11,7 @@ use leafwing_input_manager::prelude::*;
 
 fn main() {
     App::new()
-        .insert_non_send_resource(DioxusSettings::<NoRootProps> {
+        .insert_non_send_resource(DesktopSettings::<NoRootProps> {
             keyboard_event: true,
             ..Default::default()
         })
@@ -21,7 +21,7 @@ fn main() {
         })
         .add_plugin(LogPlugin)
         .add_plugin(TimePlugin)
-        .add_plugin(DioxusPlugin::<NoUiState, NoUiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
         .add_plugin(InputManagerPlugin::<Action>::default())
         .add_startup_system(setup)
         .add_system(close_window)

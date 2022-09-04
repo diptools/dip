@@ -5,7 +5,7 @@ mod ui;
 mod ui_state;
 
 use crate::{event::*, system::*, ui::Root, ui_state::*};
-use bevy_dioxus::{bevy::log::LogPlugin, desktop::prelude::*};
+use dip::{bevy::log::LogPlugin, desktop::prelude::*};
 use std::{fs, process::Command};
 
 fn main() {
@@ -28,11 +28,11 @@ fn main() {
         .expect("Should have been able to read the file");
 
     App::new()
-        .insert_non_send_resource(DioxusSettings::<NoRootProps> {
+        .insert_non_send_resource(DesktopSettings::<NoRootProps> {
             custom_head: Some(format!("<style>{}</style>", css)),
             ..Default::default()
         })
-        .add_plugin(DioxusPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<UiState, UiAction>::new(Root))
         .add_plugin(LogPlugin)
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)

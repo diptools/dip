@@ -1,5 +1,5 @@
 use crate::ui_state::*;
-use bevy_dioxus::desktop::prelude::*;
+use dip::desktop::prelude::*;
 
 #[allow(non_snake_case)]
 pub fn Root(cx: Scope) -> Element {

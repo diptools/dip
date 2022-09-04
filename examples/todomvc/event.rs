@@ -1,5 +1,5 @@
 use crate::ui_state::UiTodo;
-use bevy_dioxus::desktop::prelude::*;
+use dip::desktop::prelude::*;
 
 // Internal events (System -> System)
 

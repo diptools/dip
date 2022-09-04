@@ -1,4 +1,4 @@
-use bevy_dioxus::{
+use dip::{
     bevy::{
         log::LogPlugin,
         window::{CreateWindow, WindowDescriptor, WindowId},
@@ -10,7 +10,7 @@ use bevy_dioxus::{
 fn main() {
     App::new()
         .add_plugin(LogPlugin)
-        .add_plugin(DioxusPlugin::<NoUiState, NewWindow>::new(Root))
+        .add_plugin(DesktopPlugin::<NoUiState, NewWindow>::new(Root))
         .add_event::<NewWindow>()
         .add_system(create_new_window)
         .run();
