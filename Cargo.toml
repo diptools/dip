@@ -26,7 +26,6 @@ leafwing-input-manager = { version = "0.5", default-features = false }
 [features]
 default = []
 desktop = ["dip_desktop"]
-full = ["desktop"]
 
 [workspace]
 members = [
