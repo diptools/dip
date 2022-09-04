@@ -49,7 +49,7 @@ jobs:
             libayatana-appindicator3-dev \
             librsvg2-dev
       - name: Build
-        run: cargo ws cargo build --all-features
+        run: cargo ws exec cargo build --all-features
   build-examples:
     runs-on: ubuntu-latest
     steps:
