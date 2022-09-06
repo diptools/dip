@@ -5,24 +5,25 @@ mod ui;
 mod ui_state;
 
 use crate::{event::*, system::*, ui::Root, ui_state::*};
-use dip::{bevy::log::LogPlugin, desktop::prelude::*};
+use dip::{bevy::log::LogPlugin, prelude::*};
 use std::{fs, process::Command};
 
 fn main() {
     // quick and dirty way to compile tailwind css on each run
     let script = "npm run todomvc:css";
-    if cfg!(target_os = "windows") {
+    let cmd = if cfg!(target_os = "windows") {
         Command::new("cmd")
             .args(["/C", script])
             .output()
-            .expect("failed to execute process");
+            .expect("failed to execute process")
     } else {
         Command::new("sh")
             .arg("-c")
             .arg(script)
             .output()
-            .expect("failed to execute process");
+            .expect("failed to execute process")
     };
+    info!("{cmd:#?}");
 
     let css = fs::read_to_string("examples/todomvc/public/main.css")
         .expect("Should have been able to read the file");

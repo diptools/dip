@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use dip::desktop::prelude::*;
+use dip::prelude::*;
 
 // Component Bundle
 #[derive(Bundle, Default)]

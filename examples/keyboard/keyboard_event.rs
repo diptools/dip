@@ -1,6 +1,6 @@
 use dip::{
     bevy::{input::keyboard::KeyboardInput, log::LogPlugin},
-    desktop::prelude::*,
+    prelude::*,
 };
 
 fn main() {

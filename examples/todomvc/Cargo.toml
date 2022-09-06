@@ -1,0 +1,17 @@
+[package]
+name = "todomvc"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+chrono = "0.4"
+dip = { version = "0.1", path = "../..", features = ["desktop"] }
+
+# Removing this line will throw error in `./src/component.rs`.
+# This is because some derive macros generates code using sub crate name instead of root (i.e. bevy_ecs::Component vs bevy::ecs::Compoent)
+bevy_ecs = "0.8"
+
+[[bin]]
+name = "todomvc"
+path = "src/main.rs"

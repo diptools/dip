@@ -1,4 +1,4 @@
-use dip::{bevy::log::LogPlugin, desktop::prelude::*};
+use dip::{bevy::log::LogPlugin, prelude::*};
 
 /// This example open window with specific size then resize
 fn main() {

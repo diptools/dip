@@ -13,5 +13,3 @@ keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 [dependencies]
 bevy = { version = "0.8", default-features = false }
 dioxus = { version = "0.2", features = ["fermi"] }
-
-dip_macro = { version = "0.1", path = "../macro"}

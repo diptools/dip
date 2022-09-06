@@ -1,6 +1,6 @@
 use dip::{
     bevy::{log::LogPlugin, time::TimePlugin, window::PresentMode},
-    desktop::prelude::*,
+    prelude::*,
 };
 
 /// This example illustrates how to customize the default window settings

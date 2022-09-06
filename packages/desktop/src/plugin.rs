@@ -110,7 +110,7 @@ where
     /// Initialize DioxusPlugin with root component and channel types
     ///
     /// ```no_run
-    /// use dip::desktop::prelude::*;
+    /// use dip::prelude::*;
     ///
     /// fn main() {
     ///    App::new()

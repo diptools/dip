@@ -3,7 +3,7 @@ use dip::{
         log::LogPlugin,
         window::{CreateWindow, WindowDescriptor, WindowId},
     },
-    desktop::prelude::*,
+    prelude::*,
 };
 
 /// This example attemps to create a second window then warning shows up

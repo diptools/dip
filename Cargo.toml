@@ -20,7 +20,6 @@ dip_macro = { version = "0.1", path = "./packages/macro" }
 dip_cli = { version = "0.1", path = "./packages/cli" }
 
 [dev-dependencies]
-chrono = "0.4"
 leafwing-input-manager = { version = "0.5", default-features = false }
 
 [features]
@@ -33,6 +32,7 @@ members = [
     "packages/core",
     "packages/desktop",
     "packages/macro",
+    "examples/todomvc",
 ]
 
 [[example]]
@@ -54,10 +54,6 @@ path = "examples/state_management/global_state.rs"
 [[example]]
 name = "ecs"
 path = "examples/state_management/ecs.rs"
-
-[[example]]
-name = "todomvc"
-path = "examples/todomvc/main.rs"
 
 [[example]]
 name = "window_settings"

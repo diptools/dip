@@ -1,6 +1,6 @@
 use crate::component::*;
 use chrono::{DateTime, Utc};
-use dip::desktop::prelude::*;
+use dip::prelude::*;
 
 #[ui_state]
 pub struct UiState {

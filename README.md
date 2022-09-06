@@ -29,7 +29,7 @@
 > WARNING: `dip` is still in the very early stages of development.
 
 ```rust, no_run
-use dip::desktop::prelude::*;
+use dip::prelude::*;
 
 fn main() {
     App::new()
