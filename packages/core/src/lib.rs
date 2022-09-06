@@ -8,7 +8,4 @@ pub mod prelude {
         schedule::{UiSchedulePlugin, UiStage},
         ui_state::{NoRootProps, NoUiAction, NoUiState, UiStateHandler},
     };
-    pub use bevy::prelude::*;
-    pub use dioxus::prelude::*;
-    pub use dip_macro::*;
 }

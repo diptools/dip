@@ -1,5 +1,5 @@
 use crate::ui_state::*;
-use dip::desktop::prelude::*;
+use dip::prelude::*;
 
 #[allow(non_snake_case)]
 pub fn Root(cx: Scope) -> Element {

@@ -1,5 +1,5 @@
 use crate::{component::*, event::*, ui_state::*};
-use dip::desktop::prelude::*;
+use dip::prelude::*;
 
 pub fn new_ui_todo_list(
     mut events: EventReader<NewUiTodoListRequested>,

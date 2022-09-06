@@ -25,5 +25,4 @@ pub mod prelude {
         plugin::DesktopPlugin,
         setting::{DesktopSettings, UpdateMode},
     };
-    pub use dip_core::prelude::*;
 }
