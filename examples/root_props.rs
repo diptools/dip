@@ -1,4 +1,4 @@
-use dip::{bevy::log::LogPlugin, desktop::prelude::*};
+use dip::{bevy::log::LogPlugin, prelude::*};
 
 fn main() {
     App::new()

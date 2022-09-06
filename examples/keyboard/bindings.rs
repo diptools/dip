@@ -5,7 +5,7 @@ use dip::{
         time::TimePlugin,
         window::{WindowCloseRequested, WindowId},
     },
-    desktop::prelude::*,
+    prelude::*,
 };
 use leafwing_input_manager::prelude::*;
 

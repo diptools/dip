@@ -3,7 +3,7 @@ use dip::{
         log::{self, LogPlugin},
         time::TimePlugin,
     },
-    desktop::prelude::*,
+    prelude::*,
 };
 
 /// This example illustrates how to customize render setting

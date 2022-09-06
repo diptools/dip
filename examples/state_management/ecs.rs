@@ -1,4 +1,4 @@
-use dip::desktop::prelude::*;
+use dip::prelude::*;
 
 fn main() {
     App::new()
