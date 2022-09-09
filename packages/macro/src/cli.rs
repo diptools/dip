@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
-use proc_macro2::TokenStream as TokenStream2;
+// use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use std::str::FromStr;
+// use std::str::FromStr;
 use syn::{ItemEnum, ItemStruct};
 
 pub struct CliParser;
@@ -24,8 +24,10 @@ pub struct CliTokenStreams {
 
 impl CliTokenStreams {
     pub fn gen(&self) -> TokenStream {
-        let raw: TokenStream = quote! {
-            #[derive(clap::Parser)]
+        let gen = quote! {
+            use clap::Parser;
+
+            #[derive(Parser)]
             #[clap(author, version, about, long_about = None)]
             struct DipCli {
                 #[clap(subcommand)]
@@ -74,19 +76,7 @@ impl CliTokenStreams {
                     app.update();
                 }
             }
-        }
-        .into();
-
-        let patched_str = &raw
-            .expand_expr()
-            .unwrap()
-            .to_string()
-            .replace("clap ::", "dip::cli::clap::")
-            .replace("#[clap(", "#[dip::cli::clap(");
-        // .replace("Error", "dip::cli::clap::Error")
-        // .replace("Command", "dip::cli::clap::Command");
-        println!("{patched_str}");
-        let gen = TokenStream2::from_str(patched_str).unwrap();
+        };
 
         gen.into()
     }
