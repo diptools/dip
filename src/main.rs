@@ -13,15 +13,12 @@ fn main() {
         .run();
 }
 
-// #[derive(Parser, CliPlugin)]
-// #[clap(author, version, about, long_about = None)]
 #[dip::cli::plugin(author, version, about, long_about = None)]
 struct DipCli {
     #[dip::cli::plugin(subcommand)]
     command: Commands,
 }
 
-// #[derive(clap::Subcommand, dip::cli::SubCommand)]
 #[dip::cli::subcommand]
 enum Commands {
     Build,

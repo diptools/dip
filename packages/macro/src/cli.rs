@@ -19,13 +19,14 @@ impl CliParser {
 }
 
 pub struct CliTokenStreams {
-    // commands: Vec<TokenStream2>,
+    // clap_attr: Vec<TokenStream2>,
+    // cli_struct: Vec<TokenStream2>,
 }
 
 impl CliTokenStreams {
     pub fn gen(&self) -> TokenStream {
         let gen = quote! {
-            use clap::Parser;
+            use ::clap::Parser;
 
             #[derive(Parser)]
             #[clap(author, version, about, long_about = None)]
@@ -34,46 +35,12 @@ impl CliTokenStreams {
                 command: Commands,
             }
 
-            #[derive(clap::Subcommand)]
-            enum Commands {
-                Build,
-                Clean,
-            }
-
-            pub struct Build;
-            pub struct Clean;
-
             pub struct CliPlugin;
 
-            impl dip::bevy::app::Plugin for CliPlugin {
-                fn build(&self, app: &mut dip::bevy::app::App) {
+            impl ::bevy::app::Plugin for CliPlugin {
+                fn build(&self, app: &mut ::bevy::app::App) {
                     app.insert_resource(DipCli::parse())
-                        .add_event::<Build>()
-                        .add_event::<Clean>()
-                        .set_runner(|app| Self::runner(app));
-                }
-            }
-
-            impl CliPlugin {
-                fn runner(mut app: dip::bevy::app::App) {
-                    let cli = app.world.get_resource::<DipCli>().unwrap();
-
-                    match cli.command {
-                        Commands::Build => {
-                            app.world
-                                .get_resource_mut::<dip::bevy::ecs::event::Events<Build>>()
-                                .unwrap()
-                                .send(Build);
-                        }
-                        Commands::Clean => {
-                            app.world
-                                .get_resource_mut::<dip::bevy::ecs::event::Events<Clean>>()
-                                .unwrap()
-                                .send(Clean);
-                        }
-                    }
-
-                    app.update();
+                        .add_plugin(SubcommandPlugin);
                 }
             }
         };
@@ -82,63 +49,67 @@ impl CliTokenStreams {
     }
 }
 
-pub struct SubCommandParser;
+pub struct SubcommandParser;
 
-impl From<ItemEnum> for SubCommandParser {
-    fn from(_input: ItemEnum) -> Self {
+impl SubcommandParser {
+    pub fn new(_attr: TokenStream, _item: ItemEnum) -> Self {
         Self {}
     }
-}
 
-impl SubCommandParser {
-    pub fn parse(&self) -> SubCommandTokenStreams {
-        SubCommandTokenStreams {}
+    pub fn parse(&self) -> SubcommandTokenStreams {
+        SubcommandTokenStreams {}
     }
 }
 
-pub struct SubCommandTokenStreams {
+pub struct SubcommandTokenStreams {
     // commands: Vec<TokenStream2>,
 }
 
-impl SubCommandTokenStreams {
+impl SubcommandTokenStreams {
     pub fn gen(&self) -> TokenStream {
         let gen = quote! {
-            // pub struct Build;
-            // pub struct Clean;
+            pub struct Build;
+            pub struct Clean;
 
-            // pub struct CliPlugin;
+            #[derive(clap::Subcommand)]
+            enum Commands {
+                Build,
+                Clean,
+            }
 
-            // impl dip::bevy::app::Plugin for CliPlugin {
-            //     fn build(&self, app: &mut dip::bevy::app::App) {
-            //         app.insert_resource(DipCli::parse())
-            //             .add_event::<Build>()
-            //             .add_event::<Clean>()
-            //             .set_runner(|app| Self::runner(app));
-            //     }
-            // }
+            pub struct SubcommandPlugin;
 
-            // impl CliPlugin {
-            //     fn runner(mut app: dip::bevy::app::App) {
-            //         let cli = app.world.get_resource::<DipCli>().unwrap();
+            impl ::bevy::app::Plugin for SubcommandPlugin {
+                fn build(&self, app: &mut ::bevy::app::App) {
+                    app.insert_resource(DipCli::parse())
+                        .add_event::<Build>()
+                        .add_event::<Clean>()
+                        .set_runner(|app| Self::runner(app));
+                }
+            }
 
-            //         match cli.command {
-            //             Commands::Build => {
-            //                 app.world
-            //                     .get_resource_mut::<dip::bevy::ecs::event::Events<Build>>()
-            //                     .unwrap()
-            //                     .send(Build);
-            //             }
-            //             Commands::Clean => {
-            //                 app.world
-            //                     .get_resource_mut::<dip::bevy::ecs::event::Events<Clean>>()
-            //                     .unwrap()
-            //                     .send(Clean);
-            //             }
-            //         }
+            impl SubcommandPlugin {
+                fn runner(mut app: ::bevy::app::App) {
+                    let cli = app.world.get_resource::<DipCli>().unwrap();
 
-            //         app.update();
-            //     }
-            // }
+                    match cli.command {
+                        Commands::Build => {
+                            app.world
+                                .get_resource_mut::<::bevy::ecs::event::Events<Build>>()
+                                .unwrap()
+                                .send(Build);
+                        }
+                        Commands::Clean => {
+                            app.world
+                                .get_resource_mut::<::bevy::ecs::event::Events<Clean>>()
+                                .unwrap()
+                                .send(Clean);
+                        }
+                    }
+
+                    app.update();
+                }
+            }
         };
 
         gen.into()
