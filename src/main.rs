@@ -15,7 +15,7 @@ fn main() {
 
 #[dip::cli::plugin(author, version, about, long_about = None)]
 struct DipCli {
-    #[dip::cli::plugin(subcommand)]
+    #[clap(subcommand)]
     command: Commands,
 }
 

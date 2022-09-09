@@ -25,10 +25,10 @@ pub fn ui_action(_attr: TokenStream, tokens: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn cli_plugin(_attr: TokenStream, tokens: TokenStream) -> TokenStream {
+pub fn cli_plugin(attr: TokenStream, tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as ItemStruct);
 
-    CliParser::from(input).parse().gen()
+    CliParser::new(attr, input).parse().gen()
 }
 
 #[proc_macro_attribute]
