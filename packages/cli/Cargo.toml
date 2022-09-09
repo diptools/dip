@@ -11,5 +11,7 @@ documentation = "https://docs.rs/dip/latest/dip/"
 keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
 [dependencies]
-clap = { version = "3.2", features = ["derive"] }
 bevy = { version = "0.8", default-features = false }
+clap = { version = "3.2", features = ["derive"] }
+
+dip_macro = { version = "0.1", path = "../macro" }

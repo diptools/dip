@@ -1,4 +1,3 @@
-use clap::Parser;
 use dip::bevy::{
     app::App,
     ecs::event::EventReader,
@@ -14,15 +13,16 @@ fn main() {
         .run();
 }
 
-// #[cli_plugin]
-#[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+// #[derive(Parser, CliPlugin)]
+// #[clap(author, version, about, long_about = None)]
+#[dip::cli::plugin(author, version, about, long_about = None)]
 struct DipCli {
-    #[clap(subcommand)]
+    #[dip::cli::plugin(subcommand)]
     command: Commands,
 }
 
-#[derive(clap::Subcommand)]
+// #[derive(clap::Subcommand, dip::cli::SubCommand)]
+#[dip::cli::subcommand]
 enum Commands {
     Build,
     Clean,
@@ -37,43 +37,5 @@ fn handle_build(mut events: EventReader<Build>) {
 fn handle_clean(mut events: EventReader<Clean>) {
     for _ in events.iter() {
         log::info!("clean");
-    }
-}
-
-// generate with `#[cli_plugin]` proc macro
-struct Build;
-struct Clean;
-
-struct CliPlugin;
-
-impl dip::bevy::app::Plugin for CliPlugin {
-    fn build(&self, app: &mut dip::bevy::app::App) {
-        app.insert_resource(DipCli::parse())
-            .add_event::<Build>()
-            .add_event::<Clean>()
-            .set_runner(|app| Self::runner(app));
-    }
-}
-
-impl CliPlugin {
-    fn runner(mut app: dip::bevy::app::App) {
-        let cli = app.world.get_resource::<DipCli>().unwrap();
-
-        match cli.command {
-            Commands::Build => {
-                app.world
-                    .get_resource_mut::<dip::bevy::ecs::event::Events<Build>>()
-                    .unwrap()
-                    .send(Build);
-            }
-            Commands::Clean => {
-                app.world
-                    .get_resource_mut::<dip::bevy::ecs::event::Events<Clean>>()
-                    .unwrap()
-                    .send(Clean);
-            }
-        }
-
-        app.update();
     }
 }
