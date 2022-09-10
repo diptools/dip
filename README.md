@@ -253,6 +253,7 @@ Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS)
 
 ### Dioxus
 [https://github.com/DioxusLabs/dioxus](https://github.com/DioxusLabs/dioxus)
+- Cross-platform (macOS, Linux, Windows, TUI, etc.)
 - React-like declarative UI library
 - Virtual dom is 3x faster than React
 - Minimum bundle size is around 20x lighter than Electron (8 MB vs 160MB)
