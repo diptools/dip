@@ -232,7 +232,7 @@ fn Root(cx: Scope) -> Element {
 
 </details>
 
-#### Keyboard Support
+#### Keyboard handling
 - [Keyboard event](https://github.com/diptools/dip/blob/main/examples/keyboard/keyboard_event.rs)
 - [Key bindings](https://github.com/diptools/dip/blob/main/examples/keyboard/bindings.rs)
 
