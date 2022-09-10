@@ -52,8 +52,10 @@ fn Root(cx: Scope) -> Element {
 
 ## Features
 
+#### Desktop App
+
 <details>
-<summary>Desktop App</summary>
+<summary>Code example</summary>
 
 ```toml
 # Cargo.toml
@@ -93,8 +95,10 @@ fn Root(cx: Scope) -> Element {
 
 </details>
 
+#### CLI App
+
 <details>
-<summary>CLI App</summary>
+<summary>Code example</summary>
 
 ```toml
 # Cargo.toml
@@ -142,8 +146,10 @@ fn handle_test(mut events: EventReader<Test>) {
 ```
 </details>
 
+#### State management
+
 <details>
-<summary>State Management</summary>
+<summary>Code example</summary>
 
 ```toml
 # Cargo.toml
