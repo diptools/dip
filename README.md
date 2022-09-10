@@ -95,6 +95,53 @@ fn Root(cx: Scope) -> Element {
 }
 ```
 
+### CLI App
+```toml
+# Cargo.toml
+
+[dependencies]
+dip = { version = "0.2", features = ["cli"] }
+clap = { version = "3.2", features = ["derive"] }
+```
+
+
+```rust, no_run
+use dip::{
+    bevy::{
+        app::App,
+        ecs::event::EventReader,
+        log::{self, LogPlugin},
+    },
+    cli::{CliPlugin, Subcommand},
+};
+
+fn main() {
+    App::new()
+        .add_plugin(CliPlugin)
+        .add_plugin(LogPlugin)
+        .add_system(handle_test)
+        .run();
+}
+
+#[derive(CliPlugin, clap::Parser)]
+#[clap(author, version, about, long_about = None)]
+struct DipCli {
+    #[clap(subcommand)]
+    command: Commands,
+}
+
+#[derive(clap::Subcommand, Subcommand)]
+enum Commands {
+    Test,
+}
+
+fn handle_test(mut events: EventReader<Test>) {
+    for _ in events.iter() {
+        log::info!("Test");
+    }
+}
+```
+
 ## Examples
 Make sure to install all prerequisites for Tauri.
 [Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
