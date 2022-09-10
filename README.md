@@ -28,6 +28,8 @@
 
 > WARNING: `dip` is still in the very early stages of development.
 
+> `main` branch is currently preparing for v0.2 release.
+
 ```rust, no_run
 use dip::prelude::*;
 
@@ -55,23 +57,63 @@ Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS)
 ### Dioxus
 Dioxus is a cross-platform declarative UI framework. It provides familiar features that React developer expects such as component, state, props, hooks, global state, and router. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
 
-## Examples
+## Features
+### Desktop App
+```toml
+# Cargo.toml
 
+[dependencies]
+dip = { version = "0.2", features = ["desktop"] }
+```
+
+```rust, no_run
+use dip::prelude::*;
+
+fn main() {
+    App::new()
+        .insert_resource(WindowDescriptor {
+            title: "Desktop App".to_string(),
+            ..Default::default()
+        })
+        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
+        .run();
+}
+
+fn Root(cx: Scope) -> Element {
+    let name = use_state(&cx, || "world".to_string());
+
+    cx.render(rsx! {
+        h1 { "Hello, {name} !" }
+
+        input {
+            value: "{name}",
+            oninput: |e| {
+                name.set(e.value.to_string());
+            },
+        }
+    })
+}
+```
+
+## Examples
 Make sure to install all prerequisites for Tauri.
 [Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
+
+Find more in [examples/](https://github.com/diptools/dip/tree/main/examples) directory.
 
 ```sh
 gh repo clone diptools/dip
 cd dip
 
+# Counter example
 cargo run --example counter --features desktop
-// requires npm for styling
-npm install
-// this script compiles Tailwind CSS and starts Rust example
+
+# TodoMVC example
+npm install # requires npm for styling
+
+# this script compiles Tailwind CSS and starts Rust example
 cargo run --example todomvc --features desktop
 ```
-
-Find more examples in [examples/](https://github.com/diptools/dip/tree/main/examples) directory.
 
 ## Milestone
 [📌 dip - Project board](https://github.com/users/diptools/dip/4/views/9)
