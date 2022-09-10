@@ -1,24 +1,5 @@
-pub use clap::Parser;
-use clap::Subcommand;
+pub use dip_macro::{CliPlugin, Subcommand};
 
-#[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
-pub struct DipCli {
-    #[clap(subcommand)]
-    command: Commands,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    Test,
-}
-
-impl DipCli {
-    pub fn run(&self) {
-        match self.command {
-            Commands::Test => {
-                println!("Test subcommand");
-            }
-        }
-    }
+pub mod prelude {
+    pub use dip_macro::{CliPlugin, Subcommand};
 }

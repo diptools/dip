@@ -12,19 +12,21 @@ keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
 [dependencies]
 bevy = { version = "0.8", default-features = false }
+clap = { version = "3.2", features = ["derive"], optional = true }
 dioxus = { version = "0.2", features = ["fermi"] }
 
 dip_core = { version = "0.1", path = "./packages/core" }
 dip_desktop = { version = "0.1", path = "./packages/desktop", optional = true }
 dip_macro = { version = "0.1", path = "./packages/macro" }
-dip_cli = { version = "0.1", path = "./packages/cli" }
+dip_cli = { version = "0.1", path = "./packages/cli", optional = true }
 
 [dev-dependencies]
 leafwing-input-manager = { version = "0.5", default-features = false }
 
 [features]
-default = []
+default = ["cli"]
 desktop = ["dip_desktop"]
+cli = ["dip_cli", "clap"]
 
 [workspace]
 members = [
