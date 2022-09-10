@@ -28,6 +28,8 @@
 
 > WARNING: `dip` is still in the very early stages of development.
 
+> `main` branch is currently preparing for v0.2 release.
+
 ```rust, no_run
 use dip::prelude::*;
 
@@ -97,19 +99,21 @@ fn Root(cx: Scope) -> Element {
 Make sure to install all prerequisites for Tauri.
 [Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
 
+Find more in [examples/](https://github.com/diptools/dip/tree/main/examples) directory.
+
 ```sh
 gh repo clone diptools/dip
 cd dip
 
+# Counter example
 cargo run --example counter --features desktop
 
-// requires npm for styling
-npm install
-// this script compiles Tailwind CSS and starts Rust example
+# TodoMVC example
+npm install # requires npm for styling
+
+# this script compiles Tailwind CSS and starts Rust example
 cargo run --example todomvc --features desktop
 ```
-
-Find more in [examples/](https://github.com/diptools/dip/tree/main/examples) directory.
 
 ## Milestone
 [📌 dip - Project board](https://github.com/users/diptools/dip/4/views/9)
