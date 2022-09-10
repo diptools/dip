@@ -24,16 +24,16 @@ pub fn ui_action(_attr: TokenStream, tokens: TokenStream) -> TokenStream {
     UiActionParser::from(input).parse().gen()
 }
 
-#[proc_macro_attribute]
-pub fn cli_plugin(attr: TokenStream, tokens: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(tokens as ItemStruct);
+#[proc_macro_derive(CliPlugin)]
+pub fn cli_plugin(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as ItemStruct);
 
-    CliParser::new(attr, input).parse().gen()
+    CliParser::new(input).parse().gen()
 }
 
-#[proc_macro_attribute]
-pub fn cli_subcommand(attr: TokenStream, tokens: TokenStream) -> TokenStream {
+#[proc_macro_derive(Subcommand)]
+pub fn subcommand(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as ItemEnum);
 
-    SubcommandParser::new(attr, input).parse().gen()
+    SubcommandParser::new(input).parse().gen()
 }

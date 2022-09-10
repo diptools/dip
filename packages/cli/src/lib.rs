@@ -1,6 +1,5 @@
-pub use dip_macro::{cli_plugin as plugin, cli_subcommand as subcommand};
+pub use dip_macro::{CliPlugin, Subcommand};
 
 pub mod prelude {
-    pub use dip_macro::{cli_plugin as plugin, cli_subcommand as subcommand};
-    pub use dip_macro::{ui_action, ui_state};
+    pub use dip_macro::{CliPlugin, Subcommand};
 }

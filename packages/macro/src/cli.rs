@@ -4,25 +4,19 @@ use quote::quote;
 use syn::{ItemEnum, ItemStruct};
 
 pub struct CliParser {
-    clap_attr: TokenStream,
     cli_struct: ItemStruct,
 }
 
 impl CliParser {
-    pub fn new(clap_attr: TokenStream, cli_struct: ItemStruct) -> Self {
-        Self {
-            clap_attr,
-            cli_struct,
-        }
+    pub fn new(cli_struct: ItemStruct) -> Self {
+        Self { cli_struct }
     }
 
     pub fn parse(&self) -> CliTokenStreams {
-        let cli_struct = &self.cli_struct;
+        // let cli_struct = &self.cli_struct;
         let cli_name = &self.cli_struct.ident;
 
         CliTokenStreams {
-            clap_attr: self.clap_attr.clone().into(),
-            cli_struct: quote! { #cli_struct },
             cli_name: quote! { #cli_name },
         }
     }
@@ -30,24 +24,14 @@ impl CliParser {
 
 #[derive(Default)]
 pub struct CliTokenStreams {
-    clap_attr: TokenStream2,
-    cli_struct: TokenStream2,
     cli_name: TokenStream2,
 }
 
 impl CliTokenStreams {
     pub fn gen(&self) -> TokenStream {
-        let Self {
-            clap_attr,
-            cli_struct,
-            cli_name,
-        } = self;
+        let Self { cli_name } = self;
         let gen = quote! {
             use ::clap::Parser;
-
-            #[derive(Parser)]
-            #[clap(#clap_attr)]
-            #cli_struct
 
             pub struct CliPlugin;
 
@@ -68,14 +52,12 @@ pub struct SubcommandParser {
 }
 
 impl SubcommandParser {
-    pub fn new(_attr: TokenStream, commands_enum: ItemEnum) -> Self {
+    pub fn new(commands_enum: ItemEnum) -> Self {
         Self { commands_enum }
     }
 
     pub fn parse(&self) -> SubcommandTokenStreams {
         let mut tokens = SubcommandTokenStreams::default();
-        let commands_enum = &self.commands_enum;
-        tokens.commands = quote! { #commands_enum };
 
         for cmd in &self.commands_enum.variants {
             let ident = &cmd.ident;
@@ -96,7 +78,6 @@ impl SubcommandParser {
 
 #[derive(Default)]
 pub struct SubcommandTokenStreams {
-    commands: TokenStream2,
     add_events: Vec<TokenStream2>,
     handlers: Vec<TokenStream2>,
 }
@@ -104,7 +85,6 @@ pub struct SubcommandTokenStreams {
 impl SubcommandTokenStreams {
     pub fn gen(&self) -> TokenStream {
         let Self {
-            commands,
             add_events,
             handlers,
         } = self;
@@ -112,9 +92,6 @@ impl SubcommandTokenStreams {
         let gen = quote! {
             pub struct Build;
             pub struct Clean;
-
-            #[derive(clap::Subcommand)]
-            #commands
 
             pub struct SubcommandPlugin;
 

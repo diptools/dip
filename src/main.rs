@@ -1,7 +1,10 @@
-use dip::bevy::{
-    app::App,
-    ecs::event::EventReader,
-    log::{self, LogPlugin},
+use dip::{
+    bevy::{
+        app::App,
+        ecs::event::EventReader,
+        log::{self, LogPlugin},
+    },
+    cli::{CliPlugin, Subcommand},
 };
 
 fn main() {
@@ -13,13 +16,14 @@ fn main() {
         .run();
 }
 
-#[dip::cli::plugin(author, version, about, long_about = None)]
+#[derive(CliPlugin, clap::Parser)]
+#[clap(author, version, about, long_about = None)]
 struct DipCli {
     #[clap(subcommand)]
     command: Commands,
 }
 
-#[dip::cli::subcommand]
+#[derive(clap::Subcommand, Subcommand)]
 enum Commands {
     Build,
     Clean,
