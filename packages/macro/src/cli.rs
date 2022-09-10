@@ -60,6 +60,8 @@ impl SubcommandParser {
 
         for cmd in &self.commands_enum.variants {
             let ident = &cmd.ident;
+
+            tokens.events.push(quote! { pub struct #ident; });
             tokens.add_events.push(quote! { .add_event::<#ident>() });
             tokens.handlers.push(quote! {
                 Commands::#ident => {
@@ -68,7 +70,7 @@ impl SubcommandParser {
                         .unwrap()
                         .send(#ident);
                 }
-            })
+            });
         }
 
         tokens
@@ -77,6 +79,7 @@ impl SubcommandParser {
 
 #[derive(Default)]
 pub struct SubcommandTokenStreams {
+    events: Vec<TokenStream2>,
     add_events: Vec<TokenStream2>,
     handlers: Vec<TokenStream2>,
 }
@@ -84,13 +87,13 @@ pub struct SubcommandTokenStreams {
 impl SubcommandTokenStreams {
     pub fn gen(&self) -> TokenStream {
         let Self {
+            events,
             add_events,
             handlers,
         } = self;
 
         let gen = quote! {
-            pub struct Build;
-            pub struct Clean;
+            #(#events)*
 
             pub struct SubcommandPlugin;
 
