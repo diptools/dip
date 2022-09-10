@@ -50,13 +50,6 @@ fn Root(cx: Scope) -> Element {
 }
 ```
 
-## About Bevy and Dioxus
-### Bevy
-Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS) design pattern. Think of it as a global state management tool like Redux but much more performant because all systems will run concurrently as much as possible. Thanks to its plugin system, there's already a handlfull of third-party Bevy plugins out there. Imagine implemnenting core logic as `CorePlugin` seperated from UI layer. You may start with `dip::desktop` to build desektop application. Then let's say you want to release a metaverse edition at some point in the future, it's as simple as swapping UI plugin to Bevy's 3d rendering plugin while still using the same CorePlugin.
-
-### Dioxus
-Dioxus is a cross-platform declarative UI framework. It provides familiar features that React developer expects such as component, state, props, hooks, global state, and router. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
-
 ## Features
 
 <details>
@@ -239,6 +232,12 @@ fn Root(cx: Scope) -> Element {
 
 </details>
 
+## About Bevy and Dioxus
+### Bevy
+Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS) design pattern. Think of it as a global state management tool like Redux but much more performant because all systems will run concurrently as much as possible. Thanks to its plugin system, there's already a handlfull of third-party Bevy plugins out there. Imagine implemnenting core logic as `CorePlugin` seperated from UI layer. You may start with `dip::desktop` to build desektop application. Then let's say you want to release a metaverse edition at some point in the future, it's as simple as swapping UI plugin to Bevy's 3d rendering plugin while still using the same CorePlugin.
+
+### Dioxus
+Dioxus is a cross-platform declarative UI framework. It provides familiar features that React developer expects such as component, state, props, hooks, global state, and router. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
 ## Examples
 Make sure to install all prerequisites for Tauri.
 [Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
