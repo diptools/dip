@@ -232,6 +232,10 @@ fn Root(cx: Scope) -> Element {
 
 </details>
 
+#### Keyboard Support
+- [Keyboard event](https://github.com/diptools/dip/blob/main/examples/keyboard/keyboard_event.rs)
+- [Key bindings](https://github.com/diptools/dip/blob/main/examples/keyboard/bindings.rs)
+
 ## About Bevy and Dioxus
 ### Bevy
 Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS) design pattern. Think of it as a global state management tool like Redux but much more performant because all systems will run concurrently as much as possible. Thanks to its plugin system, there's already a handlfull of third-party Bevy plugins out there. Imagine implemnenting core logic as `CorePlugin` seperated from UI layer. You may start with `dip::desktop` to build desektop application. Then let's say you want to release a metaverse edition at some point in the future, it's as simple as swapping UI plugin to Bevy's 3d rendering plugin while still using the same CorePlugin.
