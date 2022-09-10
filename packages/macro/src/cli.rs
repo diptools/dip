@@ -13,7 +13,6 @@ impl CliParser {
     }
 
     pub fn parse(&self) -> CliTokenStreams {
-        // let cli_struct = &self.cli_struct;
         let cli_name = &self.cli_struct.ident;
 
         CliTokenStreams {
