@@ -57,6 +57,13 @@ Dioxus is a cross-platform declarative UI framework. It provides familiar featur
 
 ## Features
 ### Desktop App
+```toml
+# Cargo.toml
+
+[dependencies]
+dip = { version = "0.2", features = ["desktop"] }
+```
+
 ```rust, no_run
 use dip::prelude::*;
 
