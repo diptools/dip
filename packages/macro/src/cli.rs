@@ -68,12 +68,16 @@ impl SubcommandParser {
     }
 
     fn event(v: &Variant) -> TokenStream2 {
+        let ident = &v.ident;
+
         match &v.fields {
-            Fields::Named(_f) => {
-                panic!("Named field is not supported.");
+            Fields::Named(f) => {
+                quote! {
+                    #[derive(Debug)]
+                    pub struct #ident #f
+                }
             }
             Fields::Unnamed(f) => {
-                let ident = &v.ident;
                 let ty = &f.unnamed.first().unwrap().ty;
                 quote! { type #ident = #ty; }
             }
@@ -85,29 +89,37 @@ impl SubcommandParser {
     }
 
     fn add_event(v: &Variant) -> TokenStream2 {
+        let ident = &v.ident;
+
         match &v.fields {
-            Fields::Named(_f) => {
-                panic!("Named field is not supported.");
-            }
-            Fields::Unnamed(_f) => {
-                let ident = &v.ident;
+            Fields::Named(_) | Fields::Unnamed(_) => {
                 quote! { .add_event::<#ident>() }
             }
             Fields::Unit => {
-                let ident = &v.ident;
                 quote! { .add_event::<#ident>() }
             }
         }
     }
 
     fn handler(v: &Variant) -> TokenStream2 {
+        let ident = &v.ident;
+
         match &v.fields {
-            Fields::Named(_f) => {
-                panic!("Named field is not supported.");
+            Fields::Named(fields) => {
+                let mut names = vec![];
+                for f in &fields.named {
+                    names.push(f.ident.clone().unwrap());
+                }
+
+                quote! {
+                    Commands::#ident { #(#names)*, } => {
+                        app.world
+                            .get_resource_mut::<::bevy::ecs::event::Events<#ident>>()
+                            .unwrap().send(#ident { #(#names)*, });
+                    }
+                }
             }
             Fields::Unnamed(_f) => {
-                let ident = &v.ident;
-
                 quote! {
                     Commands::#ident(x) => {
                         app.world
@@ -117,8 +129,6 @@ impl SubcommandParser {
                 }
             }
             Fields::Unit => {
-                let ident = &v.ident;
-
                 quote! {
                     Commands::#ident => {
                         app.world

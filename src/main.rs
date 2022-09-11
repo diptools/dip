@@ -13,6 +13,7 @@ fn main() {
         .add_plugin(LogPlugin)
         .add_system(handle_build)
         .add_system(handle_clean)
+        .add_system(handle_hello)
         .run();
 }
 
@@ -25,13 +26,13 @@ struct DipCli {
 
 #[derive(clap::Subcommand, Subcommand, Clone)]
 enum Commands {
+    Hello { name: Option<String> },
     Build(BuildArgs),
     Clean,
 }
 
 #[derive(clap::Args, Clone, Debug)]
 struct BuildArgs {
-    #[clap(value_parser)]
     value: Option<String>,
 }
 
@@ -44,5 +45,11 @@ fn handle_build(mut events: EventReader<Build>) {
 fn handle_clean(mut events: EventReader<Clean>) {
     for _ in events.iter() {
         log::info!("clean");
+    }
+}
+
+fn handle_hello(mut events: EventReader<Hello>) {
+    for e in events.iter() {
+        log::info!("Hello, {}!", e.name.clone().unwrap_or("world".to_string()));
     }
 }
