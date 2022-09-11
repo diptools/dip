@@ -91,14 +91,7 @@ impl SubcommandParser {
     fn add_event(v: &Variant) -> TokenStream2 {
         let ident = &v.ident;
 
-        match &v.fields {
-            Fields::Named(_) | Fields::Unnamed(_) => {
-                quote! { .add_event::<#ident>() }
-            }
-            Fields::Unit => {
-                quote! { .add_event::<#ident>() }
-            }
-        }
+        quote! { .add_event::<#ident>() }
     }
 
     fn handler(v: &Variant) -> TokenStream2 {
