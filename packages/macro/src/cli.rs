@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{ItemEnum, ItemStruct};
+use syn::{Fields, ItemEnum, ItemStruct, Variant};
 
 pub struct CliParser {
     cli_struct: ItemStruct,
@@ -58,22 +58,79 @@ impl SubcommandParser {
     pub fn parse(&self) -> SubcommandTokenStreams {
         let mut tokens = SubcommandTokenStreams::default();
 
-        for cmd in &self.commands_enum.variants {
-            let ident = &cmd.ident;
-
-            tokens.events.push(quote! { pub struct #ident; });
-            tokens.add_events.push(quote! { .add_event::<#ident>() });
-            tokens.handlers.push(quote! {
-                Commands::#ident => {
-                    app.world
-                        .get_resource_mut::<::bevy::ecs::event::Events<#ident>>()
-                        .unwrap()
-                        .send(#ident);
-                }
-            });
+        for v in &self.commands_enum.variants {
+            tokens.events.push(Self::event(&v));
+            tokens.add_events.push(Self::add_event(&v));
+            tokens.handlers.push(Self::handler(&v));
         }
 
         tokens
+    }
+
+    fn event(v: &Variant) -> TokenStream2 {
+        let ident = &v.ident;
+
+        match &v.fields {
+            Fields::Named(f) => {
+                quote! {
+                    #[derive(Debug)]
+                    pub struct #ident #f
+                }
+            }
+            Fields::Unnamed(f) => {
+                let ty = &f.unnamed.first().unwrap().ty;
+                quote! { type #ident = #ty; }
+            }
+            Fields::Unit => {
+                let ident = &v.ident;
+                quote! { pub struct #ident; }
+            }
+        }
+    }
+
+    fn add_event(v: &Variant) -> TokenStream2 {
+        let ident = &v.ident;
+
+        quote! { .add_event::<#ident>() }
+    }
+
+    fn handler(v: &Variant) -> TokenStream2 {
+        let ident = &v.ident;
+
+        match &v.fields {
+            Fields::Named(fields) => {
+                let mut names = vec![];
+                for f in &fields.named {
+                    names.push(f.ident.clone().unwrap());
+                }
+
+                quote! {
+                    Commands::#ident { #(#names)*, } => {
+                        app.world
+                            .get_resource_mut::<::bevy::ecs::event::Events<#ident>>()
+                            .unwrap().send(#ident { #(#names)*, });
+                    }
+                }
+            }
+            Fields::Unnamed(_f) => {
+                quote! {
+                    Commands::#ident(x) => {
+                        app.world
+                            .get_resource_mut::<::bevy::ecs::event::Events<#ident>>()
+                            .unwrap().send(x.clone());
+                    }
+                }
+            }
+            Fields::Unit => {
+                quote! {
+                    Commands::#ident => {
+                        app.world
+                            .get_resource_mut::<::bevy::ecs::event::Events<#ident>>()
+                            .unwrap().send(#ident);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -109,7 +166,7 @@ impl SubcommandTokenStreams {
                 fn runner(mut app: ::bevy::app::App) {
                     let cli = app.world.get_resource::<DipCli>().unwrap();
 
-                    match cli.command {
+                    match cli.command.clone() {
                         #(#handlers)*
                     }
 
