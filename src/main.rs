@@ -23,15 +23,21 @@ struct DipCli {
     command: Commands,
 }
 
-#[derive(clap::Subcommand, Subcommand)]
+#[derive(clap::Subcommand, Subcommand, Clone)]
 enum Commands {
-    Build,
+    Build(BuildArgs),
     Clean,
 }
 
+#[derive(clap::Args, Clone, Debug)]
+struct BuildArgs {
+    #[clap(value_parser)]
+    value: Option<String>,
+}
+
 fn handle_build(mut events: EventReader<Build>) {
-    for _ in events.iter() {
-        log::info!("build");
+    for e in events.iter() {
+        log::info!("build: {e:?}");
     }
 }
 
