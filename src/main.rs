@@ -24,7 +24,7 @@ struct DipCli {
     command: Commands,
 }
 
-#[derive(clap::Subcommand, Subcommand, Clone)]
+#[derive(Subcommand, clap::Subcommand, Clone)]
 enum Commands {
     Hello { name: Option<String> },
     Build(BuildArgs),

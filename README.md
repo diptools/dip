@@ -114,20 +114,15 @@ clap = { version = "3.2", features = ["derive"] }
 ```
 
 ```rust, no_run
-use dip::{
-    bevy::{
-        app::App,
-        ecs::event::EventReader,
-        log::{self, LogPlugin},
-    },
-    cli::{CliPlugin, Subcommand},
-};
+use dip::{bevy::log::LogPlugin, prelude::*};
 
 fn main() {
     App::new()
         .add_plugin(CliPlugin)
         .add_plugin(LogPlugin)
-        .add_system(handle_test)
+        .add_system(handle_hello)
+        .add_system(handle_task)
+        .add_system(handle_clean)
         .run();
 }
 
@@ -138,14 +133,33 @@ struct DipCli {
     command: Commands,
 }
 
-#[derive(clap::Subcommand, Subcommand)]
+#[derive(clap::Subcommand, Subcommand, Clone)]
 enum Commands {
-    Test,
+    Hello { name: Option<String> },
+    Task(TaskArgs),
+    Clean,
 }
 
-fn handle_test(mut events: EventReader<Test>) {
+#[derive(clap::Args, Debug, Clone)]
+struct TaskArgs {
+  name: String
+}
+
+fn handle_hello(mut events: EventReader<Hello>) {
+    for e in events.iter() {
+        info!("Hello, {}!", e.name.clone().unwrap_or("world".to_string()));
+    }
+}
+
+fn handle_task(mut events: EventReader<Task>) {
+    for e in events.iter() {
+        info!("{e:?}");
+    }
+}
+
+fn handle_clean(mut events: EventReader<Clean>) {
     for _ in events.iter() {
-        log::info!("Test");
+        info!("clean");
     }
 }
 ```
