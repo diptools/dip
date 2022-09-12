@@ -1,11 +1,4 @@
-use dip::{
-    bevy::{
-        app::App,
-        ecs::{event::EventReader, system::Res},
-        log::{self, LogPlugin},
-    },
-    cli::{CliPlugin, Subcommand},
-};
+use dip::{bevy::log::LogPlugin, prelude::*};
 
 fn main() {
     App::new()
@@ -45,30 +38,30 @@ struct TaskArgs {
 
 fn log_root_arg(cli: Res<DipCli>) {
     if let Some(arg) = &cli.root_arg {
-        log::info!("root arg: {:?}", arg);
+        info!("root arg: {:?}", arg);
     }
 }
 
 fn log_path_flag(cli: Res<DipCli>) {
     if let Some(path) = &cli.path {
-        log::info!("path flag: {:?}", path);
+        info!("path flag: {:?}", path);
     }
 }
 
 fn handle_hello(mut events: EventReader<Hello>) {
     for e in events.iter() {
-        log::info!("Hello, {}!", e.name.clone().unwrap_or("world".to_string()));
+        info!("Hello, {}!", e.name.clone().unwrap_or("world".to_string()));
     }
 }
 
 fn handle_task(mut events: EventReader<Task>) {
     for e in events.iter() {
-        log::info!("Task: {e:?}");
+        info!("Task: {e:?}");
     }
 }
 
 fn handle_ping(mut events: EventReader<Ping>) {
     for _ in events.iter() {
-        log::info!("Pong !");
+        info!("Pong !");
     }
 }
