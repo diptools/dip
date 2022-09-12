@@ -40,6 +40,7 @@ members = [
 [[example]]
 name = "keyboard"
 path = "examples/keyboard/keyboard_event.rs"
+required-features = ["desktop"]
 
 [[example]]
 name = "key_bindings"
