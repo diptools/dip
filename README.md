@@ -120,15 +120,22 @@ fn main() {
     App::new()
         .add_plugin(CliPlugin)
         .add_plugin(LogPlugin)
+        .add_system(log_root_arg)
+        .add_system(log_path_flag)
         .add_system(handle_hello)
         .add_system(handle_task)
-        .add_system(handle_clean)
+        .add_system(handle_ping)
         .run();
 }
 
 #[derive(CliPlugin, clap::Parser)]
 #[clap(author, version, about, long_about = None)]
 struct DipCli {
+    root_arg: Option<String>,
+
+    #[clap(short, long)]
+    path: Option<String>,
+
     #[clap(subcommand)]
     command: Commands,
 }
@@ -137,12 +144,24 @@ struct DipCli {
 enum Commands {
     Hello { name: Option<String> },
     Task(TaskArgs),
-    Clean,
+    Ping,
 }
 
 #[derive(clap::Args, Debug, Clone)]
 struct TaskArgs {
   name: String
+}
+
+fn log_root_arg(cli: Res<DipCli>) {
+    if let Some(arg) = &cli.root_arg {
+        info!("root arg: {:?}", arg);
+    }
+}
+
+fn log_path_flag(cli: Res<DipCli>) {
+    if let Some(path) = &cli.path {
+        info!("path flag: {:?}", path);
+    }
 }
 
 fn handle_hello(mut events: EventReader<Hello>) {
@@ -157,11 +176,27 @@ fn handle_task(mut events: EventReader<Task>) {
     }
 }
 
-fn handle_clean(mut events: EventReader<Clean>) {
+fn handle_ping(mut events: EventReader<Ping>) {
     for _ in events.iter() {
-        info!("clean");
+        info!("Pong !");
     }
 }
+```
+
+```sh
+cargo run
+
+# Sub-command
+cargo run -- hello
+cargo run -- hello Ferris
+cargo run -- task Task1
+cargo run -- ping
+
+# Root argument
+cargo run -- root_arg ping
+
+# Root options
+cargo run -- --path ./some/random/path ping
 ```
 </details>
 
