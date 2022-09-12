@@ -130,7 +130,7 @@ fn main() {
 
 #[derive(CliPlugin, clap::Parser)]
 #[clap(author, version, about, long_about = None)]
-struct DipCli {
+struct Cli {
     root_arg: Option<String>,
 
     #[clap(short, long)]
@@ -152,13 +152,13 @@ struct TaskArgs {
   name: String
 }
 
-fn log_root_arg(cli: Res<DipCli>) {
+fn log_root_arg(cli: Res<Cli>) {
     if let Some(arg) = &cli.root_arg {
         info!("root arg: {:?}", arg);
     }
 }
 
-fn log_path_flag(cli: Res<DipCli>) {
+fn log_path_flag(cli: Res<Cli>) {
     if let Some(path) = &cli.path {
         info!("path flag: {:?}", path);
     }
@@ -184,19 +184,29 @@ fn handle_ping(mut events: EventReader<Ping>) {
 ```
 
 ```sh
-cargo run
+cargo run -- --help
 
-# Sub-command
-cargo run -- hello
-cargo run -- hello Ferris
-cargo run -- task Task1
-cargo run -- ping
+dip-cli-example 0.1.0
+Junichi Sugiura
+Example binary project to showcase CliPlugin usage.
 
-# Root argument
-cargo run -- root_arg ping
+USAGE:
+    cli [OPTIONS] [ROOT_ARG] <SUBCOMMAND>
 
-# Root options
-cargo run -- --path ./some/random/path ping
+ARGS:
+    <ROOT_ARG>
+
+OPTIONS:
+    -h, --help           Print help information
+    -p, --path <PATH>
+    -V, --version        Print version information
+
+SUBCOMMANDS:
+    hello
+    help     Print this message or the help of the given subcommand(s)
+    ping
+    task
+
 ```
 </details>
 
@@ -334,4 +344,4 @@ cargo run --example todomvc --features desktop
 ```
 
 ## Milestone
-[📌 dip - Project board](https://github.com/users/diptools/dip/4/views/9)
+[📌 dip - Project board](https://github.com/orgs/diptools/projects/1)

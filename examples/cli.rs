@@ -14,7 +14,7 @@ fn main() {
 
 #[derive(CliPlugin, clap::Parser)]
 #[clap(author, version, about, long_about = None)]
-struct DipCli {
+struct Cli {
     root_arg: Option<String>,
 
     #[clap(short, long)]
@@ -36,13 +36,13 @@ struct TaskArgs {
     value: Option<String>,
 }
 
-fn log_root_arg(cli: Res<DipCli>) {
+fn log_root_arg(cli: Res<Cli>) {
     if let Some(arg) = &cli.root_arg {
         info!("root arg: {:?}", arg);
     }
 }
 
-fn log_path_flag(cli: Res<DipCli>) {
+fn log_path_flag(cli: Res<Cli>) {
     if let Some(path) = &cli.path {
         info!("path flag: {:?}", path);
     }
