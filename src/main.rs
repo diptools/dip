@@ -7,68 +7,34 @@ use dip::{
     cli::{CliPlugin, Subcommand},
 };
 
+mod tool;
+
 fn main() {
     App::new()
         .add_plugin(CliPlugin)
         .add_plugin(LogPlugin)
-        .add_system(log_root_arg)
-        .add_system(log_path_flag)
-        .add_system(handle_hello)
-        .add_system(handle_task)
-        .add_system(handle_ping)
+        .add_system(handle_tool)
         .run();
 }
 
 #[derive(CliPlugin, clap::Parser)]
-#[clap(author, version, about, long_about = None)]
-struct DipCli {
-    root_arg: Option<String>,
-
+#[clap(version)]
+struct Cli {
     #[clap(short, long)]
     path: Option<String>,
 
     #[clap(subcommand)]
-    command: Commands,
+    action: Action,
 }
 
 #[derive(Subcommand, clap::Subcommand, Clone)]
-enum Commands {
-    Hello { name: Option<String> },
-    Task(TaskArgs),
-    Ping,
+enum Action {
+    #[clap(subcommand)]
+    Tool(tool::ToolInstall),
 }
 
-#[derive(clap::Args, Clone, Debug)]
-struct TaskArgs {
-    value: Option<String>,
-}
-
-fn log_root_arg(cli: Res<DipCli>) {
-    if let Some(arg) = &cli.root_arg {
-        log::info!("root arg: {:?}", arg);
-    }
-}
-
-fn log_path_flag(cli: Res<DipCli>) {
-    if let Some(path) = &cli.path {
-        log::info!("path flag: {:?}", path);
-    }
-}
-
-fn handle_hello(mut events: EventReader<Hello>) {
+fn handle_tool(mut events: EventReader<tool::ToolInstall>) {
     for e in events.iter() {
-        log::info!("Hello, {}!", e.name.clone().unwrap_or("world".to_string()));
-    }
-}
-
-fn handle_task(mut events: EventReader<Task>) {
-    for e in events.iter() {
-        log::info!("Task: {e:?}");
-    }
-}
-
-fn handle_ping(mut events: EventReader<Ping>) {
-    for _ in events.iter() {
-        log::info!("Pong !");
+        log::info!("Tool, {:#?}!", e);
     }
 }

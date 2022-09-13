@@ -107,10 +107,10 @@ impl SubcommandParser {
         tokens.subcommand_ty_name = self.subcommand_ty_name();
 
         for v in &self.commands_enum.variants {
-            tokens.events.push(Self::event(&v));
-            tokens.add_events.push(Self::add_event(&v));
-            tokens.event_readers.push(Self::event_reader(&v));
-            tokens.handlers.push(Self::handler(&v));
+            tokens.events.push(self.event(&v));
+            tokens.add_events.push(self.add_event(&v));
+            tokens.event_readers.push(self.event_reader(&v));
+            tokens.handlers.push(self.handler(&v));
         }
 
         tokens
@@ -121,42 +121,54 @@ impl SubcommandParser {
         quote! { #ident }
     }
 
-    fn event(v: &Variant) -> TokenStream2 {
-        let ident = &v.ident;
+    fn event_name(&self, v: &Variant) -> TokenStream2 {
+        TokenStream2::from_str(&format!(
+            "{}{}",
+            &self.subcommand_ty_name().to_string(),
+            &v.ident.to_string()
+        ))
+        .unwrap()
+    }
+
+    fn event(&self, v: &Variant) -> TokenStream2 {
+        let name = self.event_name(v);
 
         match &v.fields {
             Fields::Named(f) => {
                 quote! {
-                    #[derive(Debug)]
-                    pub struct #ident #f
+                    #[derive(Clone, Debug)]
+                    pub struct #name #f
                 }
             }
             Fields::Unnamed(f) => {
                 let ty = &f.unnamed.first().unwrap().ty;
-                quote! { type #ident = #ty; }
+                quote! { type #name = #ty; }
             }
             Fields::Unit => {
-                let ident = &v.ident;
-                quote! { pub struct #ident; }
+                quote! {
+                    #[derive(Clone, Debug)]
+                    pub struct #name;
+                }
             }
         }
     }
 
-    fn add_event(v: &Variant) -> TokenStream2 {
-        let ident = &v.ident;
+    fn add_event(&self, v: &Variant) -> TokenStream2 {
+        let name = self.event_name(v);
 
-        quote! { .add_event::<#ident>() }
+        quote! { .add_event::<#name>() }
     }
 
-    fn event_reader(v: &Variant) -> TokenStream2 {
-        let ident = &v.ident;
+    fn event_reader(&self, v: &Variant) -> TokenStream2 {
+        let name = self.event_name(v);
         let event_name_snake =
-            TokenStream2::from_str(&ident.to_string().to_case(Case::Snake)).unwrap();
+            TokenStream2::from_str(&name.to_string().to_case(Case::Snake)).unwrap();
 
-        quote! { mut #event_name_snake: ::bevy::ecs::event::EventWriter<#ident>, }
+        quote! { mut #event_name_snake: ::dip::bevy::ecs::event::EventWriter<#name>, }
     }
 
-    fn handler(v: &Variant) -> TokenStream2 {
+    fn handler(&self, v: &Variant) -> TokenStream2 {
+        let subcommand_ty_name = self.subcommand_ty_name();
         let ident = &v.ident;
         let event_name_snake =
             TokenStream2::from_str(&ident.to_string().to_case(Case::Snake)).unwrap();
@@ -169,21 +181,21 @@ impl SubcommandParser {
                 }
 
                 quote! {
-                    Commands::#ident { #(#names)*, } => {
+                    #subcommand_ty_name::#ident { #(#names)*, } => {
                         #event_name_snake.send(#ident { #(#names)*, });
                     }
                 }
             }
             Fields::Unnamed(_f) => {
                 quote! {
-                    Commands::#ident(x) => {
+                    #subcommand_ty_name::#ident(x) => {
                         #event_name_snake.send(x.clone());
                     }
                 }
             }
             Fields::Unit => {
                 quote! {
-                    Commands::#ident => {
+                    #subcommand_ty_name::#ident => {
                         #event_name_snake.send(#ident);
                     }
                 }
