@@ -57,7 +57,9 @@ fn Root(cx: Scope) -> Element {
 
 ## Features
 
-#### Desktop App
+### Desktop App
+
+#### Minimum setup with component state
 
 <details>
 <summary>Code example</summary>
@@ -100,7 +102,14 @@ fn Root(cx: Scope) -> Element {
 
 </details>
 
-#### CLI App
+#### Keyboard handling
+- [Keyboard event](https://github.com/diptools/dip/blob/main/examples/keyboard/keyboard_event.rs)
+- [Key bindings](https://github.com/diptools/dip/blob/main/examples/keyboard/bindings.rs)
+
+
+### CLI App
+
+#### CliPlugin
 
 <details>
 <summary>Code example</summary>
@@ -210,7 +219,9 @@ SUBCOMMANDS:
 ```
 </details>
 
-#### State management
+### State management (Inspired by Redux)
+
+#### UiStatePlugin, UiActionPlugin
 
 <details>
 <summary>Code example</summary>
@@ -241,16 +252,21 @@ fn main() {
 }
 
 // Step 1: Define UiState
+// Each field represents root state. You can create multiple of them.
+// This macro generates UiState enum and UiStatePlugin which will be used in step 7.
 #[ui_state]
 struct UiState {
     name: Name,
 }
 
+// Make sure to wrap primitive types or common type such as String with named struct or enum.
+// You need to distinguish types in order to query specific root state in step 4 (system).
 #[derive(Clone, Debug)]
 pub struct Name {
     value: String,
 }
 
+// This is how you define default value for Name root state.
 impl Default for Name {
     fn default() -> Self {
         Self {
@@ -260,12 +276,15 @@ impl Default for Name {
 }
 
 // Step 2. Define actions
+// Create as many as actions with struct or enum.
 #[derive(Clone, Debug)]
 pub struct UpdateName {
     value: String,
 }
 
 // Step 3. Implement action creators
+// Each method needs to return one of actions that your defined in step 2.
+// This macro derives UiActionPlugin and UiAction which will be used in step 7.
 #[ui_action]
 impl ActionCreator {
     fn update_name(value: String) -> UpdateName {
@@ -273,7 +292,8 @@ impl ActionCreator {
     }
 }
 
-// Step 4. Implement systems to handle each action defined in step 2
+// Step 4. Implement systems to handle each action defined in step 2.
+// System is like reducer in Redux but more flexible.
 fn update_name(mut events: EventReader<UpdateName>, mut name: ResMut<Name>) {
     for action in events.iter() {
         name.value = action.value.clone();
@@ -301,10 +321,6 @@ fn Root(cx: Scope) -> Element {
 ```
 
 </details>
-
-#### Keyboard handling
-- [Keyboard event](https://github.com/diptools/dip/blob/main/examples/keyboard/keyboard_event.rs)
-- [Key bindings](https://github.com/diptools/dip/blob/main/examples/keyboard/bindings.rs)
 
 ## About Bevy and Dioxus
 ### Bevy
