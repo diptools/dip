@@ -1,13 +1,21 @@
-use dip::{bevy::ecs::system::Res, cli::Subcommand};
+use dip::{
+    bevy::{ecs::event::EventReader, log},
+    cli::Subcommand,
+};
 
 #[derive(Clone, Debug, Subcommand, clap::Subcommand)]
-#[clap(name = "tool")]
-pub enum Tool {
+pub enum ToolAction {
     Install,
 }
 
-impl Default for Tool {
+impl Default for ToolAction {
     fn default() -> Self {
         Self::Install
+    }
+}
+
+pub fn handle_tool_install(mut events: EventReader<ToolActionInstall>) {
+    for e in events.iter() {
+        log::info!("{e:#?}");
     }
 }
