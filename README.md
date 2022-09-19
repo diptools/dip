@@ -155,14 +155,14 @@ pub enum Action {
     // Named variant
     Hello { name: Option<String> },
     // Unnamed
-    Task(TaskArgs),
+    Hello2(Hello2Args),
     // Unit
     Ping,
 }
 
 #[derive(clap::Args, Debug, Clone)]
-pub struct TaskArgs {
-  name: String
+pub struct Hello2Args {
+  name: Option<String>,
 }
 
 fn log_root_arg(cli: Res<Cli>) {
@@ -183,9 +183,9 @@ fn handle_hello(mut events: EventReader<HelloAction>) {
     }
 }
 
-fn handle_task(mut events: EventReader<TaskAction>) {
+fn handle_task(mut events: EventReader<Hello2Action>) {
     for e in events.iter() {
-        info!("{e:?}");
+        info!("Hello, {}!", e.name.clone().unwrap_or("world".to_string()));
     }
 }
 
@@ -216,9 +216,9 @@ OPTIONS:
 
 SUBCOMMANDS:
     hello
+    hello2
     help     Print this message or the help of the given subcommand(s)
     ping
-    task
 
 ```
 </details>
