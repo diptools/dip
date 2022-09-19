@@ -18,7 +18,6 @@ fn main() {
 }
 
 #[derive(CliPlugin, clap::Parser)]
-// #[derive(clap::Parser)]
 #[clap(author, version, about, long_about = None)]
 struct Cli {
     root_arg: Option<String>,
@@ -30,8 +29,7 @@ struct Cli {
     action: Action,
 }
 
-#[derive(Subcommand, clap::Subcommand, Clone)]
-// #[derive(clap::Subcommand, Clone)]
+#[derive(SubcommandPlugin, clap::Subcommand, Clone)]
 pub enum Action {
     // Unit
     Ping,
@@ -52,8 +50,7 @@ pub struct Hello2Args {
     name: Option<String>,
 }
 
-#[derive(Subcommand, clap::Subcommand, Clone, Debug)]
-// #[derive(clap::Subcommand, Clone, Debug)]
+#[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
 pub enum TodoAction {
     // Unit
     List,
@@ -101,6 +98,10 @@ fn handle_ping(mut events: EventReader<PingAction>) {
 fn handle_add_todo(mut events: EventReader<AddTodoAction>) {
     for e in events.iter() {
         info!("{e:?}");
+        info!(
+            "AddTodoAction: {}",
+            e.name.clone().unwrap_or("<no-name>".to_string())
+        );
     }
 }
 

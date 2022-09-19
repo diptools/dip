@@ -1,9 +1,9 @@
 use dip::{
     bevy::{ecs::event::EventReader, log},
-    cli::Subcommand,
+    cli::SubcommandPlugin,
 };
 
-#[derive(Clone, Debug, Subcommand, clap::Subcommand)]
+#[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
 pub enum ToolAction {
     Install,
 }

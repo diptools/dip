@@ -7,7 +7,7 @@ use dip::{
         ecs::event::EventReader,
         log::{self, LogPlugin},
     },
-    cli::{CliPlugin, Subcommand},
+    cli::{CliPlugin, SubcommandPlugin},
 };
 
 fn main() {
@@ -32,7 +32,7 @@ struct Cli {
     action: Action,
 }
 
-#[derive(Subcommand, clap::Subcommand, Clone, Debug)]
+#[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
 pub enum Action {
     #[clap(subcommand)]
     Tool(ToolAction),
@@ -47,7 +47,7 @@ fn handle_config_add(mut events: EventReader<AddConfigAction>) {
     }
 }
 
-#[derive(Clone, Debug, Subcommand, clap::Subcommand)]
+#[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
 pub enum ConfigAction {
     Add,
 }

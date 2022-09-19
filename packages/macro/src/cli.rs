@@ -13,13 +13,13 @@ impl CliParser {
         Self { cli_struct }
     }
 
-    pub fn parse(&self) -> CliTokenStreams {
-        let cli_name = &self.cli_struct.ident;
+    pub fn parse(&self) -> CliToken {
+        let ident = &self.cli_struct.ident;
 
-        let mut insert_subcommand_resource = quote! {};
-        let mut add_event = quote! {};
-        let mut add_subcommand_handler = quote! {};
-        let mut subcommand_handler = quote! {};
+        let mut token = CliToken {
+            cli_name: quote! { #ident },
+            ..Default::default()
+        };
 
         for f in self.cli_struct.fields.iter() {
             for a in f.attrs.iter() {
@@ -33,17 +33,17 @@ impl CliParser {
                                             let subcommand_name = f.ident.as_ref().unwrap();
                                             let ty = &f.ty;
 
-                                            add_event = quote! {
+                                            token.add_event = quote! {
                                                 .add_event::<#ty>()
                                             };
-                                            insert_subcommand_resource = quote! {
+                                            token.insert_subcommand_resource = quote! {
                                                 .insert_resource(cli.#subcommand_name.clone())
                                             };
                                             let subcommand_handler_name = TokenStream2::from_str(
                                                 &format!("handle_{}", subcommand_name),
                                             )
                                             .unwrap();
-                                            add_subcommand_handler = quote! {
+                                            token.add_subcommand_handler = quote! {
                                                 .add_system_to_stage(
                                                     ::dip::core::schedule::UiStage::Action,
                                                     convert_subcommand_to_event.before(
@@ -51,7 +51,7 @@ impl CliParser {
                                                     )
                                                 )
                                             };
-                                            subcommand_handler = quote! {
+                                            token.subcommand_handler = quote! {
                                                 fn convert_subcommand_to_event(
                                                     subcommand: ::dip::bevy::ecs::system::Res<#ty>,
                                                     mut #subcommand_name: ::dip::bevy::ecs::event::EventWriter<#ty>,
@@ -71,18 +71,12 @@ impl CliParser {
             }
         }
 
-        CliTokenStreams {
-            cli_name: quote! { #cli_name },
-            insert_subcommand_resource,
-            add_event,
-            add_subcommand_handler,
-            subcommand_handler,
-        }
+        token
     }
 }
 
 #[derive(Default)]
-pub struct CliTokenStreams {
+pub struct CliToken {
     cli_name: TokenStream2,
     insert_subcommand_resource: TokenStream2,
     add_event: TokenStream2,
@@ -90,7 +84,7 @@ pub struct CliTokenStreams {
     subcommand_handler: TokenStream2,
 }
 
-impl CliTokenStreams {
+impl CliToken {
     pub fn gen(&self) -> TokenStream {
         let Self {
             cli_name,

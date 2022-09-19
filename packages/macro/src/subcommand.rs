@@ -14,8 +14,8 @@ impl SubcommandParser {
         Self { commands_enum }
     }
 
-    pub fn parse(&self) -> SubcommandTokenStreams {
-        let mut tokens = SubcommandTokenStreams {
+    pub fn parse(&self) -> SubcommandToken {
+        let mut tokens = SubcommandToken {
             handler_name: self.handler_name(),
             plugin_name: self.plugin_name(),
             subcommand_ty_name: self.subcommand_ty_name(),
@@ -192,7 +192,7 @@ impl SubcommandParser {
 }
 
 #[derive(Default)]
-pub struct SubcommandTokenStreams {
+pub struct SubcommandToken {
     handler_name: TokenStream2,
     plugin_name: TokenStream2,
     subcommand_ty_name: TokenStream2,
@@ -203,7 +203,7 @@ pub struct SubcommandTokenStreams {
     add_system: TokenStream2,
 }
 
-impl SubcommandTokenStreams {
+impl SubcommandToken {
     pub fn gen(&self) -> TokenStream {
         let Self {
             handler_name,
