@@ -1,11 +1,13 @@
 extern crate proc_macro;
 
 mod cli;
+mod subcommand;
 mod ui_action;
 mod ui_state;
 
-use cli::{CliParser, SubcommandParser};
+use cli::CliParser;
 use proc_macro::TokenStream;
+use subcommand::SubcommandParser;
 use syn::{parse_macro_input, ItemEnum, ItemImpl, ItemStruct};
 use ui_action::UiActionParser;
 use ui_state::UiStateParser;

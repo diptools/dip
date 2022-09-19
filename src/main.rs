@@ -41,7 +41,7 @@ pub enum Action {
     Config(ConfigAction),
 }
 
-fn handle_config_add(mut events: EventReader<ConfigActionAdd>) {
+fn handle_config_add(mut events: EventReader<AddConfigAction>) {
     for e in events.iter() {
         log::info!("{e:#?}");
     }

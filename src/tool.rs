@@ -14,7 +14,7 @@ impl Default for ToolAction {
     }
 }
 
-pub fn handle_tool_install(mut events: EventReader<ToolActionInstall>) {
+pub fn handle_tool_install(mut events: EventReader<InstallToolAction>) {
     for e in events.iter() {
         log::info!("{e:#?}");
     }
