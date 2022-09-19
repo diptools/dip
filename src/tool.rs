@@ -28,19 +28,27 @@ pub struct AddAction {
     name: String,
 }
 
-pub fn handle_list_tool(mut events: EventReader<ListToolAction>) {
-    for e in events.iter() {
-        log::info!("{e:?}");
+fn handle_list_tool(mut events: EventReader<ListToolAction>) {
+    for _ in events.iter() {
+        for tool in list_tools().iter() {
+            println!("- {tool}");
+        }
     }
 }
 
-pub fn handle_add_tool(mut events: EventReader<AddToolAction>) {
+fn handle_add_tool(mut events: EventReader<AddToolAction>) {
     for e in events.iter() {
         match e.name.as_str() {
-            "tailwind" => {
+            "tailwindcss" => {
                 log::info!("{e:?}");
             }
-            _ => {}
+            name => {
+                log::error!("Could not find tool: {name}");
+            }
         }
     }
+}
+
+fn list_tools() -> Vec<&'static str> {
+    vec!["tailwindcss"]
 }
