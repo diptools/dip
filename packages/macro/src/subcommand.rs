@@ -103,10 +103,15 @@ impl SubcommandParser {
                     pub struct #name #f
                 }
             }
-            Fields::Unnamed(_f) => {
-                // let ty = &f.unnamed.first().unwrap().ty;
-                // quote! { pub type #name = #ty; }
-                quote! {}
+            Fields::Unnamed(f) => {
+                let first_field_ty = &f.unnamed.first().unwrap().ty;
+
+                // add event name alias only when type name is different (if variant_ident != first_field_ty)
+                if &name.to_string() == quote! { #first_field_ty }.to_string().as_str() {
+                    quote! {}
+                } else {
+                    quote! { pub type #name = #first_field_ty; }
+                }
             }
             Fields::Unit => {
                 quote! {
@@ -124,28 +129,9 @@ impl SubcommandParser {
     }
 
     fn event_name(&self, v: &Variant) -> TokenStream2 {
-        let ident_str = &v.ident.to_string();
-        let name = match &v.fields {
-            Fields::Named(f) => {
-                println!("{:#?}", &f);
-                // quote! {
-                //     #[derive(Clone, Debug)]
-                //     pub struct #name #f
-                // }
-                ""
-            }
-            Fields::Unnamed(_f) => {
-                // let ty = &f.unnamed.first().unwrap().ty;
-                // quote! { pub type #name = #ty; }
-                ""
-            }
-            Fields::Unit => &ident_str,
-        };
-        println!("{name}");
-
         TokenStream2::from_str(&format!(
             "{}{}",
-            &name,
+            &v.ident.to_string(),
             &self.subcommand_ty_name().to_string(),
         ))
         .unwrap()
@@ -169,14 +155,21 @@ impl SubcommandParser {
 
         match &v.fields {
             Fields::Named(fields) => {
-                let mut names = vec![];
+                let mut field_names = vec![];
+                let mut new_fields = vec![];
                 for f in &fields.named {
-                    names.push(f.ident.clone().unwrap());
+                    let field_name = f.ident.clone().unwrap();
+                    let new_field =
+                        TokenStream2::from_str(&format!("{field_name}: {field_name}.clone()"))
+                            .unwrap();
+
+                    field_names.push(field_name);
+                    new_fields.push(new_field)
                 }
 
                 quote! {
-                    #subcommand_ty_name::#ident { #(#names)*, } => {
-                        #event_name_snake.send(#event_name { #(#names)*, });
+                    #subcommand_ty_name::#ident { #(#field_names)*, } => {
+                        #event_name_snake.send(#event_name { #(#new_fields)*, });
                     }
                 }
             }
@@ -224,8 +217,6 @@ impl SubcommandTokenStreams {
         } = self;
 
         let gen = quote! {
-            #(#events)*
-
             pub struct #plugin_name;
 
             impl ::bevy::app::Plugin for #plugin_name {
@@ -240,6 +231,8 @@ impl SubcommandTokenStreams {
                 }
             }
 
+            #(#events)*
+
             pub fn #handler_name(
                 mut events: ::dip::bevy::ecs::event::EventReader<#subcommand_ty_name>,
                 #(#event_readers)*
@@ -251,8 +244,6 @@ impl SubcommandTokenStreams {
                 }
             }
         };
-
-        println!("{gen}");
 
         gen.into()
     }
