@@ -1,11 +1,13 @@
 extern crate proc_macro;
 
 mod cli;
+mod subcommand;
 mod ui_action;
 mod ui_state;
 
-use cli::{CliParser, SubcommandParser};
+use cli::CliParser;
 use proc_macro::TokenStream;
+use subcommand::SubcommandParser;
 use syn::{parse_macro_input, ItemEnum, ItemImpl, ItemStruct};
 use ui_action::UiActionParser;
 use ui_state::UiStateParser;
@@ -31,8 +33,8 @@ pub fn cli_plugin(input: TokenStream) -> TokenStream {
     CliParser::new(input).parse().gen()
 }
 
-#[proc_macro_derive(Subcommand)]
-pub fn subcommand(tokens: TokenStream) -> TokenStream {
+#[proc_macro_derive(SubcommandPlugin)]
+pub fn subcommand_plugin(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as ItemEnum);
 
     SubcommandParser::new(input).parse().gen()

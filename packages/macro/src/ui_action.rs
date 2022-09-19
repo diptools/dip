@@ -18,8 +18,8 @@ impl From<ItemImpl> for UiActionParser {
 }
 
 impl UiActionParser {
-    pub fn parse(&self) -> UiActionTokenStreams {
-        let mut tokens = UiActionTokenStreams::default();
+    pub fn parse(&self) -> UiActionToken {
+        let mut tokens = UiActionToken::default();
         tokens.action_creator_name = self.action_creator_name();
         tokens.action_creator_impl = self.action_creator_impl();
 
@@ -164,7 +164,7 @@ impl UiActionParser {
 }
 
 #[derive(Default)]
-pub struct UiActionTokenStreams {
+pub struct UiActionToken {
     enum_variants: Vec<TokenStream2>,
     add_events: Vec<TokenStream2>,
     handler_args: Vec<TokenStream2>,
@@ -174,7 +174,7 @@ pub struct UiActionTokenStreams {
     methods: Vec<TokenStream2>,
 }
 
-impl UiActionTokenStreams {
+impl UiActionToken {
     pub fn gen(&self) -> TokenStream {
         let Self {
             enum_variants,

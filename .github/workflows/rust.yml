@@ -18,6 +18,7 @@ jobs:
       - run: sudo apt-get install libudev-dev
       - name: Install prerequisites
         run: |
+          sudo apt-get update
           sudo apt-get install -y \
             libudev-dev \
             libwebkit2gtk-4.0-dev \
@@ -40,6 +41,7 @@ jobs:
         run: cargo install cargo-workspaces
       - name: Install prerequisites
         run: |
+          sudo apt-get update
           sudo apt-get install -y \
             libudev-dev \
             libwebkit2gtk-4.0-dev \
@@ -59,6 +61,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Install prerequisites
         run: |
+          sudo apt-get update
           sudo apt-get install -y \
             libudev-dev \
             libwebkit2gtk-4.0-dev \
@@ -80,6 +83,7 @@ jobs:
         run: cargo install cargo-workspaces
       - name: Install prerequisites
         run: |
+          sudo apt-get update
           sudo apt-get install -y \
             libudev-dev \
             libwebkit2gtk-4.0-dev \

@@ -16,8 +16,8 @@ impl From<ItemStruct> for UiStateParser {
 }
 
 impl UiStateParser {
-    pub fn parse(&self) -> UiStateTokenStreams {
-        let mut tokens = UiStateTokenStreams::default();
+    pub fn parse(&self) -> UiStateToken {
+        let mut tokens = UiStateToken::default();
 
         for f in &self.input.fields {
             let name_str = f.ident.as_ref().unwrap().to_string();
@@ -165,7 +165,7 @@ impl UiStateParser {
 }
 
 #[derive(Default)]
-pub struct UiStateTokenStreams {
+pub struct UiStateToken {
     atom_quotes: Vec<TokenStream2>,
     enum_variants: Vec<TokenStream2>,
     variant_handlers: Vec<TokenStream2>,
@@ -174,7 +174,7 @@ pub struct UiStateTokenStreams {
     dispatch_systems: Vec<TokenStream2>,
 }
 
-impl UiStateTokenStreams {
+impl UiStateToken {
     pub fn gen(&self) -> TokenStream {
         let Self {
             atom_quotes,

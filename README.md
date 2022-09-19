@@ -128,6 +128,7 @@ use dip::{bevy::log::LogPlugin, prelude::*};
 fn main() {
     App::new()
         .add_plugin(CliPlugin)
+        .add_plugin(ActionPlugin)
         .add_plugin(LogPlugin)
         .add_system(log_root_arg)
         .add_system(log_path_flag)
@@ -146,19 +147,22 @@ struct Cli {
     path: Option<String>,
 
     #[clap(subcommand)]
-    command: Commands,
+    action: Action,
 }
 
-#[derive(clap::Subcommand, Subcommand, Clone)]
-enum Commands {
+#[derive(SubcommandPlugin, clap::Subcommand, Clone)]
+pub enum Action {
+    // Named variant
     Hello { name: Option<String> },
-    Task(TaskArgs),
+    // Unnamed
+    Hello2(Hello2Args),
+    // Unit
     Ping,
 }
 
 #[derive(clap::Args, Debug, Clone)]
-struct TaskArgs {
-  name: String
+pub struct Hello2Args {
+  name: Option<String>,
 }
 
 fn log_root_arg(cli: Res<Cli>) {
@@ -173,19 +177,19 @@ fn log_path_flag(cli: Res<Cli>) {
     }
 }
 
-fn handle_hello(mut events: EventReader<Hello>) {
+fn handle_hello(mut events: EventReader<HelloAction>) {
     for e in events.iter() {
         info!("Hello, {}!", e.name.clone().unwrap_or("world".to_string()));
     }
 }
 
-fn handle_task(mut events: EventReader<Task>) {
+fn handle_task(mut events: EventReader<Hello2Action>) {
     for e in events.iter() {
-        info!("{e:?}");
+        info!("Hello, {}!", e.name.clone().unwrap_or("world".to_string()));
     }
 }
 
-fn handle_ping(mut events: EventReader<Ping>) {
+fn handle_ping(mut events: EventReader<PingAction>) {
     for _ in events.iter() {
         info!("Pong !");
     }
@@ -212,9 +216,9 @@ OPTIONS:
 
 SUBCOMMANDS:
     hello
+    hello2
     help     Print this message or the help of the given subcommand(s)
     ping
-    task
 
 ```
 </details>

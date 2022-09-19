@@ -7,7 +7,7 @@ use bevy::{
 /// The names of the default [`Ui`] stages.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
 pub enum UiStage {
-    /// Place to write Ui event
+    /// Place to send Ui event or cli subcommand
     Action,
     /// Stage to query spawned component. Use this stage to add system requires to wait 1
     /// frame delay.

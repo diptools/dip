@@ -1,74 +1,53 @@
+mod tool;
+
+use crate::tool::*;
 use dip::{
     bevy::{
         app::App,
-        ecs::{event::EventReader, system::Res},
+        ecs::event::EventReader,
         log::{self, LogPlugin},
     },
-    cli::{CliPlugin, Subcommand},
+    cli::{CliPlugin, SubcommandPlugin},
 };
 
 fn main() {
     App::new()
         .add_plugin(CliPlugin)
+        .add_plugin(ActionPlugin)
+        .add_plugin(ToolActionPlugin)
+        .add_plugin(ConfigActionPlugin)
         .add_plugin(LogPlugin)
-        .add_system(log_root_arg)
-        .add_system(log_path_flag)
-        .add_system(handle_hello)
-        .add_system(handle_task)
-        .add_system(handle_ping)
+        .add_system(handle_tool_install)
+        .add_system(handle_config_add)
         .run();
 }
 
 #[derive(CliPlugin, clap::Parser)]
-#[clap(author, version, about, long_about = None)]
-struct DipCli {
-    root_arg: Option<String>,
-
+#[clap(version)]
+struct Cli {
     #[clap(short, long)]
     path: Option<String>,
 
     #[clap(subcommand)]
-    command: Commands,
+    action: Action,
 }
 
-#[derive(Subcommand, clap::Subcommand, Clone)]
-enum Commands {
-    Hello { name: Option<String> },
-    Task(TaskArgs),
-    Ping,
+#[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
+pub enum Action {
+    #[clap(subcommand)]
+    Tool(ToolAction),
+
+    #[clap(subcommand)]
+    Config(ConfigAction),
 }
 
-#[derive(clap::Args, Clone, Debug)]
-struct TaskArgs {
-    value: Option<String>,
-}
-
-fn log_root_arg(cli: Res<DipCli>) {
-    if let Some(arg) = &cli.root_arg {
-        log::info!("root arg: {:?}", arg);
-    }
-}
-
-fn log_path_flag(cli: Res<DipCli>) {
-    if let Some(path) = &cli.path {
-        log::info!("path flag: {:?}", path);
-    }
-}
-
-fn handle_hello(mut events: EventReader<Hello>) {
+fn handle_config_add(mut events: EventReader<AddConfigAction>) {
     for e in events.iter() {
-        log::info!("Hello, {}!", e.name.clone().unwrap_or("world".to_string()));
+        log::info!("{e:#?}");
     }
 }
 
-fn handle_task(mut events: EventReader<Task>) {
-    for e in events.iter() {
-        log::info!("Task: {e:?}");
-    }
-}
-
-fn handle_ping(mut events: EventReader<Ping>) {
-    for _ in events.iter() {
-        log::info!("Pong !");
-    }
+#[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
+pub enum ConfigAction {
+    Add,
 }
