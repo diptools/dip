@@ -13,7 +13,7 @@
         <img src="https://img.shields.io/crates/d/dip?style=for-the-badge" />
         <img src="https://img.shields.io/crates/l/dip?style=for-the-badge" />
     </p>
-    <p>Previous called bevy_dioxus.</p>
+    <p>Previously called bevy_dioxus.</p>
     <p>Write cross-platform application with React-like declarative UI<br/>and scalable ECS architecture all in Rust.</p>
     <p align="center">
         <a href="https://www.dip.tools" alt="Website">
@@ -287,7 +287,7 @@ pub struct UpdateName {
 }
 
 // Step 3. Implement action creators
-// Each method needs to return one of actions that your defined in step 2.
+// Each method needs to return one of actions that you defined in step 2.
 // This macro derives UiActionPlugin and UiAction which will be used in step 7.
 #[ui_action]
 impl ActionCreator {
