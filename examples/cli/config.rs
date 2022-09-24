@@ -1,7 +1,14 @@
 use dip::prelude::*;
+use serde::Deserialize;
+
+#[derive(Debug, Default, Deserialize, PartialEq, Eq)]
+struct Settings {
+    list: Vec<String>,
+}
 
 fn main() {
     App::new()
+        .insert_resource(Config::new())
         .add_plugin(CliPlugin)
         .add_plugin(ActionPlugin)
         .add_system(handle_path)
@@ -21,9 +28,9 @@ pub enum Action {
     Show,
 }
 
-fn handle_path(mut actions: EventReader<PathAction>) {
-    for action in actions.iter() {
-        println!("{action:?}");
+fn handle_path(mut actions: EventReader<PathAction>, settings: Res<Settings>) {
+    for _ in actions.iter() {
+        println!("{settings:?}");
     }
 }
 
