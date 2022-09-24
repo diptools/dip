@@ -43,6 +43,11 @@ name = "cli"
 path = "examples/cli/cli.rs"
 required-features = ["cli"]
 
+[[example]]
+name = "cli_config"
+path = "examples/cli/config.rs"
+required-features = ["cli"]
+
 # Desktop
 [[example]]
 name = "minimum"
