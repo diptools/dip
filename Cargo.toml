@@ -37,39 +37,72 @@ members = [
     "examples/todomvc",
 ]
 
+# CLI
+[[example]]
+name = "cli"
+path = "examples/cli/cli.rs"
+required-features = ["cli"]
+
+# Desktop
+[[example]]
+name = "minimum"
+path = "examples/desktop/minimum.rs"
+required-features = ["desktop"]
+
+[[example]]
+name = "counter"
+path = "examples/desktop/counter.rs"
+required-features = ["desktop"]
+
+[[example]]
+name = "root_props"
+path = "examples/desktop/root_props.rs"
+required-features = ["desktop"]
+
+# Desktop: keyboard
 [[example]]
 name = "keyboard"
-path = "examples/keyboard/keyboard_event.rs"
+path = "examples/desktop/keyboard/keyboard_event.rs"
 required-features = ["desktop"]
 
 [[example]]
 name = "key_bindings"
-path = "examples/keyboard/bindings.rs"
+path = "examples/desktop/keyboard/bindings.rs"
+required-features = ["desktop"]
 
+# Desktop: state management
 [[example]]
 name = "local_state"
-path = "examples/state_management/local_state.rs"
+path = "examples/desktop/state_management/local_state.rs"
+required-features = ["desktop"]
 
 [[example]]
 name = "global_state"
-path = "examples/state_management/global_state.rs"
+path = "examples/desktop/state_management/global_state.rs"
+required-features = ["desktop"]
 
 [[example]]
 name = "ecs"
-path = "examples/state_management/ecs.rs"
+path = "examples/desktop/state_management/ecs.rs"
+required-features = ["desktop"]
 
+# Desktop: window management
 [[example]]
 name = "window_settings"
-path = "examples/window/settings.rs"
+path = "examples/desktop/window/settings.rs"
+required-features = ["desktop"]
 
 [[example]]
 name = "render_mode"
-path = "examples/window/render_mode.rs"
+path = "examples/desktop/window/render_mode.rs"
+required-features = ["desktop"]
 
 [[example]]
 name = "multiple_windows"
-path = "examples/window/multiple_windows.rs"
+path = "examples/desktop/window/multiple_windows.rs"
+required-features = ["desktop"]
 
 [[example]]
 name = "scale_factor_override"
-path = "examples/window/scale_factor_override.rs"
+path = "examples/desktop/window/scale_factor_override.rs"
+required-features = ["desktop"]
