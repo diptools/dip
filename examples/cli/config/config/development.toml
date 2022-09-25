@@ -1,5 +1,3 @@
-env = "development"
-
 [backend]
 api_key = "development-api-key"
 api_secret = "development-api-secret"

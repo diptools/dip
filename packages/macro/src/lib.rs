@@ -11,7 +11,7 @@ use crate::{
     ui_state::UiStateParser,
 };
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, ItemEnum, ItemImpl, ItemStruct};
+use syn::{parse_macro_input, AttributeArgs, ItemEnum, ItemImpl, ItemStruct};
 
 #[proc_macro_attribute]
 pub fn ui_state(_attr: TokenStream, tokens: TokenStream) -> TokenStream {
@@ -41,9 +41,10 @@ pub fn subcommand_plugin(tokens: TokenStream) -> TokenStream {
     SubcommandParser::new(input).parse().gen()
 }
 
-#[proc_macro_derive(ConfigPlugin)]
-pub fn config_plugin(tokens: TokenStream) -> TokenStream {
+#[proc_macro_attribute]
+pub fn config_plugin(attr: TokenStream, tokens: TokenStream) -> TokenStream {
+    let attrs = parse_macro_input!(attr as AttributeArgs);
     let input = parse_macro_input!(tokens as ItemStruct);
 
-    ConfigParser::new(input).parse().gen()
+    ConfigParser::new(attrs, input).parse().gen()
 }

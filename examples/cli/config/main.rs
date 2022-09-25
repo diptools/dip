@@ -27,10 +27,12 @@ fn handle_show_config(mut actions: EventReader<ShowAction>, config: Res<Config>)
     }
 }
 
-#[derive(ConfigPlugin, Debug, Deserialize)]
+#[derive(Debug, Deserialize)]
+#[config_plugin(
+    path = "examples/cli/config/config", // default: "config/"
+)]
 #[allow(dead_code)]
 struct Config {
-    env: String,
     backend: Backend,
 }
 

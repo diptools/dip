@@ -1,5 +1,3 @@
-env = "default"
-
 [backend]
-api_key = "api-key"
-api_secret = "api-secret"
+api_key = "default-api-key"
+api_secret = "default-api-secret"
