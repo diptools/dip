@@ -20,7 +20,7 @@ impl ConfigParser {
         let config_struct = &self.config_struct;
         let ident = &config_struct.ident;
 
-        let mut base_path = quote! { "config/" };
+        let mut base_path = quote! { "config" };
         let mut prefix = quote! { "" };
         let mut separator = quote! { "__" };
 
