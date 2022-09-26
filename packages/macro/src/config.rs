@@ -157,56 +157,53 @@ impl ConfigToken {
         } = self;
 
         let gen = quote! {
-                    pub struct ConfigPlugin;
+            pub struct ConfigPlugin;
 
-                    impl ::bevy::app::Plugin for ConfigPlugin {
-                        fn build(&self, app: &mut ::bevy::app::App) {
-                            app.insert_resource(#config_name::new().unwrap());
+            impl ::bevy::app::Plugin for ConfigPlugin {
+                fn build(&self, app: &mut ::bevy::app::App) {
+                    app.insert_resource(#config_name::new().unwrap());
+                }
+            }
+
+            #config_struct
+
+            impl #config_name {
+                pub fn new() -> Result<Self, ::config::ConfigError> {
+                    const PKG_NAME: &str = env!("CARGO_PKG_NAME");
+
+                    let home_dir = dirs::home_dir().unwrap();
+                    let home_dir_str = home_dir.to_str().unwrap();
+
+                    let mut config_builder = ::config::Config::builder()
+                        // default config file in binary
+                        .add_source(::config::File::from_str(
+                            include_str!(#default_file_path),
+                            ::config::FileFormat::#default_file_format,
+                        ));
+
+                    #(#custom_paths)*
+
+                    config_builder = config_builder
+                        .add_source(
+                            ::config::Environment::default()
+                                .prefix(#prefix)
+                                .separator(#separator)
+                        );
+
+
+                    match std::env::var("CONFIG_PATH") {
+                        Ok(v) => {
+                            config_builder = config_builder.add_source(
+                                ::config::File::with_name(&v)
+                            );
                         }
+                        Err(_e) => {},
                     }
 
-                    #config_struct
-
-                    impl #config_name {
-                        pub fn new() -> Result<Self, ::config::ConfigError> {
-                            const PKG_NAME: &str = env!("CARGO_PKG_NAME");
-
-                            let home_dir = dirs::home_dir().unwrap();
-                            let home_dir_str = home_dir.to_str().unwrap();
-
-                            let mut config_builder = ::config::Config::builder()
-                                // default config file in binary
-                                .add_source(::config::File::from_str(
-                                    include_str!(#default_file_path),
-                                    ::config::FileFormat::#default_file_format,
-                                ));
-
-                            #(#custom_paths)*
-
-                            config_builder = config_builder
-                                .add_source(
-                                    ::config::Environment::default()
-                                        .prefix(#prefix)
-                                        .separator(#separator)
-                                );
-        ;
-
-                            match std::env::var("CONFIG") {
-                                Ok(v) => {
-                                    config_builder = config_builder.add_source(
-                                        ::config::File::with_name(&format!(
-                                            "examples/cli/config/config/{name}",
-                                            name = v
-                                        ))
-                                    );
-                                }
-                                Err(_e) => {},
-                            }
-
-                            config_builder.build()?.try_deserialize()
-                        }
-                    }
-                };
+                    config_builder.build()?.try_deserialize()
+                }
+            }
+        };
 
         gen.into()
     }
