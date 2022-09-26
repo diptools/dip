@@ -23,7 +23,7 @@ impl ConfigParser {
         let ident = &config_struct.ident;
 
         let mut default_file_path = quote! { "config/default.toml" };
-        let mut default_file_format = quote! { Toml };
+        let mut default_file_format = quote! { "Toml" };
         let mut prefix = quote! { "" };
         let mut separator = quote! { "__" };
 
@@ -41,9 +41,10 @@ impl ConfigParser {
                             },
                             "default_file_format" => match &v.lit {
                                 Lit::Str(ls) => {
-                                    let value = ls.value().to_case(Case::UpperCamel);
+                                    let value = ls.value().to_case(Case::Camel);
+                                    // default_file_format = quote! { #value };
                                     default_file_format = TokenStream2::from_str(&value).unwrap();
-                                    println!("{default_file_format}");
+                                    println!("{}", default_file_format);
                                 }
                                 _ => {}
                             },
@@ -128,7 +129,7 @@ impl ConfigToken {
                         // default config file in binary
                         .add_source(::config::File::from_str(
                             include_str!(#default_file_path),
-                            ::config::FileFormat::#default_file_format,
+                            ::config::FileFormat::Toml,
                         ))
                         // $HOME/.config/{CARGO_PKG_NAME}
                         .add_source(
