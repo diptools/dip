@@ -43,7 +43,6 @@ impl ConfigParser {
                                 Lit::Str(ls) => {
                                     let value = ls.value().to_case(Case::UpperCamel);
                                     default_file_format = TokenStream2::from_str(&value).unwrap();
-                                    println!("{default_file_format}");
                                 }
                                 _ => {}
                             },
@@ -161,7 +160,11 @@ impl ConfigToken {
                         .add_source(
                             ::config::File::with_name(&format!("{name}", name = PKG_NAME)).required(false),
                         )
-                        .add_source(::config::Environment::default().separator("__"))
+                        .add_source(
+                            ::config::Environment::default()
+                                .prefix(#prefix)
+                                .separator(#separator)
+                            )
                         .build()?
                         .try_deserialize()
                 }
