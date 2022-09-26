@@ -22,6 +22,9 @@ dip_cli = { version = "0.1", path = "./packages/cli", optional = true }
 
 [dev-dependencies]
 leafwing-input-manager = { version = "0.5", default-features = false }
+config = "0.13"
+serde = { version = "1.0", features = ["derive"] }
+dirs = "4.0"
 
 [features]
 default = ["cli"]
@@ -41,6 +44,11 @@ members = [
 [[example]]
 name = "cli"
 path = "examples/cli/cli.rs"
+required-features = ["cli"]
+
+[[example]]
+name = "cli_config"
+path = "examples/cli/config/main.rs"
 required-features = ["cli"]
 
 # Desktop

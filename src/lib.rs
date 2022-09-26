@@ -17,7 +17,7 @@ pub mod prelude {
     pub use bevy::prelude::*;
     pub use dioxus::prelude::*;
     pub use dip_core::prelude::*;
-    pub use dip_macro::{ui_action, ui_state};
+    pub use dip_macro::{config_plugin, ui_action, ui_state};
 
     #[cfg(feature = "cli")]
     pub use dip_cli::prelude::*;
