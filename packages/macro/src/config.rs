@@ -123,7 +123,7 @@ impl ConfigToken {
                     let home_dir = dirs::home_dir().unwrap();
                     let home_dir_str = home_dir.to_str().unwrap();
 
-                    ::config::Config::builder()
+                    let mut config_builder = ::config::Config::builder()
                         // default config file in binary
                         .add_source(::config::File::from_str(
                             include_str!(#default_file_path),
@@ -164,9 +164,21 @@ impl ConfigToken {
                             ::config::Environment::default()
                                 .prefix(#prefix)
                                 .separator(#separator)
-                            )
-                        .build()?
-                        .try_deserialize()
+                            );
+
+                        match std::env::var("CONFIG") {
+                            Ok(v) => {
+                                config_builder = config_builder.add_source(
+                                    ::config::File::with_name(&format!(
+                                        "examples/cli/config/config/{name}",
+                                        name = v
+                                    ))
+                                );
+                            }
+                            Err(_e) => {},
+                        }
+
+                        config_builder.build()?.try_deserialize()
                 }
             }
         };
