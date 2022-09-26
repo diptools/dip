@@ -1,3 +1,5 @@
+base_url = "localhost:1111"
+
 [backend]
 api_key = "default-api-key"
 api_secret = "default-api-secret"
