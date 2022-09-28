@@ -22,7 +22,8 @@ dip_cli = { version = "0.1", path = "./packages/cli", optional = true }
 
 [dev-dependencies]
 leafwing-input-manager = { version = "0.5", default-features = false }
-config = { version = "0.13", path = "../config-rs" }
+# config = { version = "0.13", path = "../config-rs" }
+config = { version = "0.13", git = "https://github.com/JunichiSugiura/config-rs", branch = "clonable-builder-state" }
 serde = { version = "1.0", features = ["derive"] }
 dirs = "4.0"
 
