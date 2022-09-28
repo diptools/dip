@@ -16,7 +16,7 @@ fn main() {
 fn log_config(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
     *builder = builder
         .clone()
-        .add_source(File::with_name("asdf").required(false));
+        .add_source(File::with_name("examples/cli/config/config/development"));
     println!("{:#?}", *builder);
 }
 
