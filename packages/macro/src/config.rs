@@ -161,14 +161,14 @@ impl ConfigToken {
 
             impl ::bevy::app::Plugin for ConfigPlugin {
                 fn build(&self, app: &mut ::bevy::app::App) {
-                    app.insert_resource(#config_name::new().unwrap());
+                    app.insert_resource(#config_name::builder());
                 }
             }
 
             #config_struct
 
             impl #config_name {
-                pub fn new() -> Result<Self, ::config::ConfigError> {
+                pub fn builder() -> ::config::builder::ConfigBuilder<::config::builder::DefaultState> {
                     const PKG_NAME: &str = env!("CARGO_PKG_NAME");
 
                     let home_dir = dirs::home_dir().unwrap();
@@ -200,7 +200,7 @@ impl ConfigToken {
                         Err(_e) => {},
                     }
 
-                    config_builder.build()?.try_deserialize()
+                    config_builder
                 }
             }
         };

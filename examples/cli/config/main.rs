@@ -1,15 +1,32 @@
+use config::{
+    builder::{ConfigBuilder, DefaultState},
+    File,
+};
 use dip::prelude::*;
 use serde::Deserialize;
 
 fn main() {
     App::new()
         .add_plugin(ConfigPlugin)
-        .add_system(log_config)
+        .add_startup_system(log_config.before(build_config))
+        .add_startup_system(build_config)
         .run();
 }
 
-fn log_config(config: Res<Config>) {
-    println!("{:#?}", *config);
+fn log_config(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
+    *builder = builder
+        .clone()
+        .add_source(File::with_name("asdf").required(false));
+    println!("{:#?}", *builder);
+}
+
+fn build_config(builder: Res<ConfigBuilder<DefaultState>>) {
+    let config = builder
+        .clone()
+        .build()
+        .unwrap()
+        .try_deserialize::<'static, Config>();
+    println!("{:#?}", config);
 }
 
 #[config_plugin]
