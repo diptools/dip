@@ -26,7 +26,6 @@ impl ConfigParser {
         let mut default_file_format = quote! { Toml };
         let mut prefix = quote! { "" };
         let mut separator = quote! { "__" };
-        let mut custom_paths = vec![];
 
         for a in &self.attrs {
             match a {
@@ -61,16 +60,6 @@ impl ConfigParser {
                                 }
                                 _ => {}
                             },
-                            "override_user_config_path" => match &v.lit {
-                                Lit::Str(ls) => {
-                                    let value = ls.value();
-                                    custom_paths.push(quote! {
-                                        config_builder = config_builder
-                                            .add_source(::config::File::with_name(#value).required(false));
-                                    });
-                                }
-                                _ => {}
-                            },
                             _ => {}
                         },
                         _ => {}
@@ -81,45 +70,6 @@ impl ConfigParser {
             }
         }
 
-        if custom_paths.is_empty() {
-            custom_paths.push(
-                quote! {
-                    config_builder = config_builder
-                        // $HOME/.config/{CARGO_PKG_NAME}
-                        .add_source(
-                            ::config::File::with_name(&format!(
-                                "{home}/.config/{name}",
-                                home = &home_dir_str,
-                                name = PKG_NAME
-                            ))
-                            .required(false),
-                        )
-                        // $HOME/.config/{CARGO_PKG_NAME}/{CARGO_PKG_NAME}
-                        .add_source(
-                            ::config::File::with_name(&format!(
-                                "{home}/.config/{name}/{name}",
-                                home = &home_dir_str,
-                                name = PKG_NAME
-                            ))
-                            .required(false),
-                        )
-                        // $HOME/.{CARGO_PKG_NAME}
-                        .add_source(
-                            ::config::File::with_name(&format!(
-                                "{home}/.{name}",
-                                home = &home_dir_str,
-                                name = PKG_NAME
-                            ))
-                            .required(false),
-                        )
-                        // ./{CARGO_PKG_NAME}
-                        .add_source(
-                            ::config::File::with_name(&format!("{name}", name = PKG_NAME)).required(false),
-                        );
-                }
-            );
-        }
-
         let token = ConfigToken {
             config_struct: quote! { #config_struct },
             config_name: quote! { #ident },
@@ -127,7 +77,6 @@ impl ConfigParser {
             default_file_format,
             prefix,
             separator,
-            custom_paths,
         };
 
         token
@@ -141,7 +90,6 @@ pub struct ConfigToken {
     default_file_format: TokenStream2,
     prefix: TokenStream2,
     separator: TokenStream2,
-    custom_paths: Vec<TokenStream2>,
 }
 
 impl ConfigToken {
@@ -153,54 +101,116 @@ impl ConfigToken {
             default_file_format,
             prefix,
             separator,
-            custom_paths,
         } = self;
 
         let gen = quote! {
-            pub struct ConfigPlugin;
+            pub struct ConfigPlugin {
+                add_default_user_config_paths: bool
+            }
+
+            impl Default for ConfigPlugin {
+                fn default() -> Self {
+                    Self {
+                        add_default_user_config_paths: true,
+                    }
+                }
+            }
 
             impl ::bevy::app::Plugin for ConfigPlugin {
                 fn build(&self, app: &mut ::bevy::app::App) {
-                    app.insert_resource(#config_name::builder());
+                    use ::bevy::ecs::system::IntoSystem;
+
+                    app.insert_resource(#config_name::builder(self.add_default_user_config_paths))
+                        .add_startup_system(build_config);
                 }
             }
 
             #config_struct
 
             impl #config_name {
-                pub fn builder() -> ::config::builder::ConfigBuilder<::config::builder::DefaultState> {
+                pub fn builder(
+                    add_default_user_config_paths: bool
+                ) -> ::config::builder::ConfigBuilder<::config::builder::DefaultState> {
                     const PKG_NAME: &str = env!("CARGO_PKG_NAME");
 
                     let home_dir = dirs::home_dir().unwrap();
                     let home_dir_str = home_dir.to_str().unwrap();
 
-                    let mut config_builder = ::config::Config::builder()
-                        // default config file in binary
-                        .add_source(::config::File::from_str(
-                            include_str!(#default_file_path),
-                            ::config::FileFormat::#default_file_format,
-                        ));
+                    let mut builder = ::config::Config::builder();
 
-                    #(#custom_paths)*
-
-                    config_builder = config_builder
-                        .add_source(
-                            ::config::Environment::default()
-                                .prefix(#prefix)
-                                .separator(#separator)
-                        );
+                    if add_default_user_config_paths {
+                        builder = builder
+                            // default config file in binary
+                            .add_source(::config::File::from_str(
+                                include_str!(#default_file_path),
+                                ::config::FileFormat::#default_file_format,
+                            ))
+                            .add_source(
+                                ::config::Environment::default()
+                                    .prefix(#prefix)
+                                    .separator(#separator)
+                            )
+                            // $HOME/.config/{CARGO_PKG_NAME}
+                            .add_source(
+                                ::config::File::with_name(&format!(
+                                    "{home}/.config/{name}",
+                                    home = &home_dir_str,
+                                    name = PKG_NAME
+                                ))
+                                .required(false),
+                            )
+                            // $HOME/.config/{CARGO_PKG_NAME}/{CARGO_PKG_NAME}
+                            .add_source(
+                                ::config::File::with_name(&format!(
+                                    "{home}/.config/{name}/{name}",
+                                    home = &home_dir_str,
+                                    name = PKG_NAME
+                                ))
+                                .required(false),
+                            )
+                            // $HOME/.{CARGO_PKG_NAME}
+                            .add_source(
+                                ::config::File::with_name(&format!(
+                                    "{home}/.{name}",
+                                    home = &home_dir_str,
+                                    name = PKG_NAME
+                                ))
+                                .required(false),
+                            )
+                            // ./{CARGO_PKG_NAME}
+                            .add_source(
+                                ::config::File::with_name(&format!("{name}", name = PKG_NAME)).required(false),
+                            );
+                    }
 
 
                     match std::env::var("CONFIG_PATH") {
                         Ok(v) => {
-                            config_builder = config_builder.add_source(
+                            builder = builder.add_source(
                                 ::config::File::with_name(&v)
                             );
                         }
                         Err(_e) => {},
                     }
 
-                    config_builder
+                    builder
+                }
+            }
+
+            pub fn build_config(
+                builder: ::bevy::ecs::system::Res<::config::builder::ConfigBuilder<::config::builder::DefaultState>>,
+                mut config: Option<::bevy::ecs::system::ResMut<#config_name>>,
+                mut commands: Commands,
+            ) {
+                let c = builder
+                    .clone()
+                    .build()
+                    .unwrap()
+                    .try_deserialize::<'static, #config_name>()
+                    .unwrap();
+
+                if config.is_none() {
+                    commands.insert_resource(c);
                 }
             }
         };
