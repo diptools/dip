@@ -25,6 +25,8 @@ leafwing-input-manager = { version = "0.5", default-features = false }
 config = "0.13"
 serde = { version = "1.0", features = ["derive"] }
 dirs = "4.0"
+tokio = { version = "1.18", features = ["rt-multi-thread", "sync"], default-features = false }
+reqwest = { version = "0.11", features = ["json"] }
 
 [features]
 default = ["cli"]
@@ -44,6 +46,11 @@ members = [
 [[example]]
 name = "cli"
 path = "examples/cli/cli.rs"
+required-features = ["cli"]
+
+[[example]]
+name = "cli_async"
+path = "examples/cli/async.rs"
 required-features = ["cli"]
 
 [[example]]

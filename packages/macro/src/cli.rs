@@ -32,10 +32,7 @@ impl CliParser {
                                         if ident.to_string() == "subcommand" {
                                             let subcommand_name = f.ident.as_ref().unwrap();
                                             let ty = &f.ty;
-
-                                            token.add_event = quote! {
-                                                .add_event::<#ty>()
-                                            };
+                                            token.add_event = quote! { .add_event::<#ty>() };
                                             token.insert_subcommand_resource = quote! {
                                                 .insert_resource(cli.#subcommand_name.clone())
                                             };
