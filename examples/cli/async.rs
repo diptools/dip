@@ -1,5 +1,6 @@
 use dip::prelude::*;
 use serde::Deserialize;
+use std::future::Future;
 use tokio::{runtime::Runtime, sync::mpsc};
 
 fn main() {
@@ -46,18 +47,29 @@ enum Response {
 }
 
 impl<Response> AsyncTaskPool<Response> {
-    fn new(tx: mpsc::Sender<Response>) -> Self {
+    pub fn new(tx: mpsc::Sender<Response>) -> Self {
         Self {
             runner: Runtime::new().unwrap(),
             tx,
         }
     }
+
+    pub fn spawn<F>(&self, future: F)
+    where
+        F: Future<Output = Response> + Send + 'static,
+        F::Output: Send + 'static + std::fmt::Debug,
+    {
+        let tx = self.tx.clone();
+
+        self.runner.spawn(async move {
+            let res = future.await;
+            tx.send(res).await.unwrap();
+        });
+    }
 }
 
 fn fetch(task_pool: Res<AsyncTaskPool<Response>>) {
-    let tx = task_pool.tx.clone();
-
-    task_pool.runner.spawn(async move {
+    task_pool.spawn(async move {
         let res = reqwest::get("https://httpbin.org/ip")
             .await
             .unwrap()
@@ -65,7 +77,7 @@ fn fetch(task_pool: Res<AsyncTaskPool<Response>>) {
             .await
             .unwrap();
 
-        tx.send(Response::IpResponse(res)).await.unwrap();
+        Response::IpResponse(res)
     });
 }
 
