@@ -1,5 +1,5 @@
 use dip::prelude::*;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use tokio::{runtime::Runtime, sync::mpsc};
 
 fn main() {
@@ -33,7 +33,8 @@ pub struct AsyncTaskPool<Response> {
     tx: mpsc::Sender<Response>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[allow(dead_code)]
+#[derive(Clone, Debug, Deserialize)]
 struct IpResponse {
     origin: String,
 }
