@@ -7,7 +7,7 @@ use serde::Deserialize;
 
 fn main() {
     App::new()
-        .add_plugin(ConfigPlugin::default())
+        .add_plugin(ConfigPlugin::new())
         .add_startup_system(add_config_source.before(build_config))
         .add_system(log_config.after(build_config))
         .run();
@@ -23,8 +23,7 @@ fn log_config(config: Res<Config>) {
     println!("{:#?}", *config);
 }
 
-#[config_plugin]
-#[derive(Debug, Deserialize)]
+#[derive(ConfigPlugin, Debug, Deserialize)]
 #[allow(dead_code)]
 pub struct Config {
     base_url: String,
