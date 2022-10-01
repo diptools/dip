@@ -33,7 +33,7 @@ impl ConfigToken {
 
         let gen = quote! {
             pub struct ConfigPlugin {
-                disable_default_user_config_paths: bool,
+                default_paths: bool,
                 env_prefix: Option<&'static str>,
                 env_separator: &'static str,
                 default_file_str: &'static str,
@@ -52,7 +52,7 @@ impl ConfigToken {
             impl Default for ConfigPlugin {
                 fn default() -> Self {
                     Self {
-                        disable_default_user_config_paths: false,
+                        default_paths: true,
                         env_prefix: None,
                         env_separator: "__",
                         default_file_str: include_str!("config/default.toml"),
@@ -66,8 +66,8 @@ impl ConfigToken {
                     Self::default()
                 }
 
-                pub fn disable_default_user_config_paths(mut self, disable: bool) -> Self {
-                    self.disable_default_user_config_paths = disable;
+                pub fn default_paths(mut self, default_paths: bool) -> Self {
+                    self.default_paths = default_paths;
                     self
                 }
 
@@ -101,7 +101,7 @@ impl ConfigToken {
                         env = env.prefix(&prefix);
                     }
 
-                    if !plugin.disable_default_user_config_paths {
+                    if plugin.default_paths {
                         builder = builder
                             // default config file in binary
                             .add_source(::config::File::from_str(
