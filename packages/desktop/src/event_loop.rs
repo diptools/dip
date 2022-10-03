@@ -26,21 +26,22 @@ use wry::application::{
     event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget},
 };
 
-pub fn start_event_loop<UiAction, RootProps>(mut app: App)
+pub fn start_event_loop<UiAction, AsyncAction, RootProps>(mut app: App)
 where
     UiAction: 'static + Send + Sync + Clone + Debug,
+    AsyncAction: 'static + Send + Sync + Clone + Debug,
     RootProps: 'static + Send + Sync + Clone + Default,
 {
     let event_loop = app
         .world
-        .remove_non_send_resource::<EventLoop<UiEvent<UiAction>>>()
+        .remove_non_send_resource::<EventLoop<UiEvent<UiAction, AsyncAction>>>()
         .unwrap();
 
     let mut tao_state = TaoPersistentState::default();
 
     event_loop.run(
-        move |event: Event<UiEvent<UiAction>>,
-              _event_loop: &EventLoopWindowTarget<UiEvent<UiAction>>,
+        move |event: Event<UiEvent<UiAction, AsyncAction>>,
+              _event_loop: &EventLoopWindowTarget<UiEvent<UiAction, AsyncAction>>,
               control_flow: &mut ControlFlow| {
             log::trace!("{event:?}");
             match event {
@@ -336,6 +337,13 @@ where
                                 .expect("Provide UiAction event to bevy");
                             events.send(action);
                         }
+                        UiEvent::AsyncAction(action) => {
+                            let mut events = app
+                                .world
+                                .get_resource_mut::<Events<AsyncAction>>()
+                                .expect("Provide UiAction event to bevy");
+                            events.send(action);
+                        }
                         UiEvent::KeyboardEvent(event) => {
                             let mut keyboard_events = app
                                 .world
@@ -378,7 +386,7 @@ where
                     tao_state.active = true;
                 }
                 Event::MainEventsCleared => {
-                    handle_create_window_events::<UiAction, RootProps>(&mut app.world);
+                    handle_create_window_events::<UiAction, AsyncAction, RootProps>(&mut app.world);
                     let desktop_settings =
                         app.world.non_send_resource::<DesktopSettings<RootProps>>();
                     let update = if !tao_state.active {
@@ -448,9 +456,10 @@ where
     );
 }
 
-fn handle_create_window_events<UiAction, RootProps>(world: &mut World)
+fn handle_create_window_events<UiAction, AsyncAction, RootProps>(world: &mut World)
 where
     UiAction: 'static + Send + Sync + Clone + Debug,
+    AsyncAction: 'static + Send + Sync + Clone + Debug,
     RootProps: 'static + Send + Sync + Clone,
 {
     let world = world.cell();
@@ -462,7 +471,7 @@ where
 
     for create_window_event in create_window_events_reader.iter(&create_window_events) {
         warn!("Multiple Windows isn't supported yet!");
-        let window = dioxus_windows.create::<UiAction, RootProps>(
+        let window = dioxus_windows.create::<UiAction, AsyncAction, RootProps>(
             &world,
             create_window_event.id,
             &create_window_event.descriptor,

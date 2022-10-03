@@ -60,13 +60,18 @@ required-features = ["cli"]
 
 # Desktop
 [[example]]
-name = "minimum"
-path = "examples/desktop/minimum.rs"
+name = "desktop_async"
+path = "examples/desktop/async.rs"
 required-features = ["desktop"]
 
 [[example]]
 name = "counter"
 path = "examples/desktop/counter.rs"
+required-features = ["desktop"]
+
+[[example]]
+name = "minimum"
+path = "examples/desktop/minimum.rs"
 required-features = ["desktop"]
 
 [[example]]

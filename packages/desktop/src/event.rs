@@ -13,7 +13,7 @@ use std::fmt::Debug;
 
 /// Tao events that emit from UI side
 #[derive(Debug)]
-pub enum UiEvent<UiAction: Debug> {
+pub enum UiEvent<UiAction: Debug, AsyncAction> {
     /// UI events regards window manipulation
     WindowEvent(WindowEvent),
     /// User defined UiAction coming from Ui
@@ -21,6 +21,8 @@ pub enum UiEvent<UiAction: Debug> {
     /// KeyboardEvent which dispatched from `window.document`. Make sure to pass `keyboard_event:
     /// true` to `DioxusSettings`.
     KeyboardEvent(KeyboardEvent),
+    /// User defined AsyncAction
+    AsyncAction(AsyncAction),
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]

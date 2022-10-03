@@ -6,19 +6,23 @@ use std::fmt::Debug;
 use tokio::sync::mpsc::Sender;
 use wry::application::event_loop::EventLoopProxy;
 
-pub type ProxyType<UiAction> = EventLoopProxy<UiEvent<UiAction>>;
+pub type ProxyType<UiAction, AsyncAction> = EventLoopProxy<UiEvent<UiAction, AsyncAction>>;
 
 #[derive(Clone)]
-pub struct UiContext<UiAction: Debug + 'static + Clone> {
-    proxy: ProxyType<UiAction>,
-    ui_action_tx: Sender<UiAction>,
+pub struct UiContext<UiAction: Debug + 'static + Clone, AsyncAction: 'static> {
+    proxy: ProxyType<UiAction, AsyncAction>,
+    ui_action_tx: Sender<UiEvent<UiAction, AsyncAction>>,
 }
 
-impl<UiAction> UiContext<UiAction>
+impl<UiAction, AsyncAction> UiContext<UiAction, AsyncAction>
 where
     UiAction: Debug + Clone,
+    AsyncAction: Debug + Clone,
 {
-    pub fn new(proxy: ProxyType<UiAction>, ui_action_tx: Sender<UiAction>) -> Self {
+    pub fn new(
+        proxy: ProxyType<UiAction, AsyncAction>,
+        ui_action_tx: Sender<UiEvent<UiAction, AsyncAction>>,
+    ) -> Self {
         Self {
             proxy,
             ui_action_tx,
@@ -27,7 +31,7 @@ where
 
     pub fn send(&self, action: UiAction) {
         self.ui_action_tx
-            .try_send(action)
+            .try_send(UiEvent::UiAction(action))
             .expect("Failed to send UiAction");
     }
 
