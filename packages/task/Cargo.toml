@@ -1,5 +1,5 @@
 [package]
-name = "dip_core"
+name = "dip_task"
 version = "0.1.0"
 authors = ["Junichi Sugiura"]
 edition = "2021"
@@ -11,6 +11,4 @@ documentation = "https://docs.rs/dip/latest/dip/"
 keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
 [dependencies]
-bevy = { version = "0.8", default-features = false }
-dioxus = { version = "0.2", features = ["fermi"] }
-dip_task = { version = "0.1", path = "../task" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync"], default-features = false }

@@ -1,74 +1,50 @@
 use dip::prelude::*;
 use serde::Deserialize;
-use std::future::Future;
-use tokio::{runtime::Runtime, sync::mpsc};
 
 fn main() {
     App::new()
-        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction, Response>::new(Root))
-        .add_event::<Response>()
+        .add_plugin(DesktopPlugin::<UiState, NoUiAction, AsyncAction>::new(Root))
+        .add_plugin(UiStatePlugin)
         .add_startup_system(fetch)
         .add_system(log_fetch_result)
         .run();
 }
 
-pub struct AsyncTaskPool<Response> {
-    runner: Runtime,
-    tx: mpsc::Sender<Response>,
-}
-
-#[allow(dead_code)]
-#[derive(Clone, Debug, Deserialize)]
-struct IpResponse {
-    origin: String,
+#[ui_state]
+struct UiState {
+    ip_address: GetIpAddress,
 }
 
 #[allow(dead_code)]
 #[derive(Clone, Debug)]
-enum Response {
-    IpResponse(IpResponse),
+enum AsyncAction {
+    GetIpAddress(GetIpAddress),
 }
 
-impl<Response> AsyncTaskPool<Response> {
-    pub fn new(tx: mpsc::Sender<Response>) -> Self {
-        Self {
-            runner: Runtime::new().unwrap(),
-            tx,
-        }
-    }
-
-    pub fn spawn<F>(&self, future: F)
-    where
-        F: Future<Output = Response> + Send + 'static,
-        F::Output: Send + 'static + std::fmt::Debug,
-    {
-        let tx = self.tx.clone();
-
-        self.runner.spawn(async move {
-            let res = future.await;
-            tx.send(res).await.unwrap();
-        });
-    }
+#[allow(dead_code)]
+#[derive(Clone, Debug, Deserialize, Default)]
+pub struct GetIpAddress {
+    origin: String,
 }
 
-fn fetch(task_pool: Res<AsyncTaskPool<Response>>) {
-    task_pool.spawn(async move {
+fn fetch(async_action: Res<AsyncActionPool<AsyncAction>>) {
+    async_action.send(async move {
         let res = reqwest::get("https://httpbin.org/ip")
             .await
             .unwrap()
-            .json::<IpResponse>()
+            .json::<GetIpAddress>()
             .await
             .unwrap();
 
-        Response::IpResponse(res)
+        AsyncAction::GetIpAddress(res)
     });
 }
 
-fn log_fetch_result(mut events: EventReader<Response>) {
+fn log_fetch_result(mut events: EventReader<AsyncAction>, mut ip_address: ResMut<GetIpAddress>) {
     for res in events.iter() {
         match res {
-            Response::IpResponse(res) => {
-                println!("{res:#?}");
+            AsyncAction::GetIpAddress(res) => {
+                *ip_address = res.clone();
             }
         }
     }
@@ -76,7 +52,8 @@ fn log_fetch_result(mut events: EventReader<Response>) {
 
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
+    let ip_address = use_read(&cx, IP_ADDRESS);
     cx.render(rsx! {
-        h1 { "Hello, World !" }
+        h1 { "ip address: {ip_address.origin}" }
     })
 }

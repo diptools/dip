@@ -18,10 +18,10 @@ use bevy::{
     window::{CreateWindow, ModifiesWindows, WindowCreated, WindowPlugin, Windows},
 };
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg};
-use dip_core::{schedule::UiSchedulePlugin, ui_state::UiStateHandler};
+use dip_core::{schedule::UiSchedulePlugin, task::AsyncActionPool, ui_state::UiStateHandler};
 use futures_channel::mpsc as futures_mpsc;
 use std::{fmt::Debug, marker::PhantomData, sync::Arc, sync::Mutex};
-use tokio::{runtime::Runtime, sync::mpsc};
+use tokio::{runtime::Runtime, select, sync::mpsc};
 use wry::application::event_loop::EventLoop;
 
 /// Dioxus Plugin for Bevy
@@ -46,9 +46,10 @@ where
         let (vdom_scheduler_tx, vdom_scheduler_rx) = futures_mpsc::unbounded::<SchedulerMsg>();
         let (ui_state_tx, ui_state_rx) = mpsc::channel::<UiState>(8);
         let (ui_action_tx, mut ui_action_rx) = mpsc::channel::<UiEvent<UiAction, AsyncAction>>(8);
-        let task_pool = AsyncTaskPool::new(tx.clone());
+        let (async_action_tx, mut async_action_rx) = mpsc::channel::<AsyncAction>(8);
+        let async_action = AsyncActionPool::new(async_action_tx.clone());
 
-        app.world.insert_resource(task_pool);
+        app.world.insert_resource(async_action);
 
         let event_loop = EventLoop::<UiEvent<UiAction, AsyncAction>>::with_user_event();
         let settings = app
@@ -63,9 +64,15 @@ where
 
         let proxy_clone = proxy.clone();
         runtime.spawn(async move {
-            while let Some(action) = ui_action_rx.recv().await {
-                log::trace!("UiAction: {:#?}", action);
-                proxy_clone.send_event(action).unwrap();
+            select! {
+                action = ui_action_rx.recv() => {
+                    log::trace!("UiAction: {:#?}", action);
+                    proxy_clone.send_event(action.unwrap()).unwrap();
+                }
+                action = async_action_rx.recv() => {
+                    log::trace!("AsyncAction: {:#?}", action);
+                    proxy_clone.send_event(UiEvent::AsyncAction(action.unwrap())).unwrap();
+                }
             }
         });
 
@@ -78,6 +85,7 @@ where
             .add_plugin(InputPlugin)
             .add_event::<KeyboardEvent>()
             .add_event::<UiAction>()
+            .add_event::<AsyncAction>()
             .insert_resource(runtime)
             .insert_resource(vdom_scheduler_tx)
             .insert_resource(ui_state_tx)
