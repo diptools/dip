@@ -6,7 +6,7 @@ fn main() {
         .add_plugin(DesktopPlugin::<UiState, NoUiAction, AsyncAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_startup_system(fetch)
-        .add_system(log_fetch_result)
+        .add_system(handle_fetch_result)
         .run();
 }
 
@@ -40,7 +40,7 @@ fn fetch(async_action: Res<AsyncActionPool<AsyncAction>>) {
     });
 }
 
-fn log_fetch_result(mut events: EventReader<AsyncAction>, mut ip_address: ResMut<GetIpAddress>) {
+fn handle_fetch_result(mut events: EventReader<AsyncAction>, mut ip_address: ResMut<GetIpAddress>) {
     for res in events.iter() {
         match res {
             AsyncAction::GetIpAddress(res) => {
