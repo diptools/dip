@@ -17,7 +17,7 @@ struct UiState {
 }
 
 #[allow(dead_code)]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, AsyncActionPlugin)]
 enum AsyncAction {
     GetIpAddress(GetIpAddress),
 }
@@ -39,28 +39,6 @@ fn get_ip_address(async_action: Res<AsyncActionPool<AsyncAction>>) {
 
         AsyncAction::GetIpAddress(res)
     });
-}
-
-pub struct AsyncActionPlugin;
-
-impl Plugin for AsyncActionPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_event::<GetIpAddress>()
-            .add_system_to_stage(UiStage::Action, handle_async_action);
-    }
-}
-
-fn handle_async_action(
-    mut events: EventReader<AsyncAction>,
-    mut get_ip_address: EventWriter<GetIpAddress>,
-) {
-    for action in events.iter() {
-        match action {
-            AsyncAction::GetIpAddress(res) => {
-                get_ip_address.send(res.clone());
-            }
-        }
-    }
 }
 
 fn handle_get_ip_address(

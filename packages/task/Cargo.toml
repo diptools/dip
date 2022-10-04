@@ -12,3 +12,4 @@ keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
 [dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync"], default-features = false }
+dip_macro = { version = "0.1", path = "../macro" }
