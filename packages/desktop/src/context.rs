@@ -11,7 +11,7 @@ pub type ProxyType<UiAction, AsyncAction> = EventLoopProxy<UiEvent<UiAction, Asy
 #[derive(Clone)]
 pub struct UiContext<UiAction: Debug + 'static + Clone, AsyncAction: 'static> {
     proxy: ProxyType<UiAction, AsyncAction>,
-    ui_action_tx: Sender<UiEvent<UiAction, AsyncAction>>,
+    ui_action_tx: Sender<UiAction>,
 }
 
 impl<UiAction, AsyncAction> UiContext<UiAction, AsyncAction>
@@ -19,10 +19,7 @@ where
     UiAction: Debug + Clone,
     AsyncAction: Debug + Clone,
 {
-    pub fn new(
-        proxy: ProxyType<UiAction, AsyncAction>,
-        ui_action_tx: Sender<UiEvent<UiAction, AsyncAction>>,
-    ) -> Self {
+    pub fn new(proxy: ProxyType<UiAction, AsyncAction>, ui_action_tx: Sender<UiAction>) -> Self {
         Self {
             proxy,
             ui_action_tx,
@@ -31,7 +28,7 @@ where
 
     pub fn send(&self, action: UiAction) {
         self.ui_action_tx
-            .try_send(UiEvent::UiAction(action))
+            .try_send(action)
             .expect("Failed to send UiAction");
     }
 

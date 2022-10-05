@@ -6,7 +6,12 @@ fn main() {
             title: "Props Example".to_string(),
             ..Default::default()
         })
-        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction, RootProps>::new(Root))
+        .add_plugin(DesktopPlugin::<
+            NoUiState,
+            NoUiAction,
+            NoAsyncAction,
+            RootProps,
+        >::new(Root))
         .add_plugin(LogPlugin)
         .run();
 }

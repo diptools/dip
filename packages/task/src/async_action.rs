@@ -27,3 +27,5 @@ impl<Action> AsyncActionPool<Action> {
         });
     }
 }
+
+pub type NoAsyncAction = ();

@@ -20,6 +20,7 @@ struct UiState {
 #[derive(Clone, Debug, AsyncActionPlugin)]
 enum AsyncAction {
     GetIpAddress(GetIpAddress),
+    // PostSomething(PostSomething),
 }
 
 #[allow(dead_code)]
@@ -28,24 +29,38 @@ pub struct GetIpAddress {
     origin: String,
 }
 
-fn get_ip_address(async_action: Res<AsyncActionPool<AsyncAction>>) {
-    async_action.send(async move {
-        let res = reqwest::get("https://httpbin.org/ip")
+// #[derive(Clone, Debug, Deserialize, Default)]
+// pub struct PostSomething;
+
+impl AsyncAction {
+    async fn get_ip_address() -> AsyncAction {
+        let res = AsyncActionCreator::get_ip_address().await;
+        AsyncAction::GetIpAddress(res)
+    }
+}
+
+struct AsyncActionCreator;
+
+impl AsyncActionCreator {
+    async fn get_ip_address() -> GetIpAddress {
+        reqwest::get("https://httpbin.org/ip")
             .await
             .unwrap()
             .json::<GetIpAddress>()
             .await
-            .unwrap();
+            .unwrap()
+    }
+}
 
-        AsyncAction::GetIpAddress(res)
-    });
+fn get_ip_address(async_action: Res<AsyncActionPool<AsyncAction>>) {
+    async_action.send(AsyncAction::get_ip_address());
 }
 
 fn handle_get_ip_address(
-    mut events: EventReader<GetIpAddress>,
+    mut actions: EventReader<GetIpAddress>,
     mut ip_address: ResMut<GetIpAddress>,
 ) {
-    for action in events.iter() {
+    for action in actions.iter() {
         *ip_address = action.clone();
     }
 }

@@ -45,7 +45,7 @@ where
     fn build(&self, app: &mut App) {
         let (vdom_scheduler_tx, vdom_scheduler_rx) = futures_mpsc::unbounded::<SchedulerMsg>();
         let (ui_state_tx, ui_state_rx) = mpsc::channel::<UiState>(8);
-        let (ui_action_tx, mut ui_action_rx) = mpsc::channel::<UiEvent<UiAction, AsyncAction>>(8);
+        let (ui_action_tx, mut ui_action_rx) = mpsc::channel::<UiAction>(8);
         let (async_action_tx, mut async_action_rx) = mpsc::channel::<AsyncAction>(8);
         let async_action = AsyncActionPool::new(async_action_tx.clone());
 
@@ -67,7 +67,7 @@ where
             select! {
                 action = ui_action_rx.recv() => {
                     log::trace!("UiAction: {:#?}", action);
-                    proxy_clone.send_event(action.unwrap()).unwrap();
+                    proxy_clone.send_event(UiEvent::UiAction(action.unwrap())).unwrap();
                 }
                 action = async_action_rx.recv() => {
                     log::trace!("AsyncAction: {:#?}", action);
