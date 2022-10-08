@@ -64,14 +64,16 @@ where
 
         let proxy_clone = proxy.clone();
         runtime.spawn(async move {
-            select! {
-                action = ui_action_rx.recv() => {
-                    log::trace!("UiAction: {:#?}", action);
-                    proxy_clone.send_event(UiEvent::UiAction(action.unwrap())).unwrap();
-                }
-                action = async_action_rx.recv() => {
-                    log::trace!("AsyncAction: {:#?}", action);
-                    proxy_clone.send_event(UiEvent::AsyncAction(action.unwrap())).unwrap();
+            loop {
+                select! {
+                    action = ui_action_rx.recv() => {
+                        log::trace!("UiAction: {:#?}", action);
+                        proxy_clone.send_event(UiEvent::UiAction(action.unwrap())).unwrap();
+                    }
+                    action = async_action_rx.recv() => {
+                        log::trace!("AsyncAction: {:#?}", action);
+                        proxy_clone.send_event(UiEvent::AsyncAction(action.unwrap())).unwrap();
+                    }
                 }
             }
         });

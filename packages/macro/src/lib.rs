@@ -1,5 +1,6 @@
 extern crate proc_macro;
 
+mod action_parser;
 mod async_action;
 mod cli;
 mod config;
@@ -50,9 +51,9 @@ pub fn config_plugin(attr: TokenStream, tokens: TokenStream) -> TokenStream {
     ConfigParser::new(attrs, input).parse().gen()
 }
 
-#[proc_macro_derive(AsyncActionPlugin)]
-pub fn async_action_plugin(tokens: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(tokens as ItemEnum);
+#[proc_macro_attribute]
+pub fn async_action(_attr: TokenStream, tokens: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(tokens as ItemImpl);
 
     AsyncActionParser::new(input).parse().gen()
 }

@@ -2,7 +2,7 @@ use dip::prelude::*;
 
 fn main() {
     App::new()
-        .add_plugin(DesktopPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<UiState, UiAction, NoAsyncAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
         .add_system(update_name)
@@ -12,7 +12,7 @@ fn main() {
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
     let name = use_read(&cx, NAME);
-    let window = use_window::<UiAction>(&cx);
+    let window = use_window::<UiAction, NoAsyncAction>(&cx);
 
     cx.render(rsx! {
         h1 { "Hello, {name.value} !" }
