@@ -1,16 +1,14 @@
 extern crate proc_macro;
 
 mod action_parser;
-mod async_action;
 mod cli;
 mod config;
 mod subcommand;
-mod ui_action;
 mod ui_state;
 
 use crate::{
-    async_action::AsyncActionParser, cli::CliParser, config::ConfigParser,
-    subcommand::SubcommandParser, ui_action::UiActionParser, ui_state::UiStateParser,
+    action_parser::ActionParser, cli::CliParser, config::ConfigParser,
+    subcommand::SubcommandParser, ui_state::UiStateParser,
 };
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, AttributeArgs, ItemEnum, ItemImpl, ItemStruct};
@@ -26,7 +24,7 @@ pub fn ui_state(_attr: TokenStream, tokens: TokenStream) -> TokenStream {
 pub fn ui_action(_attr: TokenStream, tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as ItemImpl);
 
-    UiActionParser::from(input).parse().gen()
+    ActionParser::ui_action(input).parse().gen()
 }
 
 #[proc_macro_derive(CliPlugin)]
@@ -55,5 +53,5 @@ pub fn config_plugin(attr: TokenStream, tokens: TokenStream) -> TokenStream {
 pub fn async_action(_attr: TokenStream, tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as ItemImpl);
 
-    AsyncActionParser::new(input).parse().gen()
+    ActionParser::async_action(input).parse().gen()
 }

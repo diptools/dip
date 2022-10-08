@@ -6,20 +6,29 @@ use std::{collections::HashSet, fmt, str::FromStr};
 use syn::{FnArg, ImplItem, ImplItemMethod, ItemImpl, ReturnType, Type};
 
 pub struct ActionParser {
-    action_creator_impl: ItemImpl,
     action_type: ActionType,
+    action_creator_impl: ItemImpl,
 }
 
 impl ActionParser {
-    pub fn new(action_type: ActionType, action_creator_impl: ItemImpl) -> Self {
+    pub fn async_action(action_creator_impl: ItemImpl) -> Self {
         Self {
+            action_type: ActionType::AsyncAction,
             action_creator_impl,
-            action_type,
+        }
+    }
+
+    pub fn ui_action(action_creator_impl: ItemImpl) -> Self {
+        Self {
+            action_type: ActionType::UiAction,
+            action_creator_impl,
         }
     }
 
     pub fn parse(&self) -> ActionToken {
         let mut tokens = ActionToken {
+            plugin_name: self.plugin_name(),
+            action_name: self.action_name(),
             action_creator_impl: self.action_creator_impl(),
             action_creator_name: self.action_creator_name(),
             handler_name: self.handler_name(),
@@ -68,6 +77,14 @@ impl ActionParser {
         }
 
         tokens
+    }
+
+    fn plugin_name(&self) -> TokenStream2 {
+        TokenStream2::from_str(self.action_type.plugin_name()).unwrap()
+    }
+
+    fn action_name(&self) -> TokenStream2 {
+        TokenStream2::from_str(self.action_type.name()).unwrap()
     }
 
     fn action_creator_name(&self) -> TokenStream2 {
@@ -186,6 +203,8 @@ impl ActionParser {
 
 #[derive(Default)]
 pub struct ActionToken {
+    plugin_name: TokenStream2,
+    action_name: TokenStream2,
     action_creator_impl: TokenStream2,
     action_creator_name: TokenStream2,
     enum_variants: Vec<TokenStream2>,
@@ -199,6 +218,8 @@ pub struct ActionToken {
 impl ActionToken {
     pub fn gen(&self) -> TokenStream {
         let Self {
+            plugin_name,
+            action_name,
             action_creator_name,
             action_creator_impl,
             enum_variants,
@@ -210,9 +231,9 @@ impl ActionToken {
         } = self;
 
         let gen = quote! {
-            pub struct AsyncActionPlugin;
+            pub struct #plugin_name;
 
-            impl ::bevy::app::Plugin for AsyncActionPlugin {
+            impl ::bevy::app::Plugin for #plugin_name {
                 fn build(&self, app: &mut App) {
                     app
                         #(#add_events)*
@@ -221,7 +242,7 @@ impl ActionToken {
             }
 
             #[derive(Clone, Debug)]
-            pub enum AsyncAction {
+            pub enum #action_name {
                 #(#enum_variants)*
             }
 
@@ -229,12 +250,12 @@ impl ActionToken {
 
             #action_creator_impl
 
-            impl AsyncAction {
+            impl #action_name {
                 #(#action_methods)*
             }
 
             pub fn #handler_name(
-                mut events: EventReader<AsyncAction>,
+                mut events: EventReader<#action_name>,
                 #(#handler_args)*
             ) {
                 for action in events.iter() {
@@ -264,6 +285,20 @@ impl fmt::Display for ActionType {
 }
 
 impl ActionType {
+    fn name(&self) -> &'static str {
+        match self {
+            ActionType::AsyncAction => "AsyncAction",
+            ActionType::UiAction => "UiAction",
+        }
+    }
+
+    fn plugin_name(&self) -> &'static str {
+        match self {
+            ActionType::AsyncAction => "AsyncActionPlugin",
+            ActionType::UiAction => "UiActionPlugin",
+        }
+    }
+
     fn handler_name(&self) -> &'static str {
         match self {
             ActionType::AsyncAction => "send_async_action_event",
