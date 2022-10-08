@@ -3,7 +3,7 @@ use dip::prelude::*;
 
 #[allow(non_snake_case)]
 pub fn Root(cx: Scope) -> Element {
-    let window = use_window::<UiAction>(&cx);
+    let window = use_window::<UiAction, NoAsyncAction>(&cx);
 
     let todo_list = use_read(&cx, TODO_LIST);
     let filter = use_read(&cx, FILTER);

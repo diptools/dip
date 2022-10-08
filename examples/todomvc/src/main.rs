@@ -33,7 +33,7 @@ fn main() {
             custom_head: Some(format!("<style>{}</style>", css)),
             ..Default::default()
         })
-        .add_plugin(DesktopPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<UiState, UiAction, NoAsyncAction>::new(Root))
         .add_plugin(LogPlugin)
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)

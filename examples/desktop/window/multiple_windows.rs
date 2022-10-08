@@ -10,7 +10,9 @@ use dip::{
 fn main() {
     App::new()
         .add_plugin(LogPlugin)
-        .add_plugin(DesktopPlugin::<NoUiState, NewWindow>::new(Root))
+        .add_plugin(DesktopPlugin::<NoUiState, NewWindow, NoAsyncAction>::new(
+            Root,
+        ))
         .add_event::<NewWindow>()
         .add_system(create_new_window)
         .run();
@@ -18,7 +20,7 @@ fn main() {
 
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
-    let window = use_window::<NewWindow>(&cx);
+    let window = use_window::<NewWindow, NoAsyncAction>(&cx);
 
     cx.render(rsx! {
         h1 { "Multiple Windows isn't supported yet!" }

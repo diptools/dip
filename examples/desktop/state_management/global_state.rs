@@ -6,7 +6,9 @@ fn main() {
             title: "Local State".to_string(),
             ..Default::default()
         })
-        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction, NoAsyncAction>::new(
+            Root,
+        ))
         .run();
 }
 

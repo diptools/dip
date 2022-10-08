@@ -12,7 +12,9 @@ fn main() {
             keyboard_event: true,
             ..Default::default()
         })
-        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction, NoAsyncAction>::new(
+            Root,
+        ))
         .add_plugin(LogPlugin)
         .add_system(toggle_override)
         .add_system(change_scale_factor)
