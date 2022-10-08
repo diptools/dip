@@ -233,7 +233,7 @@ impl ActionToken {
         let gen = quote! {
             pub struct #plugin_name;
 
-            impl ::bevy::app::Plugin for #plugin_name {
+            impl ::dip::bevy::app::Plugin for #plugin_name {
                 fn build(&self, app: &mut App) {
                     app
                         #(#add_events)*

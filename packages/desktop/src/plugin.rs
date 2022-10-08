@@ -131,7 +131,7 @@ where
     ///
     /// fn main() {
     ///    App::new()
-    ///         .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
+    ///         .add_plugin(DesktopPlugin::<NoUiState, NoUiAction, NoAsyncAction>::new(Root))
     ///         .run();
     /// }
     ///
