@@ -10,5 +10,5 @@ documentation.workspace = true
 keywords.workspace = true
 
 [dependencies]
-tokio.workspace = true
 dip_macro.workspace = true
+tokio.workspace = true

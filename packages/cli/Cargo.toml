@@ -11,5 +11,4 @@ keywords.workspace = true
 
 [dependencies]
 bevy.workspace = true
-
 dip_macro.workspace = true
