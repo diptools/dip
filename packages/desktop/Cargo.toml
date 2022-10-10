@@ -1,14 +1,13 @@
 [package]
 name = "dip_desktop"
-version = "0.1.0"
-authors = ["Junichi Sugiura"]
-edition = "2021"
-description = "Write cross-platform application with React-like declarative UI framework and scalable ECS architecture all in Rust."
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/diptools/dip/"
-homepage = "https://github.com/diptools/dip/"
-documentation = "https://docs.rs/dip/latest/dip/"
-keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
 
 [dependencies]
 approx = "0.5.1"
