@@ -341,7 +341,7 @@ where
                             let mut events = app
                                 .world
                                 .get_resource_mut::<Events<AsyncAction>>()
-                                .expect("Provide UiAction event to bevy");
+                                .expect("Provide AsyncAction event to bevy");
                             events.send(action);
                         }
                         UiEvent::KeyboardEvent(event) => {

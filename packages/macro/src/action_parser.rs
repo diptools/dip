@@ -236,6 +236,7 @@ impl ActionToken {
             impl ::dip::bevy::app::Plugin for #plugin_name {
                 fn build(&self, app: &mut App) {
                     app
+                        .add_event::<#action_name>()
                         #(#add_events)*
                         .add_system_to_stage(::dip::core::schedule::UiStage::Action, #handler_name);
                 }

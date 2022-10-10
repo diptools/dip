@@ -49,8 +49,6 @@ where
         let (async_action_tx, mut async_action_rx) = mpsc::channel::<AsyncAction>(8);
         let async_action = AsyncActionPool::new(async_action_tx.clone());
 
-        app.world.insert_resource(async_action);
-
         let event_loop = EventLoop::<UiEvent<UiAction, AsyncAction>>::with_user_event();
         let settings = app
             .world
@@ -86,8 +84,7 @@ where
             .add_plugin(UiSchedulePlugin)
             .add_plugin(InputPlugin)
             .add_event::<KeyboardEvent>()
-            .add_event::<UiAction>()
-            .add_event::<AsyncAction>()
+            .insert_resource(async_action)
             .insert_resource(runtime)
             .insert_resource(vdom_scheduler_tx)
             .insert_resource(ui_state_tx)
