@@ -10,6 +10,8 @@ pub use dip_cli as cli;
 pub use dip_desktop as desktop;
 
 pub use bevy;
+
+#[cfg(feature = "desktop")]
 pub use dioxus;
 
 ///

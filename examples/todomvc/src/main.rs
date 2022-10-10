@@ -33,7 +33,7 @@ fn main() {
             custom_head: Some(format!("<style>{}</style>", css)),
             ..Default::default()
         })
-        .add_plugin(DesktopPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<UiState, UiAction, NoAsyncAction>::new(Root))
         .add_plugin(LogPlugin)
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
@@ -48,6 +48,6 @@ fn main() {
         .add_system(toggle_all.before(toggle_done))
         .add_system(change_filter)
         .add_system(clear_completed)
-        .add_system_to_stage(UiStage::Prepare, new_ui_todo_list)
+        .add_system_to_stage(DipStage::Prepare, new_ui_todo_list)
         .run();
 }

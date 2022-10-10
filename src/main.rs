@@ -8,11 +8,12 @@ use dip::{
         log::{self, LogPlugin},
     },
     cli::{CliPlugin, SubcommandPlugin},
+    prelude::NoAsyncAction,
 };
 
 fn main() {
     App::new()
-        .add_plugin(CliPlugin)
+        .add_plugin(CliPlugin::<NoAsyncAction>::oneshot())
         .add_plugin(ActionPlugin)
         .add_plugin(ToolActionPlugin)
         .add_plugin(ConfigActionPlugin)

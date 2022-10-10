@@ -84,7 +84,7 @@ impl SubcommandParser {
         let handler_token = TokenStream2::from_str(&handler).unwrap();
 
         quote! {
-            .add_system_to_stage(::dip::core::schedule::UiStage::Action, #handler_token);
+            .add_startup_system_to_stage(::dip::core::schedule::DipStartupStage::Action, #handler_token);
         }
     }
 

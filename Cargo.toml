@@ -14,17 +14,20 @@ keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 bevy = { version = "0.8", default-features = false }
 clap = { version = "3.2", features = ["derive"], optional = true }
 dioxus = { version = "0.2", features = ["fermi"] }
+tokio = { version = "1.18", features = ["rt-multi-thread", "sync"], default-features = false }
 
 dip_core = { version = "0.1", path = "./packages/core" }
-dip_desktop = { version = "0.1", path = "./packages/desktop", optional = true }
 dip_macro = { version = "0.1", path = "./packages/macro" }
+
 dip_cli = { version = "0.1", path = "./packages/cli", optional = true }
+dip_desktop = { version = "0.1", path = "./packages/desktop", optional = true }
 
 [dev-dependencies]
 leafwing-input-manager = { version = "0.5", default-features = false }
 config = "0.13"
 serde = { version = "1.0", features = ["derive"] }
 dirs = "4.0"
+reqwest = { version = "0.11", features = ["json"] }
 
 [features]
 default = ["cli"]
@@ -37,6 +40,7 @@ members = [
     "packages/core",
     "packages/desktop",
     "packages/macro",
+    "packages/task",
     "examples/todomvc",
 ]
 
@@ -47,19 +51,29 @@ path = "examples/cli/cli.rs"
 required-features = ["cli"]
 
 [[example]]
+name = "cli_async"
+path = "examples/cli/async.rs"
+required-features = ["cli"]
+
+[[example]]
 name = "cli_config"
 path = "examples/cli/config/main.rs"
 required-features = ["cli"]
 
 # Desktop
 [[example]]
-name = "minimum"
-path = "examples/desktop/minimum.rs"
+name = "desktop_async"
+path = "examples/desktop/async.rs"
 required-features = ["desktop"]
 
 [[example]]
 name = "counter"
 path = "examples/desktop/counter.rs"
+required-features = ["desktop"]
+
+[[example]]
+name = "minimum"
+path = "examples/desktop/minimum.rs"
 required-features = ["desktop"]
 
 [[example]]
