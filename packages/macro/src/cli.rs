@@ -136,7 +136,7 @@ impl CliToken {
                                 app.update();
                             } else {
                                 let (async_action_tx, mut async_action_rx) = ::tokio::sync::mpsc::channel::<AsyncAction>(8);
-                                let async_action = AsyncActionPool::new(async_action_tx.clone());
+                                let async_action = ::dip::core::task::AsyncActionPool::new(async_action_tx.clone());
                                 app.world.insert_resource(async_action);
                                 app.update();
 
