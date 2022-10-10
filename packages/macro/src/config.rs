@@ -159,8 +159,8 @@ impl ConfigToken {
         let gen = quote! {
             pub struct ConfigPlugin;
 
-            impl ::bevy::app::Plugin for ConfigPlugin {
-                fn build(&self, app: &mut ::bevy::app::App) {
+            impl ::dip::bevy::app::Plugin for ConfigPlugin {
+                fn build(&self, app: &mut ::dip::bevy::app::App) {
                     app.insert_resource(#config_name::new().unwrap());
                 }
             }

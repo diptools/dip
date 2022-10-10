@@ -233,9 +233,9 @@ impl ActionToken {
         let gen = quote! {
             pub struct #plugin_name;
 
-            impl ::bevy::app::Plugin for #plugin_name {
-                fn build(&self, app: &mut ::bevy::app::App) {
-                    use ::bevy::ecs::{
+            impl ::dip::bevy::app::Plugin for #plugin_name {
+                fn build(&self, app: &mut ::dip::bevy::app::App) {
+                    use ::dip::bevy::ecs::{
                         schedule::ParallelSystemDescriptorCoercion,
                         system::IntoSystem,
                     };

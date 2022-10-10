@@ -50,8 +50,8 @@ impl CliParser {
                                             };
                                             token.subcommand_handler = quote! {
                                                 fn convert_subcommand_to_event(
-                                                    subcommand: ::bevy::ecs::system::Res<#ty>,
-                                                    mut #subcommand_name: ::bevy::ecs::event::EventWriter<#ty>,
+                                                    subcommand: ::dip::bevy::ecs::system::Res<#ty>,
+                                                    mut #subcommand_name: ::dip::bevy::ecs::event::EventWriter<#ty>,
                                                 ) {
                                                     #subcommand_name.send(subcommand.clone());
                                                 }
@@ -113,13 +113,13 @@ impl CliToken {
                 }
             }
 
-            impl<AsyncAction> ::bevy::app::Plugin for CliPlugin<AsyncAction>
+            impl<AsyncAction> ::dip::bevy::app::Plugin for CliPlugin<AsyncAction>
             where
                 AsyncAction: 'static + Send + Sync + Clone,
             {
-                fn build(&self, app: &mut ::bevy::app::App) {
+                fn build(&self, app: &mut ::dip::bevy::app::App) {
                     use ::clap::Parser;
-                    use ::bevy::ecs::{
+                    use ::dip::bevy::ecs::{
                         schedule::ParallelSystemDescriptorCoercion,
                         system::IntoSystem,
                     };
@@ -142,8 +142,8 @@ impl CliToken {
                                 app.update();
 
                                 loop {
-                                    if let Some(app_exit_events) = app.world.get_resource::<::bevy::ecs::event::Events<::bevy::app::AppExit>>() {
-                                        let mut app_exit_event_reader = ::bevy::ecs::event::ManualEventReader::<::bevy::app::AppExit>::default();
+                                    if let Some(app_exit_events) = app.world.get_resource::<::dip::bevy::ecs::event::Events<::dip::bevy::app::AppExit>>() {
+                                        let mut app_exit_event_reader = ::dip::bevy::ecs::event::ManualEventReader::<::dip::bevy::app::AppExit>::default();
                                         if app_exit_event_reader.iter(app_exit_events).last().is_some() {
                                             break
                                         }
@@ -152,7 +152,7 @@ impl CliToken {
                                     while let Ok(action) = async_action_rx.try_recv() {
                                         let mut events = app
                                             .world
-                                            .get_resource_mut::<::bevy::ecs::event::Events<AsyncAction>>()
+                                            .get_resource_mut::<::dip::bevy::ecs::event::Events<AsyncAction>>()
                                             .expect("Provide AsyncAction event to bevy");
                                         events.send(action);
 

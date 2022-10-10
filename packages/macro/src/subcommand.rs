@@ -142,7 +142,7 @@ impl SubcommandParser {
         let event_name_snake =
             TokenStream2::from_str(&name.to_string().to_case(Case::Snake)).unwrap();
 
-        quote! { mut #event_name_snake: ::bevy::ecs::event::EventWriter<#name>, }
+        quote! { mut #event_name_snake: ::dip::bevy::ecs::event::EventWriter<#name>, }
     }
 
     fn handler(&self, v: &Variant) -> TokenStream2 {
@@ -219,9 +219,9 @@ impl SubcommandToken {
         let gen = quote! {
             pub struct #plugin_name;
 
-            impl ::bevy::app::Plugin for #plugin_name {
-                fn build(&self, app: &mut ::bevy::app::App) {
-                    use ::bevy::ecs::{
+            impl ::dip::bevy::app::Plugin for #plugin_name {
+                fn build(&self, app: &mut ::dip::bevy::app::App) {
+                    use ::dip::bevy::ecs::{
                         schedule::ParallelSystemDescriptorCoercion,
                         system::IntoSystem,
                     };
@@ -234,7 +234,7 @@ impl SubcommandToken {
             #(#events)*
 
             pub fn #handler_name(
-                mut events: ::bevy::ecs::event::EventReader<#subcommand_ty_name>,
+                mut events: ::dip::bevy::ecs::event::EventReader<#subcommand_ty_name>,
                 #(#event_readers)*
             ) {
                 for e in events.iter() {

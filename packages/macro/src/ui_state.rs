@@ -73,14 +73,14 @@ impl UiStateParser {
         quote! { #ui_state_name }
     }
 
-    // example: pub static TODO_LIST: ::dioxus::fermi::Atom<Vec<UiTodo>> = |_| Vec::default();
+    // example: pub static TODO_LIST: ::dip::dioxus::fermi::Atom<Vec<UiTodo>> = |_| Vec::default();
     fn atom_quote(
         name_upper_snake: &TokenStream2,
         r#type: &TokenStream2,
         type_name: &TokenStream2,
     ) -> TokenStream2 {
         quote! {
-            pub static #name_upper_snake: ::dioxus::fermi::Atom<#r#type> = |_| #type_name::default();
+            pub static #name_upper_snake: ::dip::dioxus::fermi::Atom<#r#type> = |_| #type_name::default();
         }
     }
 
@@ -150,8 +150,8 @@ impl UiStateParser {
 
         quote! {
             fn #system_name(
-                #name: ::bevy::ecs::system::Res<#r#type>,
-                ui_state_tx: ::bevy::ecs::system::Res<::tokio::sync::mpsc::Sender<#ui_state_name>>,
+                #name: ::dip::bevy::ecs::system::Res<#r#type>,
+                ui_state_tx: ::dip::bevy::ecs::system::Res<tokio::sync::mpsc::Sender<#ui_state_name>>,
             ) {
                 if #name.is_changed() {
                     trace!(#system_name_str);
@@ -159,13 +159,13 @@ impl UiStateParser {
                         Ok(()) => {}
                         Err(e) => match e {
                             ::tokio::sync::mpsc::error::TrySendError::Full(e) => {
-                                ::bevy::log::error!(
+                                ::dip::bevy::log::error!(
                                     "Failed to send UiState: channel is full: event: {:?}",
                                     e
                                 );
                             }
                             ::tokio::sync::mpsc::error::TrySendError::Closed(e) => {
-                                ::bevy::log::error!(
+                                ::dip::bevy::log::error!(
                                     "Failed to send UiState: channel is closed: event: {:?}",
                                     e
                                 );
@@ -210,8 +210,8 @@ impl UiStateToken {
             }
 
             impl UiStateHandler for #ui_state_name {
-                fn handler(self, root: std::rc::Rc<::dioxus::fermi::AtomRoot>) {
-                    use dioxus::fermi::Readable;
+                fn handler(self, root: std::rc::Rc<::dip::dioxus::fermi::AtomRoot>) {
+                    use ::dip::dioxus::fermi::Readable;
 
                     match self {
                         #(#variant_handlers)*
@@ -221,9 +221,9 @@ impl UiStateToken {
 
             pub struct UiStatePlugin;
 
-            impl ::bevy::app::Plugin for UiStatePlugin {
+            impl ::dip::bevy::app::Plugin for UiStatePlugin {
                 fn build(&self, app: &mut App) {
-                    use ::bevy::ecs::{
+                    use ::dip::bevy::ecs::{
                         schedule::ParallelSystemDescriptorCoercion,
                         system::IntoSystem,
                     };
