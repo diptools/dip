@@ -48,6 +48,6 @@ fn main() {
         .add_system(toggle_all.before(toggle_done))
         .add_system(change_filter)
         .add_system(clear_completed)
-        .add_system_to_stage(UiStage::Prepare, new_ui_todo_list)
+        .add_system_to_stage(DipStage::Prepare, new_ui_todo_list)
         .run();
 }

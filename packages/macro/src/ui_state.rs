@@ -100,10 +100,10 @@ impl UiStateParser {
         }
     }
 
-    // example: .add_system_to_stage(UiStage::Apply, dispatch_todo_list)
+    // example: .add_system_to_stage(DipStage::Apply, dispatch_todo_list)
     fn add_dispatch_system(system_name: &TokenStream2) -> TokenStream2 {
         quote! {
-            .add_system_to_stage(UiStage::Apply, #system_name)
+            .add_system_to_stage(DipStage::Apply, #system_name)
         }
     }
 

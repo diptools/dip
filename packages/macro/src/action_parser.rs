@@ -238,7 +238,7 @@ impl ActionToken {
                     app
                         .add_event::<#action_name>()
                         #(#add_events)*
-                        .add_system_to_stage(::dip::core::schedule::UiStage::Action, #handler_name);
+                        .add_system_to_stage(::dip::core::schedule::DipStage::Action, #handler_name);
                 }
             }
 

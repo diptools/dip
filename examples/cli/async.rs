@@ -13,8 +13,8 @@ fn main() {
         .add_plugin(ActionPlugin)
         .add_plugin(AsyncActionPlugin)
         .add_plugin(LogPlugin)
-        .add_system(fetch_ip_address)
-        .add_system(fetch_user_agent)
+        .add_startup_system(fetch_ip_address)
+        .add_startup_system(fetch_user_agent)
         .add_system(handle_get_ip_address)
         .add_system(handle_get_user_agent)
         .run();

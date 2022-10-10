@@ -41,8 +41,8 @@ impl CliParser {
                                             )
                                             .unwrap();
                                             token.add_subcommand_handler = quote! {
-                                                .add_system_to_stage(
-                                                    ::dip::core::schedule::UiStage::Action,
+                                                .add_startup_system_to_stage(
+                                                    ::dip::core::schedule::DipStartupStage::Action,
                                                     convert_subcommand_to_event.before(
                                                         #subcommand_handler_name
                                                     )
@@ -138,6 +138,7 @@ impl CliToken {
                                 let (async_action_tx, mut async_action_rx) = ::tokio::sync::mpsc::channel::<AsyncAction>(8);
                                 let async_action = ::dip::core::task::AsyncActionPool::new(async_action_tx.clone());
                                 app.world.insert_resource(async_action);
+
                                 app.update();
 
                                 loop {

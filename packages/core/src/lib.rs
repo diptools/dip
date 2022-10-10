@@ -7,7 +7,7 @@ pub use dip_task as task;
 
 pub mod prelude {
     pub use crate::{
-        schedule::{UiSchedulePlugin, UiStage},
+        schedule::{DipStage, DipStartupStage, UiSchedulePlugin},
         task::prelude::*,
         ui_state::{NoRootProps, NoUiAction, NoUiState, UiStateHandler},
     };
