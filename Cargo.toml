@@ -1,14 +1,3 @@
-[package]
-name = "dip"
-version.workspace = true
-edition.workspace = true
-description.workspace = true
-license.workspace = true
-repository.workspace = true
-homepage.workspace = true
-documentation.workspace = true
-keywords.workspace = true
-
 [workspace]
 members = [
     "packages/cli",
@@ -30,14 +19,36 @@ homepage = "https://github.com/diptools/dip/"
 documentation = "https://docs.rs/dip/latest/dip/"
 keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
-[dependencies]
+[workspace.dependencies]
 bevy = { version = "0.8", default-features = false }
-clap = { version = "3.2", features = ["derive"], optional = true }
+bevy_ecs = "0.8"
 dioxus = { version = "0.2", features = ["fermi"] }
-tokio = { version = "1.18", features = ["rt-multi-thread", "sync"], default-features = false }
+tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros"], default-features = false }
 
+dip = { version = "0.1", path = ".", features = ["desktop"] }
 dip_core = { version = "0.1", path = "./packages/core" }
 dip_macro = { version = "0.1", path = "./packages/macro" }
+dip_task = { version = "0.1", path = "./packages/task" }
+
+[package]
+name = "dip"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+
+[dependencies]
+clap = { version = "3.2", features = ["derive"], optional = true }
+bevy.workspace = true
+dioxus.workspace = true
+tokio.workspace = true
+
+dip_core = { version = "0.1", path = "./packages/core" }
+dip_macro.workspace = true
 
 dip_cli = { version = "0.1", path = "./packages/cli", optional = true }
 dip_desktop = { version = "0.1", path = "./packages/desktop", optional = true }

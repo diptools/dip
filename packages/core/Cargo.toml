@@ -10,6 +10,7 @@ documentation.workspace = true
 keywords.workspace = true
 
 [dependencies]
-bevy = { version = "0.8", default-features = false }
-dioxus = { version = "0.2", features = ["fermi"] }
-dip_task = { version = "0.1", path = "../task" }
+bevy.workspace = true
+dioxus.workspace = true
+
+dip_task.workspace = true

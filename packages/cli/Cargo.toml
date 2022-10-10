@@ -10,6 +10,6 @@ documentation.workspace = true
 keywords.workspace = true
 
 [dependencies]
-bevy = { version = "0.8", default-features = false }
+bevy.workspace = true
 
-dip_macro = { version = "0.1", path = "../macro" }
+dip_macro.workspace = true

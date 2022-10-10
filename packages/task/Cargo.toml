@@ -10,5 +10,5 @@ documentation.workspace = true
 keywords.workspace = true
 
 [dependencies]
-tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync"], default-features = false }
-dip_macro = { version = "0.1", path = "../macro" }
+tokio.workspace = true
+dip_macro.workspace = true
