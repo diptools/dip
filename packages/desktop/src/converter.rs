@@ -1,6 +1,6 @@
 use crate::event::Location;
 use bevy::{input::keyboard::KeyCode, window::CursorIcon};
-use dioxus_html::on::*;
+use dioxus::events::*;
 use std::{any::Any, sync::Arc};
 use wry::application::window::CursorIcon as TaoCursorIcon;
 
@@ -232,7 +232,7 @@ pub fn convert_synthetic_event(name: &str, val: serde_json::Value) -> Arc<dyn An
             Arc::new(ClipboardData {})
         }
         "compositionend" | "compositionstart" | "compositionupdate" => {
-            Arc::new(serde_json::from_value::<dioxus_html::on::CompositionData>(val).unwrap())
+            Arc::new(serde_json::from_value::<dioxus::events::CompositionData>(val).unwrap())
         }
         "keydown" | "keypress" | "keyup" => {
             let evt = serde_json::from_value::<KeyboardData>(val).unwrap();
