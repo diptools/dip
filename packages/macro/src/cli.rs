@@ -94,21 +94,21 @@ impl CliToken {
         let gen = quote! {
             pub struct CliPlugin<AsyncAction> {
                 async_action_type: std::marker::PhantomData<AsyncAction>,
-                repl: bool,
+                continuous: bool,
             }
 
             impl<AsyncAction> CliPlugin<AsyncAction> {
                 pub fn oneshot() -> Self {
                     Self {
                         async_action_type: std::marker::PhantomData,
-                        repl: false,
+                        continuous: false,
                     }
                 }
 
-                pub fn repl() -> Self {
+                pub fn continuous() -> Self {
                     Self {
                         async_action_type: std::marker::PhantomData,
-                        repl: true,
+                        continuous: true,
                     }
                 }
             }
@@ -125,14 +125,14 @@ impl CliToken {
                     };
 
                     let cli = #cli_name::parse();
-                    let repl = self.repl;
+                    let continuous = self.continuous;
 
                     app.add_plugin(::dip::core::schedule::UiSchedulePlugin)
                         #insert_subcommand_resource
                         .insert_resource(cli)
                         #add_event
                         .set_runner(move |mut app| {
-                            if !repl {
+                            if !continuous {
                                 app.update();
                             } else {
                                 let (async_action_tx, mut async_action_rx) = ::tokio::sync::mpsc::channel::<AsyncAction>(8);

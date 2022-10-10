@@ -9,7 +9,7 @@ use serde::Deserialize;
 
 fn main() {
     App::new()
-        .add_plugin(CliPlugin::<AsyncAction>::repl())
+        .add_plugin(CliPlugin::<AsyncAction>::continuous())
         .add_plugin(ActionPlugin)
         .add_plugin(AsyncActionPlugin)
         .add_plugin(LogPlugin)
