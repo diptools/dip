@@ -2,12 +2,13 @@ use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use std::{collections::HashSet, fmt, str::FromStr};
-use syn::{FnArg, ImplItem, ImplItemMethod, ItemImpl, ReturnType, Type};
+use std::{collections::HashMap, fmt, str::FromStr};
+use syn::{FnArg, ImplItem, ImplItemMethod, ItemImpl, PathArguments, ReturnType, Type};
 
 pub struct ActionParser {
     action_type: ActionType,
     action_creator_impl: ItemImpl,
+    actions: HashMap<String, TokenStream2>,
 }
 
 impl ActionParser {
@@ -15,6 +16,7 @@ impl ActionParser {
         Self {
             action_type: ActionType::AsyncAction,
             action_creator_impl,
+            actions: HashMap::new(),
         }
     }
 
@@ -22,10 +24,11 @@ impl ActionParser {
         Self {
             action_type: ActionType::UiAction,
             action_creator_impl,
+            actions: HashMap::new(),
         }
     }
 
-    pub fn parse(&self) -> ActionToken {
+    pub fn parse(&mut self) -> ActionToken {
         let mut tokens = ActionToken {
             plugin_name: self.plugin_name(),
             action_name: self.action_name(),
@@ -35,14 +38,11 @@ impl ActionParser {
             ..Default::default()
         };
 
-        let mut actions = HashSet::new();
-
         for item in self.action_creator_impl.clone().items {
             match item {
                 ImplItem::Method(m) => {
                     let method_name_raw = &m.sig.ident;
                     let method_name = quote! { #method_name_raw };
-                    let action = Self::action(&m);
                     let (arg_keys, args) = Self::method_args(&m);
                     let (async_key, await_key) = if m.sig.asyncness.is_some() {
                         (quote! { async }, quote! { .await })
@@ -50,10 +50,13 @@ impl ActionParser {
                         (quote! {}, quote! {})
                     };
 
-                    actions.insert(action.to_string());
+                    let (action_name, action_ty) = Self::action_name_and_ty(&m);
+                    self.actions
+                        .insert(action_name.to_string(), quote! { #action_ty });
+
                     tokens.action_methods.push(self.action_method(
                         &method_name,
-                        &action,
+                        &quote! { #action_name },
                         args,
                         arg_keys,
                         &async_key,
@@ -64,16 +67,21 @@ impl ActionParser {
             }
         }
 
-        for action_str in actions.iter() {
-            let action = TokenStream2::from_str(&action_str).unwrap();
-            let action_snake = TokenStream2::from_str(&action_str.to_case(Case::Snake)).unwrap();
+        for (action_name_str, action_ty) in self.actions.iter() {
+            let action_name = TokenStream2::from_str(&action_name_str).unwrap();
+            let action_snake =
+                TokenStream2::from_str(&action_name_str.to_case(Case::Snake)).unwrap();
 
-            tokens.enum_variants.push(Self::enum_variant(&action));
-            tokens.add_events.push(Self::add_event(&action));
+            tokens
+                .enum_variants
+                .push(Self::enum_variant(&action_name, &action_ty));
+            tokens.add_events.push(Self::add_event(&action_ty));
             tokens
                 .handler_args
-                .push(Self::handler_arg(&action, &action_snake));
-            tokens.handlers.push(self.handler(&action, &action_snake));
+                .push(Self::handler_arg(&action_ty, &action_snake));
+            tokens
+                .handlers
+                .push(self.handler(&action_name, &action_snake));
         }
 
         tokens
@@ -132,23 +140,23 @@ impl ActionParser {
     }
 
     // example: CreateTodo(CreateTodo),
-    fn enum_variant(action: &TokenStream2) -> TokenStream2 {
+    fn enum_variant(action_name: &TokenStream2, action_ty: &TokenStream2) -> TokenStream2 {
         quote! {
-            #action(#r#action),
+            #action_name(#r#action_ty),
         }
     }
 
     // example: .add_event::<CreateTodo>()
-    fn add_event(action: &TokenStream2) -> TokenStream2 {
+    fn add_event(action_ty: &TokenStream2) -> TokenStream2 {
         quote! {
-            .add_event::<#action>()
+            .add_event::<#action_ty>()
         }
     }
 
     // example: mut create_todo: EventWriter<CreateTodo>,
-    fn handler_arg(action: &TokenStream2, action_snake: &TokenStream2) -> TokenStream2 {
+    fn handler_arg(action_ty: &TokenStream2, action_snake: &TokenStream2) -> TokenStream2 {
         quote! {
-            mut #action_snake: EventWriter<#action>,
+            mut #action_snake: EventWriter<#action_ty>,
         }
     }
 
@@ -156,23 +164,36 @@ impl ActionParser {
     // UiAction::CreateTodo(event) => {
     //     create_todo.send(event.clone());
     // }
-    fn handler(&self, action: &TokenStream2, action_snake: &TokenStream2) -> TokenStream2 {
+    fn handler(&self, action_name: &TokenStream2, action_snake: &TokenStream2) -> TokenStream2 {
         let action_type = TokenStream2::from_str(&self.action_type.to_string()).unwrap();
 
         quote! {
-            #action_type::#action(event) => {
+            #action_type::#action_name(event) => {
                 #action_snake.send(event.clone());
             }
         }
     }
 
-    fn action(method: &ImplItemMethod) -> TokenStream2 {
+    fn action_name_and_ty(method: &ImplItemMethod) -> (TokenStream2, TokenStream2) {
         match &method.sig.output {
             ReturnType::Type(_, return_type) => match *return_type.clone() {
-                Type::Path(type_path) => {
-                    let action = type_path.path.segments[0].ident.clone();
-                    quote! { #action }
-                }
+                Type::Path(type_path) => match type_path.path.get_ident() {
+                    Some(p) => (quote! { #p }, quote! { #p }),
+                    None => match type_path.path.segments.first() {
+                        Some(s) => match &s.arguments {
+                            PathArguments::AngleBracketed(g) => {
+                                let arg = g.args.first().unwrap();
+                                (quote! { #arg }, quote! { #type_path })
+                            }
+                            _ => {
+                                panic!("Cannot find event name. Make sure to sepcify return event in action creator methods.");
+                            }
+                        },
+                        None => {
+                            panic!("Cannot find event name. Make sure to sepcify return event in action creator methods.");
+                        }
+                    },
+                },
                 _ => {
                     panic!("Cannot find event name. Make sure to sepcify return event in action creator methods.");
                 }
