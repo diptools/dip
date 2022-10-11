@@ -17,7 +17,7 @@ fn main() {
 #[ui_state]
 struct UiState {
     ip_address: GetIpAddress,
-    async_action_error: AsyncActionError,
+    request_error: RequestError,
     user_agent: GetUserAgent,
 }
 
@@ -38,21 +38,16 @@ pub struct GetUserAgent {
     user_agent: Option<String>,
 }
 
-#[derive(Debug, Clone)]
-pub enum AsyncActionError {
-    None,
-    NetworkError(std::sync::Arc<reqwest::Error>),
+#[derive(Debug, Clone, Default)]
+pub struct RequestError {
+    error: Option<std::sync::Arc<reqwest::Error>>,
 }
 
-impl Default for AsyncActionError {
-    fn default() -> Self {
-        Self::None
-    }
-}
-
-impl From<reqwest::Error> for AsyncActionError {
+impl From<reqwest::Error> for RequestError {
     fn from(error: reqwest::Error) -> Self {
-        AsyncActionError::NetworkError(std::sync::Arc::new(error))
+        RequestError {
+            error: Some(std::sync::Arc::new(error)),
+        }
     }
 }
 
@@ -67,14 +62,12 @@ impl AsyncActionCreator {
             .unwrap()
     }
 
-    async fn get_ip_address_wrongly() -> Result<GetIpAddressWrongly, AsyncActionError> {
-        match reqwest::get("https://httpbin.org/ip").await {
-            Ok(res) => match res.json::<GetIpAddressWrongly>().await {
-                Ok(json) => Ok(json),
-                Err(e) => Err(e.into()),
-            },
-            Err(e) => Err(e.into()),
-        }
+    async fn get_ip_address_wrongly() -> Result<GetIpAddressWrongly, RequestError> {
+        let res = reqwest::get("https://httpbin.org/ip")
+            .await?
+            .json::<GetIpAddressWrongly>()
+            .await?;
+        Ok(res)
     }
 
     async fn get_user_agent() -> GetUserAgent {
@@ -111,12 +104,12 @@ fn handle_get_ip_address(
 }
 
 fn handle_get_ip_address_wrongly(
-    mut actions: EventReader<Result<GetIpAddressWrongly, AsyncActionError>>,
-    mut async_action_error: ResMut<AsyncActionError>,
+    mut actions: EventReader<Result<GetIpAddressWrongly, RequestError>>,
+    mut request_error: ResMut<RequestError>,
 ) {
     for action in actions.iter() {
         if let Err(e) = action {
-            *async_action_error = e.clone();
+            *request_error = e.clone();
         }
     }
 }
@@ -134,13 +127,13 @@ fn handle_get_user_agent(
 fn Root(cx: Scope) -> Element {
     let ip_address = use_read(&cx, IP_ADDRESS);
     let user_agent = use_read(&cx, USER_AGENT);
-    let async_action_error = use_read(&cx, ASYNC_ACTION_ERROR);
+    let request_error = use_read(&cx, REQUEST_ERROR);
 
     cx.render(rsx! {
         ul {
             li { "ip address: {ip_address.origin}" }
             li { "user_agent: {user_agent.user_agent:?}" }
-            li { "async_action_error: {async_action_error:?}" }
+            li { "request_error: {request_error.error:?}" }
         }
     })
 }
