@@ -15,7 +15,9 @@ fn main() {
         })
         .add_plugin(LogPlugin)
         .add_plugin(TimePlugin)
-        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction, NoAsyncAction>::new(
+            Root,
+        ))
         .add_system(change_title)
         .add_system(toggle_cursor)
         // .add_system(cycle_cursor_icon)

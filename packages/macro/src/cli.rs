@@ -32,10 +32,7 @@ impl CliParser {
                                         if ident.to_string() == "subcommand" {
                                             let subcommand_name = f.ident.as_ref().unwrap();
                                             let ty = &f.ty;
-
-                                            token.add_event = quote! {
-                                                .add_event::<#ty>()
-                                            };
+                                            token.add_event = quote! { .add_event::<#ty>() };
                                             token.insert_subcommand_resource = quote! {
                                                 .insert_resource(cli.#subcommand_name.clone())
                                             };
@@ -44,8 +41,8 @@ impl CliParser {
                                             )
                                             .unwrap();
                                             token.add_subcommand_handler = quote! {
-                                                .add_system_to_stage(
-                                                    ::dip::core::schedule::UiStage::Action,
+                                                .add_startup_system_to_stage(
+                                                    ::dip::core::schedule::DipStartupStage::Action,
                                                     convert_subcommand_to_event.before(
                                                         #subcommand_handler_name
                                                     )
@@ -95,10 +92,32 @@ impl CliToken {
         } = self;
 
         let gen = quote! {
-            pub struct CliPlugin;
+            pub struct CliPlugin<AsyncAction> {
+                async_action_type: std::marker::PhantomData<AsyncAction>,
+                continuous: bool,
+            }
 
-            impl ::bevy::app::Plugin for CliPlugin {
-                fn build(&self, app: &mut ::bevy::app::App) {
+            impl<AsyncAction> CliPlugin<AsyncAction> {
+                pub fn oneshot() -> Self {
+                    Self {
+                        async_action_type: std::marker::PhantomData,
+                        continuous: false,
+                    }
+                }
+
+                pub fn continuous() -> Self {
+                    Self {
+                        async_action_type: std::marker::PhantomData,
+                        continuous: true,
+                    }
+                }
+            }
+
+            impl<AsyncAction> ::dip::bevy::app::Plugin for CliPlugin<AsyncAction>
+            where
+                AsyncAction: 'static + Send + Sync + Clone,
+            {
+                fn build(&self, app: &mut ::dip::bevy::app::App) {
                     use ::clap::Parser;
                     use ::dip::bevy::ecs::{
                         schedule::ParallelSystemDescriptorCoercion,
@@ -106,13 +125,41 @@ impl CliToken {
                     };
 
                     let cli = #cli_name::parse();
+                    let continuous = self.continuous;
 
                     app.add_plugin(::dip::core::schedule::UiSchedulePlugin)
                         #insert_subcommand_resource
                         .insert_resource(cli)
                         #add_event
-                        .set_runner(|mut app| {
-                            app.update();
+                        .set_runner(move |mut app| {
+                            if !continuous {
+                                app.update();
+                            } else {
+                                let (async_action_tx, mut async_action_rx) = ::tokio::sync::mpsc::channel::<AsyncAction>(8);
+                                let async_action = ::dip::core::task::AsyncActionPool::new(async_action_tx.clone());
+                                app.world.insert_resource(async_action);
+
+                                app.update();
+
+                                loop {
+                                    if let Some(app_exit_events) = app.world.get_resource::<::dip::bevy::ecs::event::Events<::dip::bevy::app::AppExit>>() {
+                                        let mut app_exit_event_reader = ::dip::bevy::ecs::event::ManualEventReader::<::dip::bevy::app::AppExit>::default();
+                                        if app_exit_event_reader.iter(app_exit_events).last().is_some() {
+                                            break
+                                        }
+                                    }
+
+                                    while let Ok(action) = async_action_rx.try_recv() {
+                                        let mut events = app
+                                            .world
+                                            .get_resource_mut::<::dip::bevy::ecs::event::Events<AsyncAction>>()
+                                            .expect("Provide AsyncAction event to bevy");
+                                        events.send(action);
+
+                                        app.update();
+                                    }
+                                }
+                            };
                         })
                         #add_subcommand_handler;
                 }

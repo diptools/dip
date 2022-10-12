@@ -11,7 +11,7 @@ fn main() {
     App::new()
         .add_plugin(LogPlugin)
         .add_plugin(TimePlugin)
-        .add_plugin(DesktopPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<UiState, UiAction, NoAsyncAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
         .add_system(increment_frame)
@@ -21,7 +21,7 @@ fn main() {
 
 #[allow(non_snake_case)]
 fn Root(cx: Scope) -> Element {
-    let window = use_window::<UiAction>(&cx);
+    let window = use_window::<UiAction, NoAsyncAction>(&cx);
 
     let frame = use_read(&cx, FRAME);
     let render_mode = use_read(&cx, RENDER_MODE);

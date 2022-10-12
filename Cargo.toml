@@ -1,5 +1,14 @@
-[package]
-name = "dip"
+[workspace]
+members = [
+    "packages/cli",
+    "packages/core",
+    "packages/desktop",
+    "packages/macro",
+    "packages/task",
+    "examples/todomvc",
+]
+
+[workspace.package]
 version = "0.1.0"
 authors = ["Junichi Sugiura"]
 edition = "2021"
@@ -10,41 +19,64 @@ homepage = "https://github.com/diptools/dip/"
 documentation = "https://docs.rs/dip/latest/dip/"
 keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
-[dependencies]
+[workspace.dependencies]
 bevy = { version = "0.8", default-features = false }
-clap = { version = "3.2", features = ["derive"], optional = true }
+bevy_ecs = "0.8"
 dioxus = { version = "0.2", features = ["fermi"] }
+dip = { version = "0.1", path = ".", features = ["desktop"] }
+dip_core = { version = "0.1", path = "./packages/core" }
+dip_macro = { version = "0.1", path = "./packages/macro" }
+dip_task = { version = "0.1", path = "./packages/task" }
+tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros"], default-features = false }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_repr = "0.1"
 
+[package]
+name = "dip"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+
+[dependencies]
+bevy.workspace = true
+clap = { version = "3.2", features = ["derive"], optional = true }
+dioxus.workspace = true
+dip_cli = { version = "0.1", path = "./packages/cli", optional = true }
 dip_core = { version = "0.1", path = "./packages/core" }
 dip_desktop = { version = "0.1", path = "./packages/desktop", optional = true }
-dip_macro = { version = "0.1", path = "./packages/macro" }
-dip_cli = { version = "0.1", path = "./packages/cli", optional = true }
+dip_macro.workspace = true
+tokio.workspace = true
 
 [dev-dependencies]
 leafwing-input-manager = { version = "0.5", default-features = false }
-# config = { version = "0.13", path = "../config-rs" }
-config = { version = "0.13", git = "https://github.com/JunichiSugiura/config-rs", branch = "clonable-builder-state" }
-serde = { version = "1.0", features = ["derive"] }
+config = "0.13"
 dirs = "4.0"
+reqwest = { version = "0.11", features = ["json"] }
+serde.workspace = true
+
+[patch.crates-io]
+config = { version = "0.13", git = "https://github.com/JunichiSugiura/config-rs", branch = "clonable-builder-state" }
 
 [features]
 default = ["cli"]
 desktop = ["dip_desktop"]
 cli = ["dip_cli", "clap"]
 
-[workspace]
-members = [
-    "packages/cli",
-    "packages/core",
-    "packages/desktop",
-    "packages/macro",
-    "examples/todomvc",
-]
-
 # CLI
 [[example]]
 name = "cli"
 path = "examples/cli/cli.rs"
+required-features = ["cli"]
+
+[[example]]
+name = "cli_async"
+path = "examples/cli/async.rs"
 required-features = ["cli"]
 
 [[example]]
@@ -54,13 +86,18 @@ required-features = ["cli"]
 
 # Desktop
 [[example]]
-name = "minimum"
-path = "examples/desktop/minimum.rs"
+name = "desktop_async"
+path = "examples/desktop/async.rs"
 required-features = ["desktop"]
 
 [[example]]
 name = "counter"
 path = "examples/desktop/counter.rs"
+required-features = ["desktop"]
+
+[[example]]
+name = "minimum"
+path = "examples/desktop/minimum.rs"
 required-features = ["desktop"]
 
 [[example]]

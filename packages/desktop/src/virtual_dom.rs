@@ -1,10 +1,12 @@
 #![allow(non_snake_case)]
 
 use crate::context::UiContext;
+use dioxus::{
+    fermi::AtomRoot,
+    hooks::{UnboundedReceiver, UnboundedSender},
+};
 use dioxus_core::{Component, SchedulerMsg, ScopeId, VirtualDom as DioxusVirtualDom};
-use dioxus_hooks::{UnboundedReceiver, UnboundedSender};
 use dip_core::ui_state::UiStateHandler;
-use fermi::AtomRoot;
 use std::{
     fmt::Debug,
     marker::PhantomData,
@@ -13,18 +15,20 @@ use std::{
 };
 use tokio::{select, sync::mpsc::Receiver};
 
-pub struct VirtualDom<UiState: 'static, UiAction> {
+pub struct VirtualDom<UiState: 'static, UiAction, AsyncAction> {
     virtual_dom: DioxusVirtualDom,
     edit_queue: Arc<Mutex<Vec<String>>>,
     ui_state_rx: Receiver<UiState>,
     scheduler_tx: UnboundedSender<SchedulerMsg>,
     ui_action_type: PhantomData<UiAction>,
+    async_action_type: PhantomData<AsyncAction>,
 }
 
-impl<UiState, UiAction> VirtualDom<UiState, UiAction>
+impl<UiState, UiAction, AsyncAction> VirtualDom<UiState, UiAction, AsyncAction>
 where
     UiState: UiStateHandler,
     UiAction: 'static + Clone + Debug,
+    AsyncAction: 'static + Clone + Debug,
 {
     pub fn new<RootProps>(
         Root: Component<RootProps>,
@@ -51,6 +55,7 @@ where
             ui_state_rx,
             scheduler_tx,
             ui_action_type: PhantomData,
+            async_action_type: PhantomData,
         }
     }
 
@@ -89,9 +94,10 @@ where
         }
     }
 
-    pub fn provide_ui_context(&self, context: UiContext<UiAction>)
+    pub fn provide_ui_context(&self, context: UiContext<UiAction, AsyncAction>)
     where
         UiAction: Clone + Debug,
+        AsyncAction: Clone + Debug,
     {
         self.virtual_dom.base_scope().provide_context(context);
     }
@@ -115,7 +121,7 @@ where
     }
 
     fn rerender(&self) {
-        let ui_context: UiContext<UiAction> =
+        let ui_context: UiContext<UiAction, AsyncAction> =
             self.virtual_dom.base_scope().consume_context().unwrap();
         ui_context.rerender();
     }

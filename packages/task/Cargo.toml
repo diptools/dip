@@ -1,5 +1,5 @@
 [package]
-name = "dip_core"
+name = "dip_task"
 version.workspace = true
 edition.workspace = true
 description.workspace = true
@@ -10,6 +10,5 @@ documentation.workspace = true
 keywords.workspace = true
 
 [dependencies]
-bevy.workspace = true
-dioxus.workspace = true
-dip_task.workspace = true
+dip_macro.workspace = true
+tokio.workspace = true

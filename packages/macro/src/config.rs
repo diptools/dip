@@ -40,7 +40,7 @@ impl ConfigToken {
                 default_file_format: ::config::FileFormat,
             }
 
-            impl ::bevy::app::Plugin for ConfigPlugin {
+            impl ::dip::bevy::app::Plugin for ConfigPlugin {
                 fn build(&self, app: &mut ::bevy::app::App) {
                     use ::bevy::ecs::system::IntoSystem;
 

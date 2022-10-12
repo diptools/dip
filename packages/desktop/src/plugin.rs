@@ -18,33 +18,38 @@ use bevy::{
     window::{CreateWindow, ModifiesWindows, WindowCreated, WindowPlugin, Windows},
 };
 use dioxus_core::{Component as DioxusComponent, SchedulerMsg};
-use dip_core::{schedule::UiSchedulePlugin, ui_state::UiStateHandler};
+use dip_core::{schedule::UiSchedulePlugin, task::AsyncActionPool, ui_state::UiStateHandler};
 use futures_channel::mpsc as futures_mpsc;
 use std::{fmt::Debug, marker::PhantomData, sync::Arc, sync::Mutex};
-use tokio::{runtime::Runtime, sync::mpsc};
+use tokio::{runtime::Runtime, select, sync::mpsc};
 use wry::application::event_loop::EventLoop;
 
 /// Dioxus Plugin for Bevy
-pub struct DesktopPlugin<UiState, UiAction, RootProps = ()> {
+pub struct DesktopPlugin<UiState, UiAction, AsyncAction, RootProps = ()> {
     /// Root component
     pub Root: DioxusComponent<RootProps>,
 
     ui_state_type: PhantomData<UiState>,
     ui_action_type: PhantomData<UiAction>,
+    async_action_type: PhantomData<AsyncAction>,
 }
 
-impl<UiState, UiAction, RootProps> Plugin for DesktopPlugin<UiState, UiAction, RootProps>
+impl<UiState, UiAction, AsyncAction, RootProps> Plugin
+    for DesktopPlugin<UiState, UiAction, AsyncAction, RootProps>
 where
     UiState: 'static + Send + Sync + UiStateHandler,
     UiAction: 'static + Send + Sync + Clone + Debug,
+    AsyncAction: 'static + Send + Sync + Clone + Debug,
     RootProps: 'static + Send + Sync + Clone + Default,
 {
     fn build(&self, app: &mut App) {
         let (vdom_scheduler_tx, vdom_scheduler_rx) = futures_mpsc::unbounded::<SchedulerMsg>();
         let (ui_state_tx, ui_state_rx) = mpsc::channel::<UiState>(8);
         let (ui_action_tx, mut ui_action_rx) = mpsc::channel::<UiAction>(8);
+        let (async_action_tx, mut async_action_rx) = mpsc::channel::<AsyncAction>(8);
+        let async_action = AsyncActionPool::new(async_action_tx.clone());
 
-        let event_loop = EventLoop::<UiEvent<UiAction>>::with_user_event();
+        let event_loop = EventLoop::<UiEvent<UiAction, AsyncAction>>::with_user_event();
         let settings = app
             .world
             .remove_non_send_resource::<DesktopSettings<RootProps>>()
@@ -57,9 +62,17 @@ where
 
         let proxy_clone = proxy.clone();
         runtime.spawn(async move {
-            while let Some(action) = ui_action_rx.recv().await {
-                log::trace!("UiAction: {:#?}", action);
-                proxy_clone.send_event(UiEvent::UiAction(action)).unwrap();
+            loop {
+                select! {
+                    action = ui_action_rx.recv() => {
+                        log::trace!("UiAction: {:#?}", action);
+                        proxy_clone.send_event(UiEvent::UiAction(action.unwrap())).unwrap();
+                    }
+                    action = async_action_rx.recv() => {
+                        log::trace!("AsyncAction: {:#?}", action);
+                        proxy_clone.send_event(UiEvent::AsyncAction(action.unwrap())).unwrap();
+                    }
+                }
             }
         });
 
@@ -71,7 +84,7 @@ where
             .add_plugin(UiSchedulePlugin)
             .add_plugin(InputPlugin)
             .add_event::<KeyboardEvent>()
-            .add_event::<UiAction>()
+            .insert_resource(async_action)
             .insert_resource(runtime)
             .insert_resource(vdom_scheduler_tx)
             .insert_resource(ui_state_tx)
@@ -79,7 +92,7 @@ where
             .init_non_send_resource::<DioxusWindows>()
             .insert_non_send_resource(settings)
             .insert_non_send_resource(event_loop)
-            .set_runner(|app| start_event_loop::<UiAction, RootProps>(app))
+            .set_runner(|app| start_event_loop::<UiAction, AsyncAction, RootProps>(app))
             .add_system_to_stage(CoreStage::PostUpdate, change_window.label(ModifiesWindows));
 
         std::thread::spawn(move || {
@@ -101,7 +114,8 @@ where
     }
 }
 
-impl<UiState, UiAction, RootProps> DesktopPlugin<UiState, UiAction, RootProps>
+impl<UiState, UiAction, AsyncAction, RootProps>
+    DesktopPlugin<UiState, UiAction, AsyncAction, RootProps>
 where
     UiState: Send + Sync + UiStateHandler,
     UiAction: Clone + Debug + Send + Sync,
@@ -114,7 +128,7 @@ where
     ///
     /// fn main() {
     ///    App::new()
-    ///         .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
+    ///         .add_plugin(DesktopPlugin::<NoUiState, NoUiAction, NoAsyncAction>::new(Root))
     ///         .run();
     /// }
     ///
@@ -129,12 +143,14 @@ where
             Root,
             ui_state_type: PhantomData,
             ui_action_type: PhantomData,
+            async_action_type: PhantomData,
         }
     }
 
     fn handle_initial_window_events(world: &mut World)
     where
         UiAction: 'static + Send + Sync + Clone + Debug,
+        AsyncAction: 'static + Send + Sync + Clone + Debug,
         RootProps: 'static + Send + Sync + Clone,
     {
         let world = world.cell();
@@ -144,7 +160,7 @@ where
         let mut window_created_events = world.get_resource_mut::<Events<WindowCreated>>().unwrap();
 
         for create_window_event in create_window_events.drain() {
-            let window = dioxus_windows.create::<UiAction, RootProps>(
+            let window = dioxus_windows.create::<UiAction, AsyncAction, RootProps>(
                 &world,
                 create_window_event.id,
                 &create_window_event.descriptor,

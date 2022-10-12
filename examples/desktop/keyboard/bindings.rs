@@ -21,7 +21,9 @@ fn main() {
         })
         .add_plugin(LogPlugin)
         .add_plugin(TimePlugin)
-        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<NoUiState, NoUiAction, NoAsyncAction>::new(
+            Root,
+        ))
         .add_plugin(InputManagerPlugin::<Action>::default())
         .add_startup_system(setup)
         .add_system(close_window)
