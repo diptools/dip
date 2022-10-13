@@ -84,7 +84,7 @@ impl SubcommandParser {
         let handler_token = TokenStream2::from_str(&handler).unwrap();
 
         quote! {
-            .add_system_to_stage(::dip::core::schedule::UiStage::Action, #handler_token);
+            .add_startup_system_to_stage(::dip::core::schedule::DipStartupStage::Action, #handler_token);
         }
     }
 
@@ -219,8 +219,8 @@ impl SubcommandToken {
         let gen = quote! {
             pub struct #plugin_name;
 
-            impl ::bevy::app::Plugin for #plugin_name {
-                fn build(&self, app: &mut ::bevy::app::App) {
+            impl ::dip::bevy::app::Plugin for #plugin_name {
+                fn build(&self, app: &mut ::dip::bevy::app::App) {
                     use ::dip::bevy::ecs::{
                         schedule::ParallelSystemDescriptorCoercion,
                         system::IntoSystem,

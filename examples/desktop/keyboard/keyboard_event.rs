@@ -9,7 +9,7 @@ fn main() {
             keyboard_event: true,
             ..Default::default()
         })
-        .add_plugin(DesktopPlugin::<UiState, UiAction>::new(Root))
+        .add_plugin(DesktopPlugin::<UiState, UiAction, NoAsyncAction>::new(Root))
         .add_plugin(UiStatePlugin)
         .add_plugin(UiActionPlugin)
         .add_plugin(LogPlugin)
@@ -23,7 +23,7 @@ fn main() {
 fn Root(cx: Scope) -> Element {
     let event_type = use_read(&cx, EVENT_TYPE);
     let input_result = use_read(&cx, INPUT_RESULT);
-    let window = use_window::<UiAction>(&cx);
+    let window = use_window::<UiAction, NoAsyncAction>(&cx);
 
     cx.render(rsx! {
         h1 { "Keyboard Event Example" }
