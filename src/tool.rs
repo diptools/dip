@@ -1,35 +1,98 @@
+use anyhow::{anyhow, Context};
 use dip::{
     bevy::{
-        app::{App, Plugin},
-        ecs::event::EventReader,
+        app::{App, AppExit, Plugin},
+        ecs::{
+            event::{EventReader, EventWriter},
+            system::Res,
+        },
         log,
     },
     cli::SubcommandPlugin,
+    core::task::{async_action, AsyncActionPool},
 };
 use std::{fs, path::PathBuf};
+use tokio::fs::File;
 
 pub struct ToolPlugin;
 
 impl Plugin for ToolPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(ToolActionPlugin)
+            .add_plugin(AsyncActionPlugin)
             .add_system(handle_list_tool)
-            .add_system(handle_add_tool);
+            .add_system(handle_add_tool)
+            .add_system(handle_install);
     }
 }
 
 #[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
 pub enum ToolAction {
     List,
-    Add(AddAction),
+    Add { name: String },
 }
 
-#[derive(clap::Args, Clone, Debug)]
-pub struct AddAction {
-    name: String,
+fn handle_list_tool(mut events: EventReader<ListToolAction>) {
+    for _ in events.iter() {
+        for t in Tool::list().iter() {
+            println!("- {t}");
+        }
+    }
 }
 
-enum Tool {
+fn handle_add_tool(
+    mut events: EventReader<AddToolAction>,
+    async_action: Res<AsyncActionPool<AsyncAction>>,
+) {
+    for e in events.iter() {
+        let name = e.name.as_str();
+        let tool = Tool::from_str(name).expect(&format!("Could not find tool: {name}"));
+
+        match tool {
+            Tool::Tailwind => async_action.send(AsyncAction::install(tool)),
+        }
+    }
+}
+
+fn handle_install(mut events: EventReader<Result<Install>>, mut app_exit: EventWriter<AppExit>) {
+    for _ in events.iter() {
+        app_exit.send(AppExit);
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct ToolError {
+    error: Option<std::sync::Arc<anyhow::Error>>,
+}
+
+impl From<anyhow::Error> for ToolError {
+    fn from(error: anyhow::Error) -> Self {
+        ToolError {
+            error: Some(std::sync::Arc::new(error)),
+        }
+    }
+}
+
+type Result<T> = std::result::Result<T, ToolError>;
+
+#[async_action]
+impl AsyncActionCreator {
+    async fn install(tool: Tool) -> Result<Install> {
+        if let Err(e) = tool.download().await {
+            log::warn!("{e:?}");
+        }
+
+        let _a = tool.install()?;
+
+        Ok(Install)
+    }
+}
+
+#[derive(Clone, Debug)]
+/* #[derive(Clone, Debug, Deserialize, Default)] */
+pub struct Install;
+
+pub enum Tool {
     Tailwind,
 }
 
@@ -51,8 +114,14 @@ impl Tool {
         vec!["tailwindcss"]
     }
 
-    fn path() -> PathBuf {
-        let p = dirs::home_dir().unwrap().join(".dip");
+    fn app_path() -> PathBuf {
+        let p = dirs::data_local_dir().unwrap().join(".dip");
+        Self::ensure_dir(&p);
+        p
+    }
+
+    fn tool_path() -> PathBuf {
+        let p = Self::app_path().join("tools");
         Self::ensure_dir(&p);
         p
     }
@@ -63,8 +132,42 @@ impl Tool {
     //     p
     // }
 
+    fn install(&self) -> Result<()> {
+        Ok(())
+    }
+
+    fn is_installed(&self) -> bool {
+        Self::tool_path().read_dir().unwrap().next().is_some()
+    }
+
+    async fn download(&self) -> Result<()> {
+        if self.is_downloaded() {
+            Err(anyhow!("Tool: {}, is already downloaded", self.as_str()))?
+        } else {
+            /* let mut file = File::create(self.download_path()) */
+            /*     .await */
+            /*     .context("failed creating temporary output file")?; */
+
+            let res = reqwest::get(self.download_url())
+                .await
+                .with_context(|| format!("Failed to download tool: {}", self.as_str()))?
+                .bytes()
+                .await
+                .with_context(|| "Failed to parse file")?;
+
+            println!("{res:#?}");
+
+            Ok(())
+        }
+    }
+
+    fn is_downloaded(&self) -> bool {
+        println!("{:?}", self.download_path());
+        false
+    }
+
     fn download_path(&self) -> PathBuf {
-        let p = Self::path().join("downloads").join(self.as_str());
+        let p = Self::app_path().join("downloads").join(self.as_str());
         Self::ensure_dir(&p);
         p
     }
@@ -122,37 +225,6 @@ impl Platform {
             Platform::Linux => "linux",
             Platform::Macos => "macos",
             Platform::Windows => "windows",
-        }
-    }
-}
-
-fn handle_list_tool(mut events: EventReader<ListToolAction>) {
-    for _ in events.iter() {
-        for t in Tool::list().iter() {
-            println!("- {t}");
-        }
-    }
-}
-
-fn handle_add_tool(mut events: EventReader<AddToolAction>) {
-    for e in events.iter() {
-        let name = e.name.as_str();
-
-        match Tool::from_str(name) {
-            Some(tool) => match tool {
-                Tool::Tailwind => {
-                    let download_path = tool.download_path();
-                    let is_empty = download_path.read_dir().unwrap().next().is_none();
-
-                    if is_empty {
-                        println!("{}", tool.download_url());
-                    } else {
-                    }
-                }
-            },
-            None => {
-                log::error!("Could not find tool: {name}");
-            }
         }
     }
 }

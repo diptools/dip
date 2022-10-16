@@ -1,4 +1,4 @@
-use std::future::Future;
+use std::{fmt::Debug, future::Future};
 use tokio::{runtime::Runtime, sync::mpsc};
 
 pub struct AsyncActionPool<Action> {
@@ -17,7 +17,7 @@ impl<Action> AsyncActionPool<Action> {
     pub fn send<F>(&self, future: F)
     where
         F: Future<Output = Action> + Send + 'static,
-        F::Output: Send + 'static + std::fmt::Debug,
+        F::Output: Send + 'static + Debug,
     {
         let tx = self.tx.clone();
 

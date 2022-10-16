@@ -156,7 +156,7 @@ impl ActionParser {
     // example: mut create_todo: EventWriter<CreateTodo>,
     fn handler_arg(action_ty: &TokenStream2, action_snake: &TokenStream2) -> TokenStream2 {
         quote! {
-            mut #action_snake: EventWriter<#action_ty>,
+            mut #action_snake: ::dip::bevy::ecs::event::EventWriter<#action_ty>,
         }
     }
 
