@@ -1,12 +1,7 @@
-mod action;
-mod cli;
-mod tool;
+mod plugin;
+mod resource;
 
-use crate::{
-    action::ActionPlugin,
-    cli::CliPlugin,
-    tool::{AsyncAction, ToolPlugin},
-};
+use crate::plugin::{ActionPlugin, AsyncAction, CliPlugin, ToolPlugin};
 use dip::bevy::{app::App, log::LogPlugin};
 
 fn main() {

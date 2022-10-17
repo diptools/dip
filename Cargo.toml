@@ -23,6 +23,7 @@ keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 anyhow = "1.0"
 bevy = { version = "0.8", default-features = false }
 bevy_ecs = "0.8"
+config = "0.13"
 dioxus = { version = "0.2", features = ["fermi"] }
 dip = { version = "0.1", path = ".", features = ["desktop"] }
 dip_core = { version = "0.1", path = "./packages/core" }
@@ -50,6 +51,7 @@ keywords.workspace = true
 anyhow.workspace = true
 bevy.workspace = true
 clap = { version = "3.2", features = ["derive"], optional = true }
+config.workspace = true
 dioxus.workspace = true
 dip_cli = { version = "0.1", path = "./packages/cli", optional = true }
 dip_core = { version = "0.1", path = "./packages/core" }
@@ -57,11 +59,11 @@ dip_desktop = { version = "0.1", path = "./packages/desktop", optional = true }
 dip_macro.workspace = true
 dirs.workspace = true
 reqwest.workspace = true
+serde.workspace = true
 tokio.workspace = true
 
 [dev-dependencies]
 leafwing-input-manager = { version = "0.5", default-features = false }
-config = "0.13"
 serde.workspace = true
 
 [patch.crates-io]

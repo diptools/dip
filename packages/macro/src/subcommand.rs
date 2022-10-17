@@ -3,7 +3,7 @@ use proc_macro::TokenStream;
 use proc_macro2::{TokenStream as TokenStream2, TokenTree};
 use quote::quote;
 use std::str::FromStr;
-use syn::{Fields, ItemEnum, Variant};
+use syn::{Field, Fields, ItemEnum, Variant};
 
 pub struct SubcommandParser {
     commands_enum: ItemEnum,
@@ -98,9 +98,18 @@ impl SubcommandParser {
 
         match &v.fields {
             Fields::Named(f) => {
+                let mut fields = vec![];
+                for Field { ident, ty, .. } in f.named.iter() {
+                    fields.push(quote! {
+                        pub #ident: #ty,
+                    });
+                }
+
                 quote! {
                     #[derive(Clone, Debug)]
-                    pub struct #name #f
+                    pub struct #name {
+                        #(#fields)*
+                    }
                 }
             }
             Fields::Unnamed(f) => {
