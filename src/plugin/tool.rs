@@ -25,11 +25,12 @@ impl Plugin for ToolPlugin {
     }
 }
 
-fn handle_list_tool(mut events: EventReader<ListToolAction>) {
+fn handle_list_tool(mut events: EventReader<ListToolAction>, mut app_exit: EventWriter<AppExit>) {
     for _ in events.iter() {
         for t in Tool::list().iter() {
             println!("- {t}");
         }
+        app_exit.send(AppExit);
     }
 }
 
