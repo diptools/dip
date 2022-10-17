@@ -56,6 +56,10 @@ impl Tool {
         p.join(self.bin_name())
     }
 
+    pub fn bin_path_str(&self) -> String {
+        self.bin_path().into_os_string().into_string().unwrap()
+    }
+
     fn is_installed(&self) -> bool {
         self.bin_path().is_file()
     }
@@ -68,7 +72,7 @@ impl Tool {
                 .await
                 .context("Failed to create download target file")?;
 
-            file.set_permissions(Permissions::from_mode(0o777))
+            file.set_permissions(Permissions::from_mode(0o755))
                 .await
                 .context("Failed to give permission to download target file")?;
 
