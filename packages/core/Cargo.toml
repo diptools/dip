@@ -12,4 +12,5 @@ keywords.workspace = true
 [dependencies]
 bevy.workspace = true
 dioxus.workspace = true
+dip_macro.workspace = true
 dip_task.workspace = true

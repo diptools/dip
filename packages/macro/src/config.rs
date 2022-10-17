@@ -32,6 +32,7 @@ impl ConfigToken {
         let Self { config_name } = self;
 
         let gen = quote! {
+            #[derive(Debug)]
             pub struct ConfigPlugin {
                 default_paths: bool,
                 env_prefix: Option<&'static str>,
@@ -41,8 +42,8 @@ impl ConfigToken {
             }
 
             impl ::dip::bevy::app::Plugin for ConfigPlugin {
-                fn build(&self, app: &mut ::bevy::app::App) {
-                    use ::bevy::ecs::system::IntoSystem;
+                fn build(&self, app: &mut ::dip::bevy::app::App) {
+                    use ::dip::bevy::ecs::system::IntoSystem;
 
                     app.insert_resource(#config_name::builder(&self))
                         .add_startup_system(build_config);
@@ -55,7 +56,7 @@ impl ConfigToken {
                         default_paths: true,
                         env_prefix: None,
                         env_separator: "__",
-                        default_file_str: include_str!("config/default.toml"),
+                        default_file_str: "",
                         default_file_format: ::config::FileFormat::Toml,
                     }
                 }
@@ -64,6 +65,13 @@ impl ConfigToken {
             impl ConfigPlugin {
                 pub fn new() -> Self {
                     Self::default()
+                }
+
+                pub fn with_default_str(default_file_str: &'static str) -> Self {
+                    Self {
+                        default_file_str,
+                        ..Default::default()
+                    }
                 }
 
                 pub fn default_paths(mut self, default_paths: bool) -> Self {
@@ -81,7 +89,7 @@ impl ConfigToken {
                     self
                 }
 
-                pub fn default_from_str(mut self, default_str: &'static str) -> Self {
+                pub fn default_file_str(mut self, default_str: &'static str) -> Self {
                     self.default_file_str = default_str;
                     self
                 }
@@ -153,9 +161,9 @@ impl ConfigToken {
             }
 
             pub fn build_config(
-                builder: ::bevy::ecs::system::Res<::config::builder::ConfigBuilder<::config::builder::DefaultState>>,
-                mut config: Option<::bevy::ecs::system::ResMut<#config_name>>,
-                mut commands: Commands,
+                builder: ::dip::bevy::ecs::system::Res<::config::builder::ConfigBuilder<::config::builder::DefaultState>>,
+                mut config: Option<::dip::bevy::ecs::system::ResMut<#config_name>>,
+                mut commands: ::dip::bevy::ecs::system::Commands,
             ) {
                 let c = builder
                     .clone()
