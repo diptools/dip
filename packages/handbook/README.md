@@ -6,29 +6,24 @@ All our knowledge in one place.
 
 #### macOS
 ```sh
-brew install gh
 brew install obsidian
 ```
 
-```sh
-gh repo clone diptools/handbook
-```
 
 ## Setup
 
 ### Open Vault
 1. Start Obsidian app
 2. Click "Open folder as vault" -> "Open"
-3. Select `diptools/handbook` repo
+3. Select `packages/handbook` directory
 
 ![Obsidian vault menu](./assets/images/obsidian/vault-menu.png)
 ### obsidian-git plugin
 1. Open "Settings" (`⌘ + ,`) -> "Options" -> "Community Plugins" -> "Turn on community plugins"
-	![Enable third party plugin](./assets/images/obsidian/turn-on-third-party-plugins.png)
+	 - ![Enable third party plugin](./assets/images/obsidian/community-plugins.png)   
 2. Click "Community plugins" -> "Browse"
-3. Search for "Obsidian Git"
-	![Obsidian Git Plugin](./assets/images/obsidian/obsidian-git-plugin.png)
-4. Click "Install" and "Enable"
+3. Click "Install" and "Enable"
+	- ![Obsidian Git Plugin](./assets/images/obsidian/obsidian-git-plugin.png)
 
 ### Pull / Commit / Push
 1. Press command `⌘ + P`

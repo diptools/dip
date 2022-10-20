@@ -27,7 +27,7 @@
 ### Implementation steps
 1. prepare dip repo for new submodule
 	1. mkdir `packages/handbook`
-	2. mkdir `packages/handbook/private`
-2. create new repo `handbook-private`
+	2. mkdir `packages/handbook/internal`
+2. create new repo `handbook-internal`
 	1. same directory structure as public one
 3. 
