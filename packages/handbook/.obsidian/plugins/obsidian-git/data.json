@@ -17,7 +17,7 @@
   "autoBackupAfterFileChange": false,
   "treeStructure": false,
   "refreshSourceControl": true,
-  "basePath": "../../",
+  "basePath": "../..",
   "differentIntervalCommitAndPush": false,
   "changedFilesInStatusBar": false,
   "username": "",
