@@ -1,4 +1,4 @@
-![[🎁 About Product#🎁 Product]]
+![[📦 About Product#📦 Product]]
 
 ![[🥳 About Community#🥳 Community]]
 

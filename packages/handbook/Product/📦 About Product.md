@@ -1,4 +1,4 @@
-### 🎁 Product
+### 📦 Product
 
 ![[🚀 About dip Framework#💎 dip Framework]]
 
