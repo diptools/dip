@@ -3,7 +3,7 @@
 - [[🎁 About Product]]
 	- [[📕 About Handbook]]
 - [[👷 About Engineering]]
-	- [[🛬 Onboarding]]
+	- [[🆕 Onboarding]]
 - [[🥳 About Community]]
 
 ## 🔗 All Links
