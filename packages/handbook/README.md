@@ -28,11 +28,14 @@ cd dip
 3. Select `packages/handbook` directory in dip repository
 
 ![Obsidian vault menu](./assets/images/obsidian/vault-menu.png)
-### obsidian-git plugin
+### Enable Community plugins
 1. Open "Settings" (`⌘ + ,`) -> "Options" -> "Community Plugins" -> "Turn on community plugins"
 2. Click "Community plugins" -> "Browse"
-	 - ![Enable third party plugin](./assets/images/obsidian/community-plugins.png)   
-3. Click "Install" and "Enable"
+	- ![Enable third party plugin](./assets/images/obsidian/community-plugins.png)   
+3. Find these plugins
+	- Obsidian Git
+	- Linter
+4. Click "Install" and "Enable"
 	- ![Obsidian Git Plugin](./assets/images/obsidian/obsidian-git-plugin.png)
 
 ### Pull / Commit / Push

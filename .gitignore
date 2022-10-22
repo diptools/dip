@@ -25,4 +25,5 @@ tarpaulin-report.html
 /packages/handbook/.obsidian/workspace.json
 /packages/handbook/.obsidian/plugins
 !/packages/handbook/.obsidian/plugins/obsidian-git/data.json
+!/packages/handbook/.obsidian/plugins/obsidian-linter/data.json
 
