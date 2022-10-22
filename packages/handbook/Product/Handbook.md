@@ -30,5 +30,5 @@ As a developer, I want a handbook that describes everything about dip organizati
 	- linked path is `packages/handbook/Internal`
 - handbook-internal
 	- stores internal documents
-	- private repo
+	- private repository
 	- submodule for dip repository
