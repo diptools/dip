@@ -6,7 +6,7 @@ All our knowledge in one place.
 - Easily editable via Obsidian
 - Git version control
 
-> Follow installation steps and start browsing [[👋 Welcome to dip Handbook|here]].
+> Follow installation steps and start browsing [here](<👋 Welcome to dip Handbook>).
 > If you don't find what you need, PRs or [GitHub discussions](https://github.com/diptools/dip/discussions) are welcome.
 ![Obsidian vault menu](./assets/images/obsidian/handbook.png)
 
