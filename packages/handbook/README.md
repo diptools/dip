@@ -49,7 +49,7 @@ cd dip
 	![Obsidian git commands](./assets/images/obsidian/git-commands.png)
 ### Editing Internal handbook
 There are two ways to commit changes and push to handbook-internal repository
-1. Via Obsidian sub-vault
+1. Directly open Inside directory with Obsidian
 	- Follow [Setup](#Setup) step but this time, select `packages/handbook/Internal` directory instead.
 2. Via git command line tool
 ```sh
