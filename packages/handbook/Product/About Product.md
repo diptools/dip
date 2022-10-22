@@ -1,10 +1,14 @@
-## Resources
+## Jump To
+- [[About Guide]]
+	- [[Getting Started]]
+- [[About Community]]
+	- ![[About Community#All Links]]
+- [[Command Line Tool]]
 - Plugins
 	- [[Product/Plugins/Desktop | Desktop]]
 	- [[CLI | CLI]]
 	- [[State Management | State Management]]
 	- [[Async Action | Async Action]]
 	- [[Configuration | Configuration]]
-- [[Command Line Tool]]
-- [[About Handbook | Handbook]]
+- [[Welcome to dip Handbook | Handbook]]
 - [[Frequently Asked Questions]]

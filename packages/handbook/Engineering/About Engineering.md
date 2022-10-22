@@ -1,2 +1,2 @@
-## Resource
+## Quick Links
 - [[Architecture | Architecture]]
