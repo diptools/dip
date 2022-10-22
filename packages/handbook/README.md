@@ -11,7 +11,7 @@ All our knowledge in one place.
 
 ## Installation
 
-Install Obsidian (macOS)
+Install Obsidian (macOS) and GitHub CLI
 ```sh
 brew install obsidian gh
 ```
