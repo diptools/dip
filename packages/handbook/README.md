@@ -56,6 +56,6 @@ There are two ways to commit changes and push to handbook-internal repository
 cd packages/handbook/Internal
 
 git add -A
-git commit -m "Commit message"
+git commit -m "Your commit message"
 git push
 ```
