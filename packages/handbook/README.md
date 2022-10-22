@@ -5,8 +5,9 @@ All our knowledge in one place.
 - Single source of truth
 - Easily editable via Obsidian
 - Git version control
-- find more: [Product - About Handbook](👋%20Welcome%20to%20dip%20Handbook.md)
 
+> Follow installation steps and start browsing [[👋 Welcome to dip Handbook | here]].
+> If you don't find what you need, PRs or [GitHub discussions](https://github.com/diptools/dip/discussions) are welcome.
 ![Obsidian vault menu](./assets/images/obsidian/handbook.png)
 
 ## Installation

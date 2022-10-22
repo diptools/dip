@@ -1,11 +1,11 @@
 ## Jump To
-- [[#🔔 Sign Up for Tools]]
-- [[Getting Started]]
+- [[#1. Sign Up for Tools]]
+- [[#2. Install All Tools]]
 
-## 🔔 Sign Up for Tools
+## 1. Sign Up for Tools
 
 ![[🥳 About Community#🔗 All Links]]
 
-## Getting Started with dip
+## 2. Install All Tools
 
-![[Getting Started]]
+![[Getting Started#Installation]]
