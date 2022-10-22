@@ -3,12 +3,11 @@
 #### Repositories
 - dip
 	- linked to handbook-private via submodule 
-	- linked path is `packages/handbook/private`
-- handbook-private
-	- stores private documents
+	- linked path is `packages/handbook/Internal`
+- handbook-internal
+	- stores internal documents
 	- private repo
 	- submodule for dip repository
-	- should be the same file structure as public so that it can be merged easily
 
 #### Build flow
 - private production
@@ -30,4 +29,3 @@
 	2. mkdir `packages/handbook/internal`
 2. create new repo `handbook-internal`
 	1. same directory structure as public one
-3. 
