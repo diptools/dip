@@ -103,8 +103,8 @@ fn Root(cx: Scope) -> Element {
 </details>
 
 #### Keyboard handling
-- [Keyboard event](https://github.com/diptools/dip/blob/main/examples/keyboard/keyboard_event.rs)
-- [Key bindings](https://github.com/diptools/dip/blob/main/examples/keyboard/bindings.rs)
+- [Keyboard event](https://github.com/diptools/dip/blob/main/examples/desktop/keyboard/keyboard_event.rs)
+- [Key bindings](https://github.com/diptools/dip/blob/main/examples/desktop/keyboard/bindings.rs)
 
 
 ### CLI App
