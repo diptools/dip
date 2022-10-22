@@ -5,6 +5,7 @@
 
 ![[Index]]
 
-![[📕 About Handbook]]
-
 ![[🥳 About Community#🔗 All Links]]
+
+![[📕 About Handbook#Usage]]
+![[📕 About Handbook#Setup and Usage]]

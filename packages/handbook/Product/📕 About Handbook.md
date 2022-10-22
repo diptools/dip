@@ -19,5 +19,8 @@ As a developer, I want a handbook that describes everything about dip organizati
   - Easy reading/editing experience for both dev and non-dev people
 - Internal document support
 
-## Setup and Usage
-  -  [[README]]
+## Usage
+
+![[README#Installation]]
+
+![[README#Setup]]
