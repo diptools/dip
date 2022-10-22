@@ -5,6 +5,8 @@ All our knowledge in one place.
 - Single source of truth
 - find more: [Technical Components - Handbook](Product/Handbook.md)
 
+![Obsidian vault menu](./assets/images/obsidian/handbook.png)
+
 ## Installation
 
 Install Obsidian (macOS)
