@@ -7,9 +7,12 @@
 ### 🏢 GitHub Organization
 - [@diptools](https://diptools)
 
+### 📌 Kanban
+- [GitHub Projects](https://github.com/orgs/diptools/projects/1)
+
 ### 💻 Repository
-- [dip](https://github.com/diptools/dip)
-- [handbook-internal](https://github.com/diptools/handbook-internal)
+- [diptools/dip](https://github.com/diptools/dip)
+- [diptools/handbook-internal](https://github.com/diptools/handbook-internal)
 
 ### 🎨 Design
 - [Figma](https://www.figma.com/file/2sApaUFS4zNw0FJliO4TIt/dip?node-id=0%3A1)

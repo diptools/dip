@@ -1,3 +1,3 @@
 ## Jump To
-- [[🏗 Architecture | Architecture]]
+- [[🏗 Architecture]]
 - [[🛬 Onboarding]]
