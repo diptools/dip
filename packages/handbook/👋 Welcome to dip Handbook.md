@@ -4,8 +4,3 @@
 </div>
 
 ![[Index]]
-
-![[🥳 About Community#🔗 All Links]]
-
-![[📕 About Handbook#Usage]]
-![[📕 About Handbook#Setup and Usage]]

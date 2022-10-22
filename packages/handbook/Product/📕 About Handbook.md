@@ -1,15 +1,12 @@
+### 📕 Handbook
+- [[Usage]]
+
 ## User story
 As a developer, I want a handbook that describes everything about dip organization. Everyone related to this project even not an engineer should be able to read or update easily.
 
 ## Features
 - Single source of truth for a distributed community
-  - Inspired by [Gitlab Handbook](https://about.gitlab.com/handbook/)
-	  <span>
-		  <iframe id="ytplayer" type="text/html" width="640" height="360"
-	  src="https://www.youtube.com/embed/3HHyjAV3hYE?origin=http://example.com"
-	  frameborder="0"></iframe>
-	  </span>
-	  
+  - Inspired by [[#About GitLab Handbook|GitLab Handbook]]
   - Docs, wikis, meeting minutes, everything should be documented here
   - If you get questions from people, add them to handbook right after
 - Markdown + git
@@ -24,3 +21,12 @@ As a developer, I want a handbook that describes everything about dip organizati
 ![[README#Installation]]
 
 ![[README#Setup]]
+
+## About GitLab Handbook
+
+[Gitlab Handbook](https://about.gitlab.com/handbook/)
+
+  <iframe id="ytplayer" type="text/html" width="640" height="360"
+	  src="https://www.youtube.com/embed/3HHyjAV3hYE?origin=http://example.com"
+	  frameborder="0"></iframe>
+	  

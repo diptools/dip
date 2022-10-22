@@ -1,3 +1,5 @@
-### Engineering
-- [[🏗 Architecture]]
-- [[🆕 Onboarding]]
+### 👷 Engineering
+
+![[🆕 Onboarding#🆕 Onboarding]]
+
+![[🏗 Architecture#🏗 Architecture]]

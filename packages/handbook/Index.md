@@ -1,5 +1,5 @@
-![[🎁 About Product#Product]]
+![[🎁 About Product#🎁 Product]]
 
-![[🥳 About Community#Community]]
+![[🥳 About Community#🥳 Community]]
 
-![[👷 About Engineering#Engineering]]
+![[👷 About Engineering#👷 Engineering]]

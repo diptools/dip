@@ -1,3 +1,8 @@
+### 🙋 Frequently Asked Questions
+- [[#What is Bevy?]]
+- [[#What is Dioxus?]]
+- [[#Is this library intended to be used with Bevy games?]]
+
 ## What is Bevy?
 
 - [GitHub](https://github.com/bevyengine/bevy)

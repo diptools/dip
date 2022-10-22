@@ -1,32 +1,28 @@
-### Community
-- [[🥳 About Community]]
-	- [[🥳 About Community#🔗 All Links|🔗 All Links]]
-	
-## 🔗 All Links
+### 🥳 Community
 
-### 🌐 Website
+#### 🌐 Website
 - [dip.tools](https://dip.tools)
 - [Documentation](https://dip.tools/docs)
 
-### 🥳 Communication
+#### 🥳 Communication
 - [Discord](https://discord.gg/Gn9B8w9H)
 - [Twitter - @dip_tools](https://twitter.com/dip_tools)
 
-### 🙋 Questions & Feature Requests
+#### 🙋 Questions & Feature Requests
 - [GitHub Discussions](https://github.com/diptools/dip/discussions)
 
-### 🏢 GitHub Organization
+#### 🏢 GitHub Organization
 - [@diptools](https://diptools)
 
-### 📌 Kanban
+#### 📌 Kanban
 - [GitHub Projects](https://github.com/orgs/diptools/projects/1)
 
-### 💻 Repository
+#### 💻 Repository
 - [diptools/dip](https://github.com/diptools/dip)
 - [diptools/handbook-internal](https://github.com/diptools/handbook-internal)
 
 ### 🎨 Design
 - [Figma](https://www.figma.com/file/2sApaUFS4zNw0FJliO4TIt/dip?node-id=0%3A1)
 
-### 🚀 Infrastructure
+#### 🚀 Infrastructure
 - [Vercel](https://vercel.com/diptools/dip)
