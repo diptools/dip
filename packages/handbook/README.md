@@ -50,7 +50,7 @@ cd dip
 ### Editing Internal handbook
 There are two ways to commit changes and push to handbook-internal repository
 1. Directly open `packages/handbook/Inside/` directory with Obsidian
-	- Follow [Setup](#Setup) step but this time, select `packages/handbook/Internal` directory instead.
+	- Follow [Open Vault](#Open%20Vault) step but this time, select `packages/handbook/Internal` directory instead in step 3
 2. Via git command line tool
 ```sh
 cd packages/handbook/Internal
