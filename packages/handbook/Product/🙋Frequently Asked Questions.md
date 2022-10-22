@@ -18,7 +18,7 @@ Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS)
 Dioxus is a cross-platform declarative UI library. It provides familiar features that React developer expects such as component, state, props, hooks, global state, and router. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
 
 ## Is this library intended to be used with Bevy games?
-- [Original Github Discussion](https://github.com/diptools/dip/discussions/51]
+- [Original Github Discussion](https://github.com/diptools/dip/discussions/51)
 
 >So the short answer is no unfortunately. You cannot overlay UI within the same window that renders game graphics. This is because dip depends on a different window manager called [TAO](https://github.com/tauri-apps/tao). Which is actually the hard fork of [winit](https://github.com/rust-windowing/winit) but totally different rendering logic. 
 > 

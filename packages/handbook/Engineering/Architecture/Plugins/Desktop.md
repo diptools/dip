@@ -1,3 +1,10 @@
+![[Product/Plugins/Desktop#User story]]
+![[Product/Plugins/Desktop#Features]]
+
+## Dependencies
+
+### Dioxus
+- [GitHub -  DioxusLabs/dioxus](https://github.com/DioxusLabs/dioxus)
 
 ## Channels
 ```rust
