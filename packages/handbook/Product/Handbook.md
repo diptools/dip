@@ -15,7 +15,7 @@ As a developer, I want a handbook that describes everything about dip organizati
 - Markdown + git
   - No vendor lock-in
   - Flexible technical stack
-- Obsidian compatibility
+- Obsidian support
   - Easy reading/editing experience for both dev and non-dev people
 - Internal document support
 
