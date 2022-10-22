@@ -5,4 +5,4 @@
 	- [[🆕 Onboarding]]
 	- [[🏗 Architecture]]
 - [[🥳 About Community]]
-- [[#🔗 All Links]]
+	- [[🥳 About Community#🔗 All Links|🔗 All Links]]
