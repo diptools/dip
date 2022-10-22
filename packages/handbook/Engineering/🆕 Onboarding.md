@@ -1,4 +1,3 @@
-## Jump To
 - [[#1. Sign Up for Tools]]
 - [[#2. Install All Tools]]
 

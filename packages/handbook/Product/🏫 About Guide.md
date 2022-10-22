@@ -1,2 +1,4 @@
-## Jump To
 - [[Getting Started]]
+
+![[Getting Started]]
+

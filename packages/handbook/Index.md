@@ -1,8 +1,5 @@
-- [[🎁 About Product]]
-	- [[📕 About Handbook]]
-	- [[🙋Frequently Asked Questions]]
-- [[👷 About Engineering]]
-	- [[🆕 Onboarding]]
-	- [[🏗 Architecture]]
-- [[🥳 About Community]]
-	- [[🥳 About Community#🔗 All Links|🔗 All Links]]
+![[🎁 About Product#Product]]
+
+![[🥳 About Community#Community]]
+
+![[👷 About Engineering#Engineering]]
