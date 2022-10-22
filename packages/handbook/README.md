@@ -6,7 +6,7 @@
 ![Obsidian vault menu](./assets/images/obsidian/handbook.png)
 - Handbook first approach
 - Single source of truth
-- Easily editable via Obsidian
+- Edit easily with Obsidian
 - Git version control
 
 > Follow installation steps and start browsing [here](<👋 Welcome to dip Handbook>).
