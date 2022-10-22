@@ -3,7 +3,7 @@
 All our knowledge in one place.
 - Handbook first
 - Single source of truth
-- find more: [Technical Components - Handbook](Handbook.md)
+- find more: [Technical Components - Handbook](Product/Handbook.md)
 
 ## Installation
 
