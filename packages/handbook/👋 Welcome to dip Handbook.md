@@ -7,9 +7,6 @@
 - [[🥳 About Community]]
 - [[#🔗 All Links]]
 
-## 📕 About Handbook
-
 ![[📕 About Handbook]]
 
-## 🔗 All Links
 ![[🥳 About Community#🔗 All Links]]
