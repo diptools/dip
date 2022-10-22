@@ -1,6 +1,9 @@
-# dip handbook
+<div align="center">
+	<h1>dip handbook</h1>
+	<p>All our knowledge in one place.</p>
+</div>
 
-All our knowledge in one place.
+![Obsidian vault menu](./assets/images/obsidian/handbook.png)
 - Handbook first approach
 - Single source of truth
 - Easily editable via Obsidian
@@ -8,7 +11,6 @@ All our knowledge in one place.
 
 > Follow installation steps and start browsing [here](<👋 Welcome to dip Handbook>).
 > If you don't find what you need, PRs or [GitHub discussions](https://github.com/diptools/dip/discussions) are welcome.
-![Obsidian vault menu](./assets/images/obsidian/handbook.png)
 
 ## Installation
 
