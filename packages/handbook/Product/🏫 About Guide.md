@@ -1,2 +1,2 @@
-## Quick Links
+## Jump To
 - [[Getting Started]]

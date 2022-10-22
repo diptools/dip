@@ -5,7 +5,7 @@ All our knowledge in one place.
 - Single source of truth
 - Easily editable via Obsidian
 - Git version control
-- find more: [Product - About Handbook](Welcome%20to%20dip%20Handbook.md)
+- find more: [Product - About Handbook](👋%20Welcome%20to%20dip%20Handbook.md)
 
 ![Obsidian vault menu](./assets/images/obsidian/handbook.png)
 
