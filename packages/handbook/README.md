@@ -1,9 +1,10 @@
 # dip handbook
 
 All our knowledge in one place.
-- Handbook first
+- Handbook first approach
 - Single source of truth
-- find more: [Technical Components - Handbook](Product/Handbook.md)
+- Git + Markdown + Obsidian
+- find more: [Product - Handbook](Product/Handbook.md)
 
 ![Obsidian vault menu](./assets/images/obsidian/handbook.png)
 
