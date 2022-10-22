@@ -5,7 +5,7 @@ All our knowledge in one place.
 - Single source of truth
 - Easily editable via Obsidian
 - Git version control
-- find more: [Product - Handbook](About%20Handbook.md)
+- find more: [Product - About Handbook](About%20Handbook.md)
 
 ![Obsidian vault menu](./assets/images/obsidian/handbook.png)
 
