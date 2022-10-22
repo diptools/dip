@@ -2,4 +2,4 @@
 
 - Plugins
 	- [[Engineering/Architecture/Plugins/Desktop | Desktop]]
-- [[Handbook | Handbook]]
+- [[Product/Handbook | Handbook]]

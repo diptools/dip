@@ -5,4 +5,4 @@
 	- [[State Management | State Management]]
 	- [[Async Action | Async Action]]
 	- [[Configuration | Configuration]]
-- [[Handbook | Handbook]]
+- [[Product/Handbook | Handbook]]
