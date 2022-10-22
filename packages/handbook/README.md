@@ -37,8 +37,8 @@ cd dip
 2. Click "Community plugins" -> "Browse"
 	- ![Enable third party plugin](./assets/images/obsidian/community-plugins.png)   
 3. Find these plugins
-	- Obsidian Git
-	- Linter
+	- [Obsidian Git](https://github.com/denolehov/obsidian-git)
+	- [Linter](https://github.com/platers/obsidian-linter)
 4. Click "Install" and "Enable"
 	- ![Obsidian Git Plugin](./assets/images/obsidian/obsidian-git-plugin.png)
 
