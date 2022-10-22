@@ -3,7 +3,8 @@
 All our knowledge in one place.
 - Handbook first approach
 - Single source of truth
-- Git + Markdown + Obsidian
+- Easily editable via Obsidian
+- Git version control
 - find more: [Product - Handbook](Product/Handbook.md)
 
 ![Obsidian vault menu](./assets/images/obsidian/handbook.png)
@@ -12,7 +13,7 @@ All our knowledge in one place.
 
 Install Obsidian (macOS)
 ```sh
-brew install obsidian
+brew install obsidian gh
 ```
 
 Clone repository
