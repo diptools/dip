@@ -1,8 +1,5 @@
 ## Technical components
 
 - Plugins
-	- [[Desktop]]
-	- [[CLI]]
-	- [[State Management]]
-	- [[Config]]
-- [[Handbook]]
+	- [[Engineering/Architecture/Plugins/Desktop | Desktop]]
+- [[Handbook | Handbook]]

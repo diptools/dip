@@ -1,18 +1,5 @@
-## User story
-As a developer, I'd like a plugin to create a cross-platform desktop application with declarative UI library.
 
-## Features
-- Cross-platform
-	- Linux
-	- macOS
-	- Windows
-- [[State Management]]
-- Keyboard event
-- Key bindings
-
-## Architecture
-
-### Channels
+## Channels
 ```rust
 let (vdom_scheduler_tx, vdom_scheduler_rx) = futures_channel::mpsc::unbounded::<SchedulerMsg>();
 let (ui_state_tx, ui_state_rx) = tokio::sync::mpsc::channel::<UiState>(8);
