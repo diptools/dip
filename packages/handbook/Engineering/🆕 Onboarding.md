@@ -1,8 +1,8 @@
 ## Jump To
-- [[#Sign up]]
+- [[#🔔 Sign Up for Tools]]
 - [[Getting Started]]
 
-## Sign up
+## 🔔 Sign Up for Tools
 
 ![[🥳 About Community#🔗 All Links]]
 
