@@ -17,6 +17,19 @@ Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS)
 
 Dioxus is a cross-platform declarative UI library. It provides familiar features that React developer expects such as component, state, props, hooks, global state, and router. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
 
+### GitLab Handbook
+
+[Gitlab Handbook](https://about.gitlab.com/handbook/)
+
+  <iframe id="ytplayer" type="text/html" width="640" height="360"
+	  src="https://www.youtube.com/embed/3HHyjAV3hYE?origin=http://example.com"
+	  frameborder="0"></iframe>
+	  
+
+### dip Handbook
+
+![[📕 About Handbook#📕 Handbook]]
+
 ### Obsidian
 
 [What is Obsidian](https://help.obsidian.md/Obsidian/Obsidian#What+is+Obsidian)

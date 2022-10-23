@@ -9,7 +9,7 @@
 - Edit easily with [Obsidian](https://obsidian.md/)
 - Git version control
 
-> Follow installation steps and start browsing [here](<👋 Welcome to dip Handbook>).
+> Follow installation steps and start browsing [here](👋%20Getting%20Started.md).
 > If you don't find what you need, PRs or [GitHub discussions](https://github.com/diptools/dip/discussions) are welcome.
 
 ## Installation
