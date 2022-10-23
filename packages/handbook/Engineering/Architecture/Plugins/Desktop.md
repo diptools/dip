@@ -1,5 +1,5 @@
-![[Product/Plugins/Desktop#User story]]
-![[Product/Plugins/Desktop#Features]]
+![[Product/Framework/Plugins/Desktop#User story]]
+![[Product/Framework/Plugins/Desktop#Features]]
 
 ## Dependencies
 

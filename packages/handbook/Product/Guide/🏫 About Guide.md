@@ -1,6 +1,6 @@
 ### 🏫 Guide
 - [[Getting Started]]
 
-## Getting Started
+### Overview
 ![[Getting Started]]
 

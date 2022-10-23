@@ -1,0 +1,11 @@
+
+- Single source of truth for a distributed community
+  - Inspired by [[#About GitLab Handbook|GitLab Handbook]]
+  - Docs, wikis, meeting minutes, everything should be documented here
+  - If you get questions from people, add them to handbook right after
+- Markdown + git
+  - No vendor lock-in
+  - Flexible technical stack
+- Obsidian support
+  - Easy reading/editing experience for both dev and non-dev people
+- Internal document support
