@@ -1,4 +1,5 @@
 ### 🔌 Plugins
+
 - [[Async Action]]
 - [[CLI]]
 - [[Configuration]]
