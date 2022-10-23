@@ -48,7 +48,7 @@ cd dip
 4. Click "Install" and "Enable"
 	- ![Obsidian Git Plugin](./assets/images/obsidian/obsidian-git-plugin.png)
 
-### Pull / Commit / Push
+### Branch / Pull / Commit / Push
 1. Press command `⌘ + P`
 2. Search for `git`
 	![Obsidian git commands](./assets/images/obsidian/git-commands.png)
