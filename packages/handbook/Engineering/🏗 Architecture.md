@@ -1,4 +1,5 @@
 ### 🏗 Architecture
-- Plugins
-	- [[Engineering/Architecture/Plugins/Desktop|Desktop]]
-- [[Handbook]]
+
+![[🔌 Plugins#🔌 Plugins]]
+
+![[📕 About Handbook#📕 Handbook]]

@@ -1,5 +1,10 @@
-![[📕 About Handbook#User story]]
-![[📕 About Handbook#Features]]
+![[📕 About Handbook#📕 Handbook]]
+
+### Overview
+
+![[User Story]]
+
+![[Features]]
 
 ## Specs
 
@@ -11,3 +16,4 @@
 	- stores internal documents
 	- private repository
 	- submodule for dip repository
+	
