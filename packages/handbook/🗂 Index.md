@@ -1,3 +1,5 @@
+### [[🛒 Glossary]]
+
 ![[📦 About Product#📦 Product]]
 
 ![[🥳 About Community#🥳 Community]]

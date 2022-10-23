@@ -48,19 +48,13 @@ cd dip
 4. Click "Install" and "Enable"
 	- ![Obsidian Git Plugin](./assets/images/obsidian/obsidian-git-plugin.png)
 
-### Branch / Pull / Commit / Push
+## Obsidian Git
+
+- Branch
+- Pull
+- Commit
+- Push
+
 1. Press command `⌘ + P`
 2. Search for `git`
 	![Obsidian git commands](./assets/images/obsidian/git-commands.png)
-### Editing Internal handbook
-There are two ways to commit changes and push to handbook-internal repository
-1. Directly open `packages/handbook/Inside/` directory with Obsidian
-	- Follow [Open Vault](#open-vault) step but this time, select `packages/handbook/Internal` directory instead in step 3
-2. Via git command line tool
-```sh
-cd packages/handbook/Internal
-
-git add -A
-git commit -m "Your commit message"
-git push
-```
