@@ -7,15 +7,15 @@
 
 ## What is Bevy?
 
-![[🛒  Glossary#Bevy]]
+![[🛒 Glossary#Bevy]]
 
 ## What is Dioxus?
 
-![[🛒  Glossary#Dioxus]]
+![[🛒 Glossary#Dioxus]]
 
 ## What is Obsidian?
 
-![[🛒  Glossary#Obsidian]]
+![[🛒 Glossary#Obsidian]]
 
 ## Is this library intended to be used with Bevy games?
 

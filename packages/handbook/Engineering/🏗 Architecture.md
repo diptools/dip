@@ -2,4 +2,4 @@
 
 ![[🔌 Plugins#🔌 Plugins]]
 
-![[📕 About Handbook#📕 Handbook]]
+![[📕 Handbook#📕 dip Handbook]]

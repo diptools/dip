@@ -1,12 +1,12 @@
-### 📕 Handbook
+### 📕 dip Handbook
 
 This is where all knowledge goes.
 
 - [[User Story]]
 - [[README#Installation|Installation]]
-- [[README#Setup | Setup]]
-- [[🛒  Glossary#Obsidian | Obsidian]]
-- [[🛒  Glossary#GitLab Handbook|GitLab Handbook]]
+- [[README#Setup | Configuration]]
+- [[🛒 Glossary#Obsidian | Obsidian]]
+- [[🛒 Glossary#GitLab Handbook|GitLab Handbook]]
 
 ### Overview
 
@@ -18,6 +18,6 @@ This is where all knowledge goes.
 
 ![[README#Setup]]
 
-![[🛒  Glossary#Obsidian]]
+![[🛒 Glossary#Obsidian]]
 
-![[🛒  Glossary#GitLab Handbook]]
+![[🛒 Glossary#GitLab Handbook]]

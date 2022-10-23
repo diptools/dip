@@ -8,6 +8,8 @@
 - Single source of truth
 - Edit easily with [Obsidian](https://obsidian.md/)
 - Git version control
+- [🗂 Index](🗂%20Index.md)
+- [🛒 Glossary](🛒%20Glossary.md)
 
 > Follow installation steps and start browsing [here](👋%20Getting%20Started.md).
 > If you don't find what you need, PRs or [GitHub discussions](https://github.com/diptools/dip/discussions) are welcome.
@@ -28,7 +30,7 @@ gh repo clone diptools/dip -- --recursive
 cd dip
 ```
 
-## Setup
+## Configuration
 
 ### Open Vault
 1. Start Obsidian app
