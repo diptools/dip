@@ -51,7 +51,7 @@ cd dip
 4. Click "Install" and "Enable"
 	- ![Obsidian Git Plugin](./assets/images/obsidian/obsidian-git-plugin.png)
 
-## Obsidian Git
+## Updating Handbook with Obsidian Git
 
 - Branch
 - Pull
