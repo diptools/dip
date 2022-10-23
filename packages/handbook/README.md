@@ -12,7 +12,7 @@
 > Follow [installation](#Installation) and [configuration](#Configuration) steps and start browsing here
 
 - [👋 Getting Started](👋%20Getting%20Started)
-- [🗂 Index](🗂%20Index.md)%20steps
+- [🗂 Index](🗂%20Index.md)
 - [🛒 Glossary](🛒%20Glossary.md)
 
 > If you don't find what you need, PRs or [GitHub discussions](https://github.com/diptools/dip/discussions) are welcome.
