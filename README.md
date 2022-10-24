@@ -345,24 +345,22 @@ Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS)
 Dioxus is a cross-platform declarative UI library. It provides familiar features that React developer expects such as component, state, props, hooks, global state, and router. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
 ## Examples
 Make sure to install all prerequisites for Tauri.
-[Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
+- [Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
 
-Find more in [examples/](https://github.com/diptools/dip/tree/main/examples) directory.
 
+### Checkout repository
 ```sh
 gh repo clone diptools/dip
 cd dip
+```
 
-##########################
-# Counter example
-##########################
-
+### Counter example
+```sh
 cargo run --example counter --features desktop
+```
 
-##########################
-# TodoMVC example
-##########################
-
+### TodoMVC example
+```sh
 # Compile Tailwind CSS
 dip build -p examples/todomvc
 # or
@@ -371,6 +369,8 @@ cargo run -- build -p examples/todomvc
 # Run
 cargo run -p todomvc
 ```
+
+> Find more in [examples/](https://github.com/diptools/dip/tree/main/examples) directory.
 
 ## Milestone
 [📌 dip - Project board](https://github.com/orgs/diptools/projects/1)
