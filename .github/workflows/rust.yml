@@ -10,11 +10,12 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test:
+  Test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v3
       - name: Install prerequisites
         run: |
           sudo apt-get update
@@ -28,6 +29,7 @@ jobs:
             libgtk-3-dev \
             libayatana-appindicator3-dev \
             librsvg2-dev
+          npm install
       - name: Build
         run: cargo build --all-features
       - name: Build Workspaces
@@ -36,14 +38,14 @@ jobs:
         run: cargo build --examples --all-features
       - name: Run tests
         run: cargo ws exec cargo test --all-features
-  format:
+  Format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
       - name: Check format
         run: cargo fmt --check
-  changelog:
+  Changelog:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
