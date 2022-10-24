@@ -1,4 +1,4 @@
-[submodule "packages/handbook/Internal"]
-	path = packages/handbook/Internal
+[submodule "handbook-internal"]
+	path = docs/handbook/Internal
 	url = https://github.com/diptools/handbook-internal.git
 	branch = main

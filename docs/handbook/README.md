@@ -38,7 +38,7 @@ cd dip
 ### Open Vault
 1. Start Obsidian app
 2. Click "Open folder as vault" -> "Open"
-3. Select `packages/handbook` directory in dip repository
+3. Select `docs/handbook` directory in dip repository
 
 ![Obsidian vault menu](./assets/images/obsidian/vault-menu.png)
 ### Enable Community plugins

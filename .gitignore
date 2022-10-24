@@ -7,7 +7,7 @@ pnpm-lock.yaml
 
 /examples/cli/config/config/local.toml
 /examples/todomvc/public
-/packages/website/public
+/docs/website/public
 
 .vscode/*
 !.vscode/settings.json
@@ -19,11 +19,11 @@ tarpaulin-report.html
 # Jetbrain
 .idea/
 
-/packages/handbook/.obsidian/app.json
-/packages/handbook/.obsidian/appearance.json
-/packages/handbook/.obsidian/hotkeys.json
-/packages/handbook/.obsidian/workspace.json
-/packages/handbook/.obsidian/plugins
-!/packages/handbook/.obsidian/plugins/obsidian-git/data.json
-!/packages/handbook/.obsidian/plugins/obsidian-linter/data.json
+/docs/handbook/.obsidian/app.json
+/docs/handbook/.obsidian/appearance.json
+/docs/handbook/.obsidian/hotkeys.json
+/docs/handbook/.obsidian/workspace.json
+/docs/handbook/.obsidian/plugins
+!/docs/handbook/.obsidian/plugins/obsidian-git/data.json
+!/docs/handbook/.obsidian/plugins/obsidian-linter/data.json
 
