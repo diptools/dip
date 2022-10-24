@@ -17,7 +17,7 @@ weight = 2
 npm i
 
 # Serve locally
-zola -r packages/website serve --drafts
+zola -r docs/website serve --drafts
 
 # Watch Tailwind CSS
 npm run watch

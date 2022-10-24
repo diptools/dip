@@ -103,8 +103,8 @@ fn Root(cx: Scope) -> Element {
 </details>
 
 #### Keyboard handling
-- [Keyboard event](https://github.com/diptools/dip/blob/main/examples/keyboard/keyboard_event.rs)
-- [Key bindings](https://github.com/diptools/dip/blob/main/examples/keyboard/bindings.rs)
+- [Keyboard event](https://github.com/diptools/dip/blob/main/examples/desktop/keyboard/keyboard_event.rs)
+- [Key bindings](https://github.com/diptools/dip/blob/main/examples/desktop/keyboard/bindings.rs)
 
 
 ### CLI App
@@ -333,7 +333,7 @@ fn Root(cx: Scope) -> Element {
 - Flexible Plugin design
 - Plugin ecosystem
 
-Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS) design pattern. Think of it as a global state management tool like Redux but much more performant because all systems will run as parallel as possible. Thanks to its plugin system, there's already a handlfull of third-party Bevy plugins out there. Imagine implemnenting core logic as `CorePlugin` seperated from UI layer. You may start with `dip::desktop` to build desektop application. Then let's say you want to release a metaverse edition at some point in the future, it's as simple as swapping UI plugin to Bevy's 3d rendering plugin while still using the same CorePlugin.
+Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS) design pattern. Think of it as a global state management tool like Redux but much more performant because all systems will run as parallel as possible. Thanks to its plugin system, there's already a handful of third-party Bevy plugins out there. Imagine implementing core logic as `CorePlugin` separated from UI layer. You may start with `dip::desktop` to build desktop application. Then let's say you want to release a metaverse edition at some point in the future, it's as simple as swapping UI plugin to Bevy's 3d rendering plugin while still using the same CorePlugin.
 
 ### Dioxus
 [https://github.com/DioxusLabs/dioxus](https://github.com/DioxusLabs/dioxus)
