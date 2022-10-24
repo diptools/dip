@@ -1,6 +1,6 @@
 {
-  "collapse-filter": true,
-  "search": "path:-Internal",
+  "collapse-filter": false,
+  "search": "path:-Internal index",
   "showTags": false,
   "showAttachments": false,
   "hideUnresolved": false,
@@ -17,6 +17,6 @@
   "repelStrength": 10,
   "linkStrength": 1,
   "linkDistance": 250,
-  "scale": 1.1941397744771145,
+  "scale": 0.9145890042002717,
   "close": false
 }

@@ -9,7 +9,7 @@
 - Edit easily with [Obsidian](https://obsidian.md/)
 - Git version control
 
-> Follow [installation](#Installation) and [configuration](#Configuration) steps and start browsing here
+> Follow [installation](#Installation) and [setup](#Setup) steps and start browsing here
 
 - [👋 Getting Started](👋%20Getting%20Started.md)
 - [🗂 Index](🗂%20Index.md)
@@ -33,7 +33,7 @@ gh repo clone diptools/dip -- --recursive
 cd dip
 ```
 
-## Configuration
+## Setup
 
 ### Open Vault
 1. Start Obsidian app

@@ -1,11 +1,11 @@
 ### 📕 dip Handbook
 
-This is where all knowledge goes.
+This is where all knowledge goes. Inspired by GitLab's handbook-first approach.
 
 - [[User Story]]
 - [[Features]]
 - [[README#Installation|Installation]]
-- [[README#Setup|Configuration]]
+- [[README#Setup|Setup]]
 - [[🛒 Glossary#Obsidian | Obsidian]]
 - [[🛒 Glossary#GitLab Handbook|GitLab Handbook]]
 - [[Apply changes to handbook with Obsidian Git]]

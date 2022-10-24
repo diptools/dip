@@ -9,6 +9,14 @@ If you don't know where to look for, why not starting from here.
 - [[🥳 About Community]]
 - [[👷 About Engineering]]
 
-## Contents
+Here're some helpful resources.
+- [[🗂 Index]]
+- [[🛒 Glossary]]: The collection of terms.
+- [[🔗 Links]]: All links related to dip project.
+- [[🙋 Frequently Asked Questions]]
+
+Check [[#All Contents]] for more.
+
+## All Contents
 
 ![[🗂 Index]]
