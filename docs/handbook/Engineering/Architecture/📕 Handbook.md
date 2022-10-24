@@ -14,7 +14,7 @@
 #### Repositories
 - dip
 	- linked to handbook-private via submodule 
-	- linked path is `packages/handbook/Internal`
+	- linked path is `docs/handbook/Internal`
 - handbook-internal
 	- stores internal documents
 	- private repository

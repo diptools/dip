@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tailwindcss -i ./packages/website/src/main.css -o ./packages/website/public/main.css -c ./packages/website/tailwind.config.js",
-    "watch": "tailwindcss -i ./packages/website/src/main.css -o ./packages/website/public/main.css -c ./packages/website/tailwind.config.js -w",
+    "build": "tailwindcss -i ./docs/website/src/main.css -o ./docs/website/public/main.css -c ./docs/website/tailwind.config.js",
+    "watch": "tailwindcss -i ./docs/website/src/main.css -o ./docs/website/public/main.css -c ./docs/website/tailwind.config.js -w",
     "todomvc:css": "tailwindcss -i ./examples/todomvc/main.css -o ./examples/todomvc/public/main.css -c ./examples/todomvc/tailwind.config.js"
   },
   "author": "",

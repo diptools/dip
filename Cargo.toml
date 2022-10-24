@@ -1,10 +1,10 @@
 [workspace]
 members = [
-    "packages/cli",
-    "packages/core",
-    "packages/desktop",
-    "packages/macro",
-    "packages/task",
+    "plugins/core",
+    "plugins/macro",
+    "plugins/task",
+    "plugins/ui/cli",
+    "plugins/ui/desktop",
     "examples/todomvc",
 ]
 
@@ -26,9 +26,9 @@ bevy_ecs = "0.8"
 config = "0.13"
 dioxus = { version = "0.2", features = ["fermi"] }
 dip = { version = "0.1", path = ".", features = ["desktop"] }
-dip_core = { version = "0.1", path = "./packages/core" }
-dip_macro = { version = "0.1", path = "./packages/macro" }
-dip_task = { version = "0.1", path = "./packages/task" }
+dip_core = { version = "0.1", path = "./plugins/core" }
+dip_macro = { version = "0.1", path = "./plugins/macro" }
+dip_task = { version = "0.1", path = "./plugins/task" }
 dirs = "4.0"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros", "fs"], default-features = false }
@@ -53,9 +53,9 @@ bevy.workspace = true
 clap = { version = "3.2", features = ["derive"], optional = true }
 config.workspace = true
 dioxus.workspace = true
-dip_cli = { version = "0.1", path = "./packages/cli", optional = true }
-dip_core = { version = "0.1", path = "./packages/core" }
-dip_desktop = { version = "0.1", path = "./packages/desktop", optional = true }
+dip_cli = { version = "0.1", path = "./plugins/ui/cli", optional = true }
+dip_core = { version = "0.1", path = "./plugins/core" }
+dip_desktop = { version = "0.1", path = "./plugins/ui/desktop", optional = true }
 dip_macro.workspace = true
 dirs.workspace = true
 reqwest.workspace = true
