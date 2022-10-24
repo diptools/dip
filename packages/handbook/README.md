@@ -50,14 +50,3 @@ cd dip
 	- [Linter](https://github.com/platers/obsidian-linter)
 4. Click "Install" and "Enable"
 	- ![Obsidian Git Plugin](./assets/images/obsidian/obsidian-git-plugin.png)
-
-## Updating Handbook with Obsidian Git
-
-- Branch
-- Pull
-- Commit
-- Push
-
-1. Press command `⌘ + P`
-2. Search for `git`
-	![Obsidian git commands](./assets/images/obsidian/git-commands.png)

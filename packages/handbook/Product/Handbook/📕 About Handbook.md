@@ -3,10 +3,12 @@
 This is where all knowledge goes.
 
 - [[User Story]]
+- [[Features]]
 - [[README#Installation|Installation]]
-- [[README#Setup | Configuration]]
+- [[README#Setup|Configuration]]
 - [[🛒 Glossary#Obsidian | Obsidian]]
 - [[🛒 Glossary#GitLab Handbook|GitLab Handbook]]
+- [[Apply changes to handbook with Obsidian Git]]
 
 --- 
 
@@ -23,3 +25,5 @@ This is where all knowledge goes.
 ![[🛒 Glossary#Obsidian]]
 
 ![[🛒 Glossary#GitLab Handbook]]
+
+![[Apply changes to handbook with Obsidian Git]]

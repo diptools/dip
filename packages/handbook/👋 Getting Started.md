@@ -6,8 +6,8 @@
 If you don't know where to look for, why not starting from here.
 - [[📕 About Handbook]]
 - [[📦 About Product]]
-- [[👷 About Engineering]]
 - [[🥳 About Community]]
+- [[👷 About Engineering]]
 
 ## Contents
 
