@@ -3,6 +3,8 @@
 - [[#Install]]
 - [[#Run]]
 
+---
+
 ### Install
 ```sh
 cargo install dip

@@ -5,6 +5,8 @@
 - [[#What is Dioxus?]]
 - [[#What is Obsidian?]]
 
+---
+
 ## Is this library intended to be used with Bevy games?
 
 - [Original Github Discussion](https://github.com/diptools/dip/discussions/51)

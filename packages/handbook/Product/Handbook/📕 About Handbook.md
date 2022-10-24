@@ -8,6 +8,8 @@ This is where all knowledge goes.
 - [[🛒 Glossary#Obsidian | Obsidian]]
 - [[🛒 Glossary#GitLab Handbook|GitLab Handbook]]
 
+--- 
+
 ### Overview
 
 ![[User Story]]

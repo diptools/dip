@@ -22,5 +22,7 @@
 ### 🎨 Design
 - [Figma](https://www.figma.com/file/2sApaUFS4zNw0FJliO4TIt/dip?node-id=0%3A1)
 
-#### 🚀 Infrastructure
+#### 🚚 Infrastructure
 - [Vercel](https://vercel.com/diptools/dip)
+
+---
