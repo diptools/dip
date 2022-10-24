@@ -353,14 +353,23 @@ Find more in [examples/](https://github.com/diptools/dip/tree/main/examples) dir
 gh repo clone diptools/dip
 cd dip
 
+##########################
 # Counter example
+##########################
+
 cargo run --example counter --features desktop
 
+##########################
 # TodoMVC example
-npm install # requires npm for styling
+##########################
 
-# this script compiles Tailwind CSS and starts Rust example
-cargo run --example todomvc --features desktop
+# Compile Tailwind CSS
+dip build -p examples/todomvc
+# or
+cargo run -- build -p examples/todomvc
+
+# Run
+cargo run -p todomvc
 ```
 
 ## Milestone
