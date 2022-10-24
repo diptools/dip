@@ -11,7 +11,7 @@
 
 > Follow [installation](#Installation) and [configuration](#Configuration) steps and start browsing here
 
-- [👋 Getting Started](👋%20Getting%20Started)
+- [👋 Getting Started](👋%20Getting%20Started.md)
 - [🗂 Index](🗂%20Index.md)
 - [🛒 Glossary](🛒%20Glossary.md)
 
