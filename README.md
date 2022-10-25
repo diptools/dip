@@ -348,7 +348,7 @@ Make sure to install all prerequisites for Tauri.
 - [Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
 
 
-### Checkout repository
+### Clone repository
 ```sh
 gh repo clone diptools/dip
 cd dip

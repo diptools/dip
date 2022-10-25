@@ -1,16 +1,16 @@
 ### 💻 Command Line Tool
 
 - [[#Install]]
-- [[#Run]]
+- [[#Usage]]
 
 ---
 
-### Install
+## Install
 ```sh
 cargo install dip
 ```
 
-###  Run
+##  Usage
 
 ```sh
 dip -h
@@ -29,3 +29,12 @@ SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
     tool
 ```
+
+### Commands
+
+- create
+- build
+- serve
+- tool
+	- list
+	- add

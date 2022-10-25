@@ -1,5 +1,5 @@
 use crate::{
-    plugin::cli::*,
+    plugin::{async_action::*, cli::*},
     resource::tool::{Tool, ToolResult},
 };
 use dip::{
@@ -10,7 +10,7 @@ use dip::{
             system::Res,
         },
     },
-    core::task::{async_action, AsyncActionPool},
+    core::task::AsyncActionPool,
 };
 
 pub struct ToolPlugin;
@@ -18,7 +18,6 @@ pub struct ToolPlugin;
 impl Plugin for ToolPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(ToolActionPlugin)
-            .add_plugin(AsyncActionPlugin)
             .add_system(handle_list_tool)
             .add_system(handle_add_tool)
             .add_system(handle_install);
@@ -59,15 +58,3 @@ fn handle_install(
         app_exit.send(AppExit);
     }
 }
-
-#[async_action]
-impl AsyncActionCreator {
-    async fn install(tool: Tool) -> ToolResult<Install> {
-        tool.install().await?;
-
-        Ok(Install)
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct Install;

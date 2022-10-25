@@ -22,6 +22,7 @@ impl From<anyhow::Error> for ToolError {
     }
 }
 
+#[derive(Clone, Debug)]
 pub enum Tool {
     Tailwind,
 }
@@ -50,7 +51,7 @@ impl Tool {
         p
     }
 
-    fn bin_path(&self) -> PathBuf {
+    pub fn bin_path(&self) -> PathBuf {
         let p = Self::install_path().join(self.name());
         Self::ensure_dir(&p);
         p.join(self.bin_name())
@@ -113,7 +114,7 @@ impl Tool {
         }
     }
 
-    fn name(&self) -> &'static str {
+    pub fn name(&self) -> &'static str {
         match self {
             Tool::Tailwind => "tailwindcss",
         }

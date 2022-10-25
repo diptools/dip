@@ -4,7 +4,7 @@
 	<p>All our knowledge in one place.</p>
 </div>
 
-If you are not sure where to start, here're some entry files.
+If you are not sure where to start, here are some entry files.
 - [[📕 About Handbook]]
 - [[📦 About Product]]
 - [[🥳 About Community]]
