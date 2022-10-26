@@ -1,4 +1,7 @@
-use crate::{plugin::BuildAction, resource::tool::Tool};
+use crate::{
+    plugin::{AsyncAction, BuildAction},
+    resource::tool::Tool,
+};
 use dip::{
     bevy::{
         app::AppExit,
@@ -7,12 +10,11 @@ use dip::{
             schedule::ParallelSystemDescriptorCoercion,
             system::Res,
         },
+        log,
     },
     prelude::{AsyncActionPool, Plugin},
 };
-use std::{path::PathBuf, process::Command};
-
-use super::AsyncAction;
+use std::{fs, path::PathBuf, process::Command};
 
 pub struct HandlerPlugin;
 
@@ -32,33 +34,37 @@ fn handle_build(
     mut compile_css: EventWriter<CompileCss>,
     async_action: Res<AsyncActionPool<AsyncAction>>,
 ) {
-    for a in actions.iter() {
-        let tailwind_config = PathBuf::from(&a.path).join("tailwind.config.js");
+    for action in actions.iter() {
+        let tailwind_config = PathBuf::from(&action.path).join("tailwind.config.js");
 
         if tailwind_config.is_file() {
             let tailwind = &Tool::Tailwind;
 
-            if !tailwind.bin_path().is_file() {
-                async_action.send(AsyncAction::install_and_build(tailwind));
+            if tailwind.bin_path().is_file() {
+                compile_css.send(CompileCss {
+                    path: action.path.clone(),
+                    tool: tailwind.clone(),
+                });
+            } else {
+                async_action.send(AsyncAction::install_and_build(tailwind, action.clone()));
             }
-
-            compile_css.send(CompileCss {
-                path: a.path.clone(),
-                tool: tailwind.clone(),
+        } else {
+            build_app.send(BuildApp {
+                path: action.path.clone(),
             });
         }
-
-        build_app.send(BuildApp {
-            path: a.path.clone(),
-        });
     }
 }
 
-fn compile_css(mut events: EventReader<CompileCss>) {
+fn compile_css(
+    mut events: EventReader<CompileCss>,
+    mut build_app: EventWriter<BuildApp>,
+    mut app_exit: EventWriter<AppExit>,
+) {
     for e in events.iter() {
         let mut cmd = Command::new(&e.tool.bin_path_str());
 
-        cmd.current_dir(&e.path);
+        cmd.current_dir(fs::canonicalize(&e.path).unwrap());
         cmd.args([
             "-i",
             "styles/globals.css",
@@ -68,10 +74,23 @@ fn compile_css(mut events: EventReader<CompileCss>) {
             "tailwind.config.js",
         ]);
 
-        let status = cmd.status().expect("failed to execute process");
+        let output = cmd
+            .output()
+            .expect("Could not execute compilation for Tailwind CSS");
+        log::trace!("{output:?}");
 
-        println!("CSS compiled");
-        println!("{status}");
+        if output.status.success() {
+            println!("CSS compiled");
+
+            build_app.send(BuildApp {
+                path: e.path.clone(),
+            })
+        } else {
+            println!("Failed to compile Tailwind CSS");
+            println!("{}", String::from_utf8(output.stderr).unwrap());
+
+            app_exit.send(AppExit);
+        }
     }
 }
 
@@ -79,11 +98,18 @@ fn build_app(mut events: EventReader<BuildApp>, mut app_exit: EventWriter<AppExi
     for e in events.iter() {
         let mut cmd = Command::new("cargo");
 
-        cmd.current_dir(&e.path).args(["build"]);
+        cmd.current_dir(fs::canonicalize(&e.path).unwrap())
+            .args(["build"]);
 
-        let status = cmd.status().expect("failed to build app");
+        let output = cmd.output().expect("Could not execute cargo build");
+        log::trace!("{output:?}");
 
-        println!("{status}");
+        if output.status.success() {
+            println!("Build finished");
+        } else {
+            println!("Failed to build project");
+            println!("{}", String::from_utf8(output.stderr).unwrap());
+        }
 
         app_exit.send(AppExit);
     }
