@@ -6,7 +6,7 @@
 *.pdb
 
 **/public
-/docs/website/static/style.css
+# /docs/website/static/style.css
 /examples/cli/config/config/local.toml
 
 .vscode/*
