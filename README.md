@@ -362,6 +362,7 @@ cargo run --example counter --features desktop
 ### TodoMVC example
 ```sh
 # Compile Tailwind CSS
+cargo install dip
 dip build -p examples/todomvc
 # or
 cargo run -- build -p examples/todomvc

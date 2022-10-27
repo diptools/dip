@@ -42,7 +42,7 @@ fn handle_build(
 
             if tailwind.bin_path().is_file() {
                 compile_css.send(CompileCss {
-                    path: action.path.clone(),
+                    action: action.clone(),
                     tool: tailwind.clone(),
                 });
             } else {
@@ -50,7 +50,7 @@ fn handle_build(
             }
         } else {
             build_app.send(BuildApp {
-                path: action.path.clone(),
+                action: action.clone(),
             });
         }
     }
@@ -61,18 +61,22 @@ fn compile_css(
     mut build_app: EventWriter<BuildApp>,
     mut app_exit: EventWriter<AppExit>,
 ) {
-    for e in events.iter() {
-        let mut cmd = Command::new(&e.tool.bin_path_str());
+    for CompileCss { action, tool } in events.iter() {
+        let mut cmd = Command::new(&tool.bin_path_str());
 
-        cmd.current_dir(fs::canonicalize(&e.path).unwrap());
+        cmd.current_dir(fs::canonicalize(&action.path).unwrap());
         cmd.args([
-            "-i",
-            "styles/globals.css",
-            "-o",
-            "public/globals.css",
             "-c",
-            "tailwind.config.js",
+            &action.config,
+            "-i",
+            &action.input,
+            "-o",
+            &action.output,
         ]);
+
+        if action.watch {
+            cmd.arg("-w");
+        }
 
         let output = cmd
             .output()
@@ -83,7 +87,7 @@ fn compile_css(
             println!("CSS compiled");
 
             build_app.send(BuildApp {
-                path: e.path.clone(),
+                action: action.clone(),
             })
         } else {
             println!("Failed to compile Tailwind CSS");
@@ -95,10 +99,10 @@ fn compile_css(
 }
 
 fn build_app(mut events: EventReader<BuildApp>, mut app_exit: EventWriter<AppExit>) {
-    for e in events.iter() {
+    for BuildApp { action } in events.iter() {
         let mut cmd = Command::new("cargo");
 
-        cmd.current_dir(fs::canonicalize(&e.path).unwrap())
+        cmd.current_dir(fs::canonicalize(&action.path).unwrap())
             .args(["build"]);
 
         let output = cmd.output().expect("Could not execute cargo build");
@@ -117,11 +121,11 @@ fn build_app(mut events: EventReader<BuildApp>, mut app_exit: EventWriter<AppExi
 
 #[derive(Clone, Debug)]
 struct BuildApp {
-    pub path: String,
+    pub action: BuildAction,
 }
 
 #[derive(Clone, Debug)]
 struct CompileCss {
-    pub path: String,
+    pub action: BuildAction,
     pub tool: Tool,
 }

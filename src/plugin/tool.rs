@@ -18,13 +18,13 @@ pub struct ToolPlugin;
 impl Plugin for ToolPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(ToolActionPlugin)
-            .add_system(handle_list_tool)
-            .add_system(handle_add_tool)
-            .add_system(handle_install);
+            .add_system(list_tool)
+            .add_system(add_tool)
+            .add_system(install_result);
     }
 }
 
-fn handle_list_tool(mut events: EventReader<ListToolAction>, mut app_exit: EventWriter<AppExit>) {
+fn list_tool(mut events: EventReader<ListToolAction>, mut app_exit: EventWriter<AppExit>) {
     for _ in events.iter() {
         for t in Tool::list().iter() {
             println!("- {t}");
@@ -33,7 +33,7 @@ fn handle_list_tool(mut events: EventReader<ListToolAction>, mut app_exit: Event
     }
 }
 
-fn handle_add_tool(
+fn add_tool(
     mut events: EventReader<AddToolAction>,
     async_action: Res<AsyncActionPool<AsyncAction>>,
 ) {
@@ -47,7 +47,7 @@ fn handle_add_tool(
     }
 }
 
-fn handle_install(
+fn install_result(
     mut events: EventReader<ToolResult<Install>>,
     mut app_exit: EventWriter<AppExit>,
 ) {

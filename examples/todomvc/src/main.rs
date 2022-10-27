@@ -2,7 +2,7 @@ use dip::{bevy::log::LogPlugin, prelude::*};
 use todomvc::TodoMVCPlugin;
 
 fn main() {
-    let tailwind_css = std::fs::read_to_string("examples/todomvc/public/globals.css")
+    let tailwind_css = std::fs::read_to_string("examples/todomvc/public/style.css")
         .expect("Cannot find compiled Tailwind CSS file");
 
     App::new()
