@@ -8,20 +8,13 @@ weight = 2
   ```sh
   brew install zola
   ```
-- [Node.js](https://nodejs.org/en/download/): To install Tailwind CSS
 
 ## Website
 
 ```sh
-# Install dependencies
-npm i
+# Build Tailwind CSS
+dip build -p docs/website
 
 # Serve locally
 zola -r docs/website serve --drafts
-
-# Watch Tailwind CSS
-npm run watch
-
-# or build
-npm run build
 ```

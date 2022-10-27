@@ -1,8 +1,9 @@
 ### 🔌 Plugins
 
+![[🎨 UI Plugins#🎨 UI Plugins]]
+
 - [[Async Action]]
-- [[CLI]]
 - [[Configuration]]
-- [[Product/Framework/Plugins/Desktop | Desktop]]
+- [[Product/Framework/Plugins/UI/Desktop | Desktop]]
 - [[State Management]]
 ---

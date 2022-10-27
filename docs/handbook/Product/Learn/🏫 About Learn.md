@@ -1,4 +1,4 @@
-### 🏫 Guide
+### 🏫 Learn
 - [[Getting Started]]
 
 ---

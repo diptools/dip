@@ -15,7 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
-      - uses: actions/setup-node@v3
       - name: Install prerequisites
         run: |
           sudo apt-get update
@@ -29,7 +28,6 @@ jobs:
             libgtk-3-dev \
             libayatana-appindicator3-dev \
             librsvg2-dev
-          npm install
       - name: Build
         run: cargo build --all-features
       - name: Build Workspaces

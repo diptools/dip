@@ -1,13 +1,13 @@
-/dist
-/node_modules
-/target
-Cargo.lock
 .DS_Store
-pnpm-lock.yaml
 
+/debug
+/target
+**/*.rs.bk
+*.pdb
+
+**/public
+# /docs/website/static/style.css
 /examples/cli/config/config/local.toml
-/examples/todomvc/public
-/docs/website/public
 
 .vscode/*
 !.vscode/settings.json

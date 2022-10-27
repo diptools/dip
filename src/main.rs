@@ -1,14 +1,26 @@
 mod plugin;
 mod resource;
 
-use crate::plugin::{ActionPlugin, AsyncAction, CliPlugin, ToolPlugin};
-use dip::bevy::{app::App, log::LogPlugin};
+use crate::plugin::DipCliPlugin;
+use dip::bevy::{
+    app::App,
+    log::{LogPlugin, LogSettings},
+};
 
 fn main() {
-    App::new()
-        .add_plugin(CliPlugin::<AsyncAction>::continuous())
-        .add_plugin(ActionPlugin)
-        .add_plugin(ToolPlugin)
-        .add_plugin(LogPlugin)
-        .run();
+    let mut app = App::new();
+
+    #[cfg(debug_assertions)]
+    app.insert_resource(LogSettings {
+        filter: "info,dip=debug".into(),
+        level: bevy::log::Level::DEBUG,
+    });
+
+    #[cfg(not(debug_assertions))]
+    app.insert_resource(LogSettings {
+        filter: "warn".into(),
+        level: bevy::log::Level::WARN,
+    });
+
+    app.add_plugin(DipCliPlugin).add_plugin(LogPlugin).run();
 }

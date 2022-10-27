@@ -22,6 +22,7 @@ impl From<anyhow::Error> for ToolError {
     }
 }
 
+#[derive(Clone, Debug)]
 pub enum Tool {
     Tailwind,
 }
@@ -50,10 +51,14 @@ impl Tool {
         p
     }
 
-    fn bin_path(&self) -> PathBuf {
+    pub fn bin_path(&self) -> PathBuf {
         let p = Self::install_path().join(self.name());
         Self::ensure_dir(&p);
         p.join(self.bin_name())
+    }
+
+    pub fn bin_path_str(&self) -> String {
+        self.bin_path().into_os_string().into_string().unwrap()
     }
 
     fn is_installed(&self) -> bool {
@@ -68,7 +73,7 @@ impl Tool {
                 .await
                 .context("Failed to create download target file")?;
 
-            file.set_permissions(Permissions::from_mode(0o777))
+            file.set_permissions(Permissions::from_mode(0o755))
                 .await
                 .context("Failed to give permission to download target file")?;
 
@@ -109,7 +114,7 @@ impl Tool {
         }
     }
 
-    fn name(&self) -> &'static str {
+    pub fn name(&self) -> &'static str {
         match self {
             Tool::Tailwind => "tailwindcss",
         }
