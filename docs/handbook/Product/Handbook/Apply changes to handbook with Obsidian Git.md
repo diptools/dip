@@ -1,8 +1,9 @@
 
 1. Press command `⌘ + P`
 2. Search for `git` command
-	- branch
+	- fetch
 	- pull
+	- branch
 	- commit
 	- push
 	- etc...

@@ -5,7 +5,7 @@
 
 ---
 
-## Install
+## Installation
 ```sh
 cargo install dip
 ```
@@ -30,11 +30,4 @@ SUBCOMMANDS:
     tool
 ```
 
-### Commands
-
-- create
-- build
-- serve
-- tool
-	- list
-	- add
+![[Commands#Commands]]
