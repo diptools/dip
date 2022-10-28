@@ -371,10 +371,6 @@ cargo run --example counter --features desktop
 cargo install dip
 
 # or install local binary
-
-gh repo clone diptools/dip
-cd dip
-
 cargo install --path .
 ```
 
