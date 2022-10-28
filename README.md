@@ -349,29 +349,46 @@ Make sure to install all prerequisites for Tauri.
 
 
 ### Clone repository
+
 ```sh
 gh repo clone diptools/dip
 cd dip
 ```
 
 ### Counter example
+
 ```sh
 cargo run --example counter --features desktop
 ```
 
-### TodoMVC example
-```sh
-# Compile Tailwind CSS
-cargo install dip
-dip build -p examples/todomvc
-# or
-cargo run -- build -p examples/todomvc
+> Find more in [examples/](https://github.com/diptools/dip/tree/main/examples) directory.
 
-# Run
-cargo run -p todomvc
+### TodoMVC example
+
+1. Install dip CLI.
+
+```sh
+cargo install dip
+
+# or install local binary
+
+gh repo clone diptools/dip
+cd dip
+
+cargo install --path .
 ```
 
-> Find more in [examples/](https://github.com/diptools/dip/tree/main/examples) directory.
+2. Compile Tailwind CSS
+
+```sh
+dip build -p examples/todomvc
+```
+
+3. Run
+
+```sh
+cargo run -p todomvc
+```
 
 ## Milestone
 [📌 dip - Project board](https://github.com/orgs/diptools/projects/1)

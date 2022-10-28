@@ -47,6 +47,10 @@ homepage.workspace = true
 documentation.workspace = true
 keywords.workspace = true
 
+[[bin]]
+name = "dip"
+path = "src/main.rs"
+
 [dependencies]
 anyhow.workspace = true
 bevy.workspace = true

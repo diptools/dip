@@ -4,6 +4,10 @@ version.workspace = true
 edition.workspace = true
 publish = false
 
+[[bin]]
+name = "todomvc"
+path = "src/main.rs"
+
 [dependencies]
 chrono = "0.4"
 dip.workspace = true
@@ -12,7 +16,3 @@ tokio.workspace = true
 # Removing this line will throw error in `./src/component.rs`.
 # This is because some derive macros generates code using sub crate name instead of root (i.e. bevy_ecs::Component vs bevy::ecs::Compoent)
 bevy_ecs.workspace = true
-
-[[bin]]
-name = "todomvc"
-path = "src/main.rs"
