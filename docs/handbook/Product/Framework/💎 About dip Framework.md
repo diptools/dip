@@ -6,6 +6,5 @@
 
 ### Overview
 
-![[💻 Command Line Tool#Install]]
+![[💻 Command Line Tool#💻 Command Line Tool#]]
 
-![[💻 Command Line Tool#Run]]

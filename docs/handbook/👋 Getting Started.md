@@ -5,19 +5,15 @@
 </div>
 
 If you are not sure where to start, here are some entry files.
+
 - [[📕 About Handbook]]
 - [[📦 About Product]]
 - [[🥳 About Community]]
 - [[👷 About Engineering]]
 
-Here're some helpful resources.
+### Resources
+
 - [[🗂 Index]]
 - [[🛒 Glossary]]: The collection of terms.
 - [[🔗 Links]]: All links related to dip project.
 - [[🙋 Frequently Asked Questions]]
-
-Check [[#All Contents]] for more.
-
-## All Contents
-
-![[🗂 Index]]

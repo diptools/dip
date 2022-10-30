@@ -4,5 +4,5 @@
 ---
 
 ### Overview
-![[Getting Started]]
 
+![[Getting Started]]

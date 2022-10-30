@@ -4,6 +4,6 @@
 
 ![[📕 About Handbook#📕 dip Handbook]]
 
-![[🏫 About Learn#🏫 Guide]]
+![[🏫 About Learn#🏫 Learn]]
 
 ![[🙋 Frequently Asked Questions#🙋 Frequently Asked Questions]]

@@ -1,6 +1,6 @@
 ### 📕 dip Handbook
 
-This is where all knowledge goes. Inspired by GitLab's handbook-first approach.
+This is where all knowledge goes. Inspired by GitLab's [[🛒 Glossary#GitLab Handbook|handbook]]-first approach.
 
 - [[User Story]]
 - [[Features]]

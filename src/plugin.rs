@@ -3,8 +3,8 @@ mod cli;
 mod handler;
 mod tool;
 
-pub use crate::plugin::{async_action::*, cli::*, handler::*, tool::*};
-pub use dip::bevy::app::{App, Plugin};
+use crate::plugin::{async_action::*, cli::*, handler::*, tool::*};
+use dip::bevy::app::{App, Plugin};
 
 pub struct DipCliPlugin;
 

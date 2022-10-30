@@ -21,6 +21,10 @@ Dioxus is a cross-platform declarative UI library. It provides familiar features
 
 [Gitlab Handbook](https://about.gitlab.com/handbook/)
 
+>The GitLab team handbook is the central repository for how we run the company. Printed, it consists of over [2,000 pages of text](https://about.gitlab.com/handbook/about/#count-handbook-pages). As part of our value of being transparent the handbook is [open to the world](https://gitlab.com/gitlab-com/www-gitlab-com/tree/master/sites/handbook/source/handbook), and we welcome feedback. Please make a [merge request](https://gitlab.com/gitlab-com/www-gitlab-com/merge_requests) to suggest improvements or add clarifications. Please use [issues](https://gitlab.com/gitlab-com/www-gitlab-com/issues) to ask questions.
+
+For a very specific set of [internal](https://about.gitlab.com/handbook/communication/confidentiality-levels/#internal) information we also maintain an [Internal Handbook](https://internal-handbook.gitlab.io/).
+
   <iframe id="ytplayer" type="text/html" width="640" height="360"
 	  src="https://www.youtube.com/embed/3HHyjAV3hYE?origin=http://example.com"
 	  frameborder="0"></iframe>
@@ -28,7 +32,7 @@ Dioxus is a cross-platform declarative UI library. It provides familiar features
 
 ### dip Handbook
 
-![[📕 About Handbook#📕 Handbook]]
+![[📕 About Handbook#📕 dip Handbook]]
 
 ### Obsidian
 
