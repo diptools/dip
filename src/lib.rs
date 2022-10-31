@@ -14,6 +14,8 @@ pub use bevy;
 #[cfg(feature = "desktop")]
 pub use dioxus;
 
+pub use tokio;
+
 ///
 pub mod prelude {
     pub use bevy::prelude::*;
