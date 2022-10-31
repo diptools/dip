@@ -19,12 +19,14 @@
 
 ## Installation
 
-Install Obsidian (macOS) and GitHub CLI
+Install Obsidian (macOS) and GitHub CLI.
+
 ```sh
 brew install obsidian gh
 ```
 
-Clone repository
+Clone repository.
+
 ```sh
 gh repo clone diptools/dip
 # or if you have access to diptools/handbook-internal repository
@@ -36,6 +38,7 @@ cd dip
 ## Setup
 
 ### Open Vault
+
 1. Start Obsidian app
 2. Click "Open folder as vault" -> "Open"
 3. Select `docs/handbook` directory in dip repository
