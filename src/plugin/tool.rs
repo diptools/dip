@@ -1,5 +1,5 @@
 use crate::{
-    plugin::{async_action::*, cli::*},
+    plugin::{action::*, async_action::*},
     resource::tool::{Tool, ToolResult},
 };
 use dip::{

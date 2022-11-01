@@ -1,5 +1,5 @@
 use crate::{
-    plugin::{AsyncAction, BuildAction},
+    plugin::{action::BuildAction, AsyncAction},
     resource::tool::Tool,
 };
 use dip::{
