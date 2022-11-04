@@ -1,7 +1,7 @@
-mod plugin;
+mod cli;
 mod resource;
 
-use crate::plugin::DipCliPlugin;
+use crate::cli::DipCliPlugin;
 use dip::bevy::{
     app::App,
     log::{LogPlugin, LogSettings},

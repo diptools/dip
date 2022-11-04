@@ -1,0 +1,145 @@
+use crate::ApplyBundle;
+use bevy::{
+    app::{App, Plugin},
+    ecs::{
+        event::{EventReader, EventWriter},
+        schedule::ParallelSystemDescriptorCoercion,
+    },
+    log,
+};
+use cmd_lib::{run_fun, spawn_with_output};
+use std::{
+    env,
+    fs::File,
+    io::{BufRead, BufReader, Write},
+};
+use tempfile::tempdir;
+
+use super::InstallTools;
+
+// Plugin
+
+pub struct HomebrewPlugin;
+
+impl Plugin for HomebrewPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_event::<HomebrewInstalled>()
+            .add_event::<HomebrewApplied>()
+            .add_system(install.after("apply_bundle").before(apply))
+            .add_system(apply.after("apply_bundle"));
+    }
+}
+
+// Events
+
+pub struct HomebrewInstalled;
+
+pub struct HomebrewApplied;
+
+// Systems
+
+fn install(mut events: EventReader<InstallTools>, mut installed: EventWriter<HomebrewInstalled>) {
+    events.iter().for_each(|e| {
+        if run_fun!(which brew).is_ok() {
+            log::info!("🟡 Skip: Install Homebrew");
+        } else {
+            log::info!("📌 Install Homebrew");
+
+            let install_sh = reqwest::blocking::get(
+                "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh",
+            )
+            .expect("Failed to fetch Homebrew installation script")
+            .text()
+            .expect("Failed to parse Homebrew installation script into text");
+
+            let dir = tempdir().unwrap();
+            let file_path = dir.path().join("brew-install.sh");
+            let file_path_str = file_path.clone().into_os_string();
+            let mut file = File::create(file_path).unwrap();
+            file.write_all(install_sh.as_bytes())
+                .expect("Unable to write file");
+
+            let mut install_brew = spawn_with_output!(/bin/bash -C $file_path_str).unwrap();
+
+            let result = if e.verbose {
+                install_brew.wait_with_pipe(&mut |pipe| {
+                    BufReader::new(pipe)
+                        .lines()
+                        .filter_map(|line| line.ok())
+                        .for_each(|f| log::info!("{f}"));
+                })
+            } else {
+                if let Err(e) = install_brew.wait_with_output() {
+                    Err(e)
+                } else {
+                    Ok(())
+                }
+            };
+
+            if let Err(e) = result {
+                log::error!("Failed to run brew install.");
+                log::error!("{e}");
+                log::info!("✅ Install Homebrew");
+            } else {
+                log::info!("✅ Install Homebrew");
+            }
+        }
+
+        installed.send(HomebrewInstalled);
+    });
+}
+
+fn apply(mut events: EventReader<ApplyBundle>, mut applied: EventWriter<HomebrewApplied>) {
+    events.iter().for_each(|e| {
+        log::warn!("TODO: change current_path to somewhere absolute");
+        let current_path = env::current_dir().expect("Failed to get current directory.");
+        let brewfile_path = current_path
+            .join("bundles")
+            .join("homebrew")
+            .join("Brewfile");
+
+        if brewfile_path.is_file() {
+            match run_fun!(which brew) {
+                Ok(_brew_path) => {
+                    log::info!("📌 Apply Homebrew bundle");
+
+                    let brewfile_path_str = &brewfile_path.into_os_string().into_string().unwrap();
+                    let mut brew_bundle =
+                        spawn_with_output!(brew bundle --file $brewfile_path_str).unwrap();
+
+                    let result = if e.verbose {
+                        brew_bundle.wait_with_pipe(&mut |pipe| {
+                            BufReader::new(pipe)
+                                .lines()
+                                .filter_map(|line| line.ok())
+                                .for_each(|line| log::info!("{:?}", line));
+                        })
+                    } else {
+                        if let Err(e) = brew_bundle.wait_with_output() {
+                            Err(e)
+                        } else {
+                            Ok(())
+                        }
+                    };
+
+                    if let Err(e) = result {
+                        log::error!("{e}");
+                        log::error!("Failed to run brew bundle.");
+                    } else {
+                        log::info!("✅ Apply Homebrew bundle");
+                    }
+                }
+                Err(e) => {
+                    log::error!("{e}");
+                    log::error!("Could not find homebrew binary.");
+                }
+            }
+        } else {
+            log::error!(
+                "Failed to apply Homebrew bundle. Make sure to have bundles/homebrew/Brewfile"
+            );
+        }
+
+        applied.send(HomebrewApplied);
+    });
+}

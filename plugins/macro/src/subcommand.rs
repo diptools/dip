@@ -43,7 +43,30 @@ impl SubcommandParser {
     }
 
     fn add_system(&self) -> TokenStream2 {
-        let mut subsubcommand_handler_names = vec![];
+        let handler_with_system_order = self.handler_with_system_order();
+
+        let gen = quote! {
+            .add_startup_system_to_stage(::dip::core::schedule::DipStartupStage::Action, #handler_with_system_order);
+        };
+
+        gen
+    }
+
+    fn handler_with_system_order(&self) -> TokenStream2 {
+        let gen_str = self
+            .child_names()
+            .iter()
+            .map(|name| format!("handle_{}", name.to_case(Case::Snake)))
+            .fold(self.handler_name().to_string(), |acc, name| {
+                format!("{acc}.before({})", name)
+            });
+        let gen = TokenStream2::from_str(&gen_str).unwrap();
+
+        gen
+    }
+
+    fn child_names(&self) -> Vec<String> {
+        let mut child_names = vec![];
         for v in self.commands_enum.variants.iter() {
             for a in v.attrs.iter() {
                 for t in a.tokens.clone().into_iter() {
@@ -54,15 +77,13 @@ impl SubcommandParser {
                                     TokenTree::Ident(ident) => {
                                         if ident.to_string() == "subcommand" {
                                             if let syn::Fields::Unnamed(f) = &v.fields {
-                                                let subsubcommand_ty = &f.unnamed[0].ty;
-                                                let subsubcommand_ty_quote =
-                                                    quote! { #subsubcommand_ty };
-                                                let subsubcommand_name = &subsubcommand_ty_quote
+                                                let child_ty = &f.unnamed[0].ty;
+                                                let child_ty_quote = quote! { #child_ty };
+                                                let child_name = child_ty_quote
                                                     .to_string()
-                                                    .to_case(Case::Snake);
+                                                    .to_case(Case::UpperCamel);
 
-                                                subsubcommand_handler_names
-                                                    .push(format!("handle_{}", subsubcommand_name));
+                                                child_names.push(child_name);
                                             }
                                         }
                                     }
@@ -76,16 +97,7 @@ impl SubcommandParser {
             }
         }
 
-        let mut handler = self.handler_name().to_string();
-        for n in subsubcommand_handler_names {
-            handler = format!("{}.before({})", handler, n);
-        }
-
-        let handler_token = TokenStream2::from_str(&handler).unwrap();
-
-        quote! {
-            .add_startup_system_to_stage(::dip::core::schedule::DipStartupStage::Action, #handler_token);
-        }
+        child_names
     }
 
     fn subcommand_ty_name(&self) -> TokenStream2 {

@@ -9,6 +9,8 @@ pub use dip_cli as cli;
 #[cfg(feature = "desktop")]
 pub use dip_desktop as desktop;
 
+pub use dip_bundle as bundle;
+
 pub use bevy;
 
 #[cfg(feature = "desktop")]

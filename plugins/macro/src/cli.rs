@@ -40,6 +40,7 @@ impl CliParser {
                                                 &format!("handle_{}", subcommand_name),
                                             )
                                             .unwrap();
+
                                             token.add_subcommand_handler = quote! {
                                                 .add_startup_system_to_stage(
                                                     ::dip::core::schedule::DipStartupStage::Action,

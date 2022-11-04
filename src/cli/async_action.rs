@@ -1,5 +1,5 @@
 use crate::{
-    plugin::action::BuildAction,
+    cli::action::BuildAction,
     resource::tool::{Tool, ToolResult},
 };
 use dip::{bevy::ecs::event::EventReader, core::task::async_action};

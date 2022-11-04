@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "plugins/bundle",
     "plugins/core",
     "plugins/macro",
     "plugins/task",
@@ -23,9 +24,11 @@ keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 anyhow = "1.0"
 bevy = { version = "0.8", default-features = false }
 bevy_ecs = "0.8"
+cmd_lib = "1"
 config = "0.13"
 dioxus = { version = "0.2", features = ["fermi"] }
 dip = { version = "0.1", path = ".", features = ["desktop"] }
+dip_bundle = { version = "0.1", path = "./plugins/bundle", features = ["full"] }
 dip_core = { version = "0.1", path = "./plugins/core" }
 dip_macro = { version = "0.1", path = "./plugins/macro" }
 dip_task = { version = "0.1", path = "./plugins/task" }
@@ -35,6 +38,7 @@ tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros", "fs
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_repr = "0.1"
+tempfile = "3"
 
 [package]
 name = "dip"
@@ -57,6 +61,7 @@ bevy.workspace = true
 clap = { version = "3.2", features = ["derive"], optional = true }
 config.workspace = true
 dioxus.workspace = true
+dip_bundle.workspace = true
 dip_cli = { version = "0.1", path = "./plugins/ui/cli", optional = true }
 dip_core = { version = "0.1", path = "./plugins/core" }
 dip_desktop = { version = "0.1", path = "./plugins/ui/desktop", optional = true }
