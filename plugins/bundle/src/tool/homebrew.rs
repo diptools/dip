@@ -20,22 +20,14 @@ pub struct HomebrewPlugin;
 
 impl Plugin for HomebrewPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<HomebrewInstalled>()
-            .add_event::<HomebrewApplied>()
-            .add_system_to_stage(BundleStage::Install, install)
+        app.add_system_to_stage(BundleStage::Install, install)
             .add_system_to_stage(BundleStage::Apply, apply);
     }
 }
 
-// Events
-
-pub struct HomebrewInstalled;
-
-pub struct HomebrewApplied;
-
 // Systems
 
-fn install(mut events: EventReader<InstallTools>, mut installed: EventWriter<HomebrewInstalled>) {
+fn install(mut events: EventReader<InstallTools>) {
     events.iter().for_each(|e| {
         let current_path = env::current_dir().expect("Failed to get current directory.");
         let brewfile_path = current_path
@@ -95,12 +87,10 @@ fn install(mut events: EventReader<InstallTools>, mut installed: EventWriter<Hom
                 log::info!("✅ Install Homebrew");
             }
         }
-
-        installed.send(HomebrewInstalled);
     });
 }
 
-fn apply(mut events: EventReader<ApplyBundle>, mut applied: EventWriter<HomebrewApplied>) {
+fn apply(mut events: EventReader<ApplyBundle>) {
     events.iter().for_each(|e| {
         let current_path = env::current_dir().expect("Failed to get current directory.");
         let brewfile_path = current_path
@@ -155,7 +145,5 @@ fn apply(mut events: EventReader<ApplyBundle>, mut applied: EventWriter<Homebrew
                 brewfile_path_str
             );
         }
-
-        applied.send(HomebrewApplied);
     });
 }

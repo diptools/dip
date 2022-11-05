@@ -1,13 +1,13 @@
+mod dotfiles;
 mod homebrew;
 mod tailwind;
 
+pub use self::{dotfiles::DotfilesPlugin, homebrew::HomebrewPlugin, tailwind::TailwindPlugin};
 use bevy::{
     app::{App, Plugin},
     ecs::component::Component,
 };
-pub use homebrew::{HomebrewApplied, HomebrewInstalled, HomebrewPlugin};
 use std::path::PathBuf;
-pub use tailwind::{TailwindInstalled, TailwindPlugin};
 
 pub struct ToolPlugin;
 
@@ -17,6 +17,9 @@ impl Plugin for ToolPlugin {
 
         #[cfg(feature = "brew")]
         app.add_plugin(HomebrewPlugin);
+
+        #[cfg(feature = "dotfiles")]
+        app.add_plugin(DotfilesPlugin);
 
         #[cfg(feature = "tailwind")]
         app.add_plugin(TailwindPlugin);

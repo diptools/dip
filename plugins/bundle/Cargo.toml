@@ -13,6 +13,7 @@ tempfile.workspace = true
 
 [features]
 default = ["full"]
-full = ["brew", "tailwind"]
+full = ["brew", "dotfiles", "tailwind"]
 brew = []
+dotfiles = []
 tailwind = []
