@@ -1,4 +1,4 @@
-mod config;
+// mod config;
 mod schedule;
 mod tool;
 
@@ -6,7 +6,7 @@ use bevy::{
     app::{App, Plugin},
     ecs::event::{EventReader, EventWriter},
 };
-pub use config::BundleConfigPlugin;
+// pub use config::BundleConfigPlugin;
 pub use schedule::{BundleSchedulePlugin, BundleStage};
 use std::path::PathBuf;
 use tool::{ApplyTools, InstallTools, ToolPlugin};
@@ -18,7 +18,7 @@ impl Plugin for BundlePlugin {
         app.add_plugin(BundleSchedulePlugin)
             .add_event::<ApplyBundle>()
             .add_event::<BundleApplied>()
-            .add_plugin(BundleConfigPlugin)
+            // .add_plugin(BundleConfigPlugin)
             .add_plugin(ToolPlugin)
             .add_system_to_stage(BundleStage::Prepare, apply_bundle);
     }

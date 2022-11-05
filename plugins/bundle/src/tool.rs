@@ -1,8 +1,9 @@
 mod dotfiles;
 mod homebrew;
 mod tailwind;
+mod unix;
 
-pub use self::{dotfiles::DotfilesPlugin, homebrew::HomebrewPlugin, tailwind::TailwindPlugin};
+pub use self::unix::UnixToolPlugin;
 use bevy::{
     app::{App, Plugin},
     ecs::component::Component,
@@ -15,14 +16,8 @@ impl Plugin for ToolPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<InstallTools>().add_event::<ApplyTools>();
 
-        #[cfg(feature = "dotfiles")]
-        app.add_plugin(DotfilesPlugin);
-
-        #[cfg(feature = "brew")]
-        app.add_plugin(HomebrewPlugin);
-
-        #[cfg(feature = "tailwind")]
-        app.add_plugin(TailwindPlugin);
+        #[cfg(target_family = "unix")]
+        app.add_plugin(UnixToolPlugin);
     }
 }
 
