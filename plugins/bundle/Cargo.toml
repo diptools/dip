@@ -5,6 +5,7 @@ edition.workspace = true
 
 [dependencies]
 bevy.workspace = true
+dip_core.workspace = true
 dirs.workspace = true
 cmd_lib.workspace = true
 reqwest.workspace = true

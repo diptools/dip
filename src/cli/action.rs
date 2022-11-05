@@ -1,6 +1,6 @@
-mod build;
+// mod build;
 
-pub use build::*;
+// pub use build::*;
 
 use dip::cli::{CliPlugin, SubcommandPlugin};
 
@@ -39,8 +39,13 @@ pub struct BuildArgs {
 
 #[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
 pub enum BundleAction {
-    Apply {
-        #[clap(short, long, required = false)]
-        verbose: bool,
-    },
+    Apply(ApplyBundleArgs),
+}
+
+#[derive(clap::Args, Clone, Debug)]
+pub struct ApplyBundleArgs {
+    // #[clap(short, long, required = false)]
+    // pub verbose: bool,
+    #[clap(short, long, default_value_t = String::from("."))]
+    pub path: String,
 }

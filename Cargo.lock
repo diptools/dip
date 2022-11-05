@@ -1304,6 +1304,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "cmd_lib",
+ "dip_core",
  "dirs",
  "reqwest",
  "tempfile",

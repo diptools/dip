@@ -1,10 +1,7 @@
-use crate::ApplyBundle;
+use crate::{ApplyBundle, BundleStage};
 use bevy::{
     app::{App, Plugin},
-    ecs::{
-        event::{EventReader, EventWriter},
-        schedule::ParallelSystemDescriptorCoercion,
-    },
+    ecs::event::{EventReader, EventWriter},
     log,
 };
 use cmd_lib::{run_fun, spawn_with_output};
@@ -25,8 +22,8 @@ impl Plugin for HomebrewPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<HomebrewInstalled>()
             .add_event::<HomebrewApplied>()
-            .add_system(install.after("apply_bundle").before(apply))
-            .add_system(apply.after("apply_bundle"));
+            .add_system_to_stage(BundleStage::Install, install)
+            .add_system_to_stage(BundleStage::Apply, apply);
     }
 }
 
@@ -40,7 +37,21 @@ pub struct HomebrewApplied;
 
 fn install(mut events: EventReader<InstallTools>, mut installed: EventWriter<HomebrewInstalled>) {
     events.iter().for_each(|e| {
-        if run_fun!(which brew).is_ok() {
+        let current_path = env::current_dir().expect("Failed to get current directory.");
+        let brewfile_path = current_path
+            .join(&e.path)
+            .join("bundle")
+            .join("homebrew")
+            .join("Brewfile");
+
+        if !brewfile_path.is_file() {
+            log::info!(
+                "Brewfile does not exist: {}",
+                brewfile_path.into_os_string().into_string().unwrap()
+            );
+            log::info!("🟡 Skip: Install Homebrew");
+        } else if run_fun!(which brew).is_ok() {
+            log::info!("brew path already exists");
             log::info!("🟡 Skip: Install Homebrew");
         } else {
             log::info!("📌 Install Homebrew");
@@ -91,19 +102,23 @@ fn install(mut events: EventReader<InstallTools>, mut installed: EventWriter<Hom
 
 fn apply(mut events: EventReader<ApplyBundle>, mut applied: EventWriter<HomebrewApplied>) {
     events.iter().for_each(|e| {
-        log::warn!("TODO: change current_path to somewhere absolute");
         let current_path = env::current_dir().expect("Failed to get current directory.");
         let brewfile_path = current_path
-            .join("bundles")
+            .join(&e.path)
+            .join("bundle")
             .join("homebrew")
             .join("Brewfile");
+        let brewfile_path_str = &brewfile_path
+            .clone()
+            .into_os_string()
+            .into_string()
+            .unwrap();
 
         if brewfile_path.is_file() {
             match run_fun!(which brew) {
                 Ok(_brew_path) => {
                     log::info!("📌 Apply Homebrew bundle");
 
-                    let brewfile_path_str = &brewfile_path.into_os_string().into_string().unwrap();
                     let mut brew_bundle =
                         spawn_with_output!(brew bundle --file $brewfile_path_str).unwrap();
 
@@ -136,7 +151,8 @@ fn apply(mut events: EventReader<ApplyBundle>, mut applied: EventWriter<Homebrew
             }
         } else {
             log::error!(
-                "Failed to apply Homebrew bundle. Make sure to have bundles/homebrew/Brewfile"
+                "Failed to apply Homebrew bundle. Make sure to have: {}",
+                brewfile_path_str
             );
         }
 
