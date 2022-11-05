@@ -37,14 +37,14 @@ fn install(mut events: EventReader<InstallTools>) {
             .join("Brewfile");
 
         if !brewfile_path.is_file() {
+            log::info!("🟡 Skip: Install Homebrew");
             log::info!(
                 "Brewfile does not exist: {}",
                 brewfile_path.into_os_string().into_string().unwrap()
             );
-            log::info!("🟡 Skip: Install Homebrew");
         } else if run_fun!(which brew).is_ok() {
-            log::info!("brew path already exists");
             log::info!("🟡 Skip: Install Homebrew");
+            log::info!("brew path already exists");
         } else {
             log::info!("📌 Install Homebrew");
 
@@ -82,7 +82,6 @@ fn install(mut events: EventReader<InstallTools>) {
             if let Err(e) = result {
                 log::error!("Failed to run brew install.");
                 log::error!("{e}");
-                log::info!("✅ Install Homebrew");
             } else {
                 log::info!("✅ Install Homebrew");
             }

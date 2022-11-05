@@ -7,7 +7,8 @@ use bevy::{
     },
     log,
 };
-use std::{env, fs, os::unix, path::PathBuf};
+use pathdiff::diff_paths;
+use std::{fs, os, path::PathBuf};
 use walkdir::WalkDir;
 
 // Plugin
@@ -25,14 +26,12 @@ impl Plugin for DotfilesPlugin {
 // Events
 
 struct ApplySymlinks {
+    dotfiles_path: PathBuf,
     path: PathBuf,
 }
 
 fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<ApplySymlinks>) {
     events.iter().for_each(|e| {
-        // Walk through ./bundle/dotfiles/*
-        // let current_path = env::current_dir().expect("Failed to get current directory.");
-        // let dotfiles_path = current_path.join(&e.path).join("bundle").join("dotfiles");
         let dotfiles_path = &e.path.join("bundle").join("dotfiles");
 
         if dotfiles_path.is_dir() {
@@ -44,6 +43,7 @@ fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<A
                 .filter(|entry| entry.file_type().unwrap().is_dir())
                 .for_each(|dir_entry| {
                     apply_dotfiles.send(ApplySymlinks {
+                        dotfiles_path: dotfiles_path.to_path_buf(),
                         path: dir_entry.path(),
                     });
                 });
@@ -63,20 +63,65 @@ fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<A
 
 fn apply_symlinks(mut events: EventReader<ApplySymlinks>) {
     events.iter().for_each(|e| {
-        log::warn!("TODO: Get target path based on entry");
-
-        let path = &e.path.clone().into_os_string().into_string().unwrap();
-
-        WalkDir::new(path)
+        WalkDir::new(&e.path)
             .into_iter()
-            .filter_map(|e| e.ok())
-            .for_each(|entry| {
-                println!("----------------------------------------------------------");
-                println!("entry : {:?}\ntarget: {:?}", entry.path(), entry.path());
-                // let target_path = dirs::home_dir().unwrap().join(entry.path);
+            .filter_map(Result::ok)
+            .filter(|e| e.file_type().is_file())
+            .map(|entry| {
+                let original = entry.path().to_path_buf();
+                let diff = diff_paths(entry.path(), &e.dotfiles_path).unwrap();
+                let dotfile_bundle_name = diff.iter().next().unwrap();
+                let stripped = diff.strip_prefix(dotfile_bundle_name).unwrap();
+                let link = dirs::home_dir().unwrap().join(stripped);
 
-                // #[cfg(target_os = "unix")]
-                // unix::fs::symlink(entry.path(), link)
-            });
+                Symlink { original, link }
+            })
+            .for_each(|symlink| symlink.apply());
     });
+}
+
+struct Symlink {
+    original: PathBuf,
+    link: PathBuf,
+}
+
+impl Symlink {
+    fn apply(&self) {
+        if self.link.is_file() {
+            log::info!("----------------------------------------------------------");
+            log::info!("🟡 Skip: File already exists");
+            log::info!("original : {:?}", self.original);
+            log::info!("link     : {:?}", self.link);
+        } else {
+            #[cfg(target_family = "unix")]
+            match os::unix::fs::symlink(&self.original, &self.link) {
+                Ok(_) => {
+                    log::info!("----------------------------------------------------------");
+                    log::info!("original : {:?}", self.original);
+                    log::info!("link     : {:?}", self.link);
+                }
+                Err(e) => {
+                    log::error!("----------------------------------------------------------");
+                    log::error!("{e}");
+                    log::error!("original : {:?}", self.original);
+                    log::error!("link     : {:?}", self.link);
+                }
+            }
+
+            #[cfg(target_family = "windows")]
+            match os::windows::fs::symlink(&self.original, &self.link) {
+                Ok(_) => {
+                    log::info!("----------------------------------------------------------");
+                    log::info!("original : {:?}", self.original);
+                    log::info!("link     : {:?}", self.link);
+                }
+                Err(e) => {
+                    log::error!("----------------------------------------------------------");
+                    log::error!("{e}");
+                    log::error!("original : {:?}", self.original);
+                    log::error!("link     : {:?}", self.link);
+                }
+            }
+        }
+    }
 }

@@ -28,11 +28,12 @@ cmd_lib = "1"
 config = "0.13"
 dioxus = { version = "0.2", features = ["fermi"] }
 dip = { version = "0.1", path = ".", features = ["desktop"] }
-dip_bundle = { version = "0.1", path = "./plugins/bundle", features = ["dotfiles"] }
+dip_bundle = { version = "0.1", path = "./plugins/bundle", features = ["full"] }
 dip_core = { version = "0.1", path = "./plugins/core" }
 dip_macro = { version = "0.1", path = "./plugins/macro" }
 dip_task = { version = "0.1", path = "./plugins/task" }
 dirs = "4.0"
+pathdiff = "0.2"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros", "fs"], default-features = false }
 serde = { version = "1.0", features = ["derive"] }
