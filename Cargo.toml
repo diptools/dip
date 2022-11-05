@@ -28,7 +28,7 @@ cmd_lib = "1"
 config = "0.13"
 dioxus = { version = "0.2", features = ["fermi"] }
 dip = { version = "0.1", path = ".", features = ["desktop"] }
-dip_bundle = { version = "0.1", path = "./plugins/bundle", features = ["full"] }
+dip_bundle = { version = "0.1", path = "./plugins/bundle", features = ["dotfiles"] }
 dip_core = { version = "0.1", path = "./plugins/core" }
 dip_macro = { version = "0.1", path = "./plugins/macro" }
 dip_task = { version = "0.1", path = "./plugins/task" }
@@ -39,6 +39,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_repr = "0.1"
 tempfile = "3"
+walkdir = "2"
 
 [package]
 name = "dip"

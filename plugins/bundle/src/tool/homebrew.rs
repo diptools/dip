@@ -1,7 +1,7 @@
 use crate::{ApplyBundle, BundleStage};
 use bevy::{
     app::{App, Plugin},
-    ecs::event::{EventReader, EventWriter},
+    ecs::event::EventReader,
     log,
 };
 use cmd_lib::{run_fun, spawn_with_output};

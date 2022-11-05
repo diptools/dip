@@ -1308,6 +1308,7 @@ dependencies = [
  "dirs",
  "reqwest",
  "tempfile",
+ "walkdir",
 ]
 
 [[package]]

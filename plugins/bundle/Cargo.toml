@@ -10,10 +10,11 @@ dirs.workspace = true
 cmd_lib.workspace = true
 reqwest.workspace = true
 tempfile.workspace = true
+walkdir.workspace = true
 
 [features]
-default = ["full"]
-full = ["brew", "dotfiles", "tailwind"]
-brew = []
+# default = ["full"]
+full = ["dotfiles", "brew", "tailwind"]
 dotfiles = []
+brew = []
 tailwind = []

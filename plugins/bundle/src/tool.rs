@@ -15,11 +15,11 @@ impl Plugin for ToolPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<InstallTools>().add_event::<ApplyTools>();
 
-        #[cfg(feature = "brew")]
-        app.add_plugin(HomebrewPlugin);
-
         #[cfg(feature = "dotfiles")]
         app.add_plugin(DotfilesPlugin);
+
+        #[cfg(feature = "brew")]
+        app.add_plugin(HomebrewPlugin);
 
         #[cfg(feature = "tailwind")]
         app.add_plugin(TailwindPlugin);
