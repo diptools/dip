@@ -26,6 +26,7 @@ impl Plugin for BundlePlugin {
 
 // Events
 
+#[derive(Clone)]
 pub struct ApplyBundle {
     pub verbose: bool,
     pub path: PathBuf,

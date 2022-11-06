@@ -44,6 +44,6 @@ impl Plugin for UiSchedulePlugin {
             SystemStage::parallel(),
         )
         .add_stage_after(DipStage::Prepare, DipStage::Apply, SystemStage::parallel())
-        .add_stage_after(DipStage::Prepare, DipStage::Render, SystemStage::parallel());
+        .add_stage_after(DipStage::Apply, DipStage::Render, SystemStage::parallel());
     }
 }

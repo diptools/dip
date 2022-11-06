@@ -1,5 +1,6 @@
 pub use crate::tool::{
-    dotfiles::DotfilesPlugin, homebrew::HomebrewPlugin, tailwind::TailwindPlugin,
+    dotfiles::DotfilesPlugin, homebrew::HomebrewPlugin, script::ScriptPlugin,
+    tailwind::TailwindPlugin,
 };
 use bevy::app::{App, Plugin};
 
@@ -7,6 +8,8 @@ pub struct UnixToolPlugin;
 
 impl Plugin for UnixToolPlugin {
     fn build(&self, app: &mut App) {
+        app.add_plugin(ScriptPlugin);
+
         #[cfg(feature = "dotfiles")]
         app.add_plugin(DotfilesPlugin);
 

@@ -1,5 +1,6 @@
 mod dotfiles;
 mod homebrew;
+mod script;
 mod tailwind;
 mod unix;
 

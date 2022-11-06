@@ -26,6 +26,7 @@ bevy = { version = "0.8", default-features = false }
 bevy_ecs = "0.8"
 cmd_lib = "1"
 config = "0.13"
+convert_case = "0.5"
 dioxus = { version = "0.2", features = ["fermi"] }
 dip = { version = "0.1", path = ".", features = ["desktop"] }
 dip_bundle = { version = "0.1", path = "./plugins/bundle", features = ["full"] }
