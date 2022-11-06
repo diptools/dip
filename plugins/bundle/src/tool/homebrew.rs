@@ -6,9 +6,9 @@ use bevy::{
 };
 use cmd_lib::{run_fun, spawn_with_output};
 use std::{
-    env,
     fs::File,
     io::{BufRead, BufReader, Write},
+    path::PathBuf,
 };
 use tempfile::tempdir;
 
@@ -28,8 +28,24 @@ impl Plugin for HomebrewPlugin {
 // Systems
 
 fn install(mut events: EventReader<InstallTools>) {
-    events.iter().for_each(
-        |e| match &e.path.join("bundle/homebrew/Brewfile").canonicalize() {
+    events.iter().for_each(|e| {
+        Homebrew::from(e.clone()).install();
+    });
+}
+fn apply(mut events: EventReader<ApplyBundle>) {
+    events.iter().for_each(|e| {
+        Homebrew::from(e.clone()).apply();
+    });
+}
+
+struct Homebrew {
+    pub verbose: bool,
+    pub path: PathBuf,
+}
+
+impl Homebrew {
+    fn install(&self) {
+        match &self.path.join("bundle/homebrew/Brewfile").canonicalize() {
             Ok(_brewfile_path) => {
                 if run_fun!(which brew).is_ok() {
                     log::info!("🟡 Skip: Install Homebrew");
@@ -53,7 +69,7 @@ fn install(mut events: EventReader<InstallTools>) {
 
                     let mut install_brew = spawn_with_output!(/bin/bash -C $file_path_str).unwrap();
 
-                    let result = if e.verbose {
+                    let result = if self.verbose {
                         install_brew.wait_with_pipe(&mut |pipe| {
                             BufReader::new(pipe)
                                 .lines()
@@ -80,16 +96,12 @@ fn install(mut events: EventReader<InstallTools>) {
                 log::info!("🟡 Skip: Install Homebrew");
                 log::info!("bundle/homebrew/Brewfile does not exists.",);
             }
-        },
-    );
-}
-fn apply(mut events: EventReader<ApplyBundle>) {
-    events.iter().for_each(|e| {
-        let current_path = env::current_dir().expect("Failed to get current directory.");
-        let brewfile_path = current_path.join(&e.path).join("bundle/homebrew/Brewfile");
+        }
+    }
 
-        match brewfile_path.canonicalize() {
-            Ok(_brewfile_path) => match run_fun!(which brew) {
+    fn apply(&self) {
+        match &self.path.join("bundle/homebrew/Brewfile").canonicalize() {
+            Ok(brewfile_path) => match run_fun!(which brew) {
                 Ok(_brew_path) => {
                     log::info!("📌 Apply Homebrew bundle");
                     let brewfile_path_str = &brewfile_path
@@ -101,7 +113,7 @@ fn apply(mut events: EventReader<ApplyBundle>) {
                     let mut brew_bundle =
                         spawn_with_output!(brew bundle --file $brewfile_path_str).unwrap();
 
-                    let result = if e.verbose {
+                    let result = if self.verbose {
                         brew_bundle.wait_with_pipe(&mut |pipe| {
                             BufReader::new(pipe)
                                 .lines()
@@ -133,5 +145,17 @@ fn apply(mut events: EventReader<ApplyBundle>) {
                 log::info!("bundle/homebrew/Brewfile does not exists.");
             }
         }
-    });
+    }
+}
+
+impl From<InstallTools> for Homebrew {
+    fn from(InstallTools { verbose, path }: InstallTools) -> Self {
+        Self { verbose, path }
+    }
+}
+
+impl From<ApplyBundle> for Homebrew {
+    fn from(ApplyBundle { verbose, path }: ApplyBundle) -> Self {
+        Self { verbose, path }
+    }
 }

@@ -24,6 +24,7 @@ impl Plugin for ToolPlugin {
 
 // Events
 
+#[derive(Clone)]
 pub struct InstallTools {
     pub verbose: bool,
     pub path: PathBuf,
