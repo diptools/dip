@@ -8,8 +8,12 @@ use bevy::{
     log,
 };
 use pathdiff::diff_paths;
-use std::{fs::{self, DirEntry}, os, path::PathBuf};
-use walkdir::{WalkDir};
+use std::{
+    fs::{self, DirEntry},
+    os,
+    path::PathBuf,
+};
+use walkdir::WalkDir;
 
 // Plugin
 
@@ -55,6 +59,7 @@ fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<A
                     .into_string()
                     .unwrap()
             );
+
             log::info!("🟡 Skip: Apply dotfiles");
         }
     });
@@ -95,8 +100,7 @@ impl Symlink {
             log::info!("🟡 Skip: File is already symlinked");
             log::info!("original : {:?}", self.original);
             log::info!("link     : {:?}", self.link);
-        }
-        else if self.link.is_file() {
+        } else if self.link.is_file() {
             log::info!("----------------------------------------------------------");
             log::info!("🟡 Skip: File already exists");
             log::info!("original : {:?}", self.original);
