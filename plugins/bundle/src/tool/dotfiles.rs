@@ -8,8 +8,8 @@ use bevy::{
     log,
 };
 use pathdiff::diff_paths;
-use std::{fs, os, path::PathBuf};
-use walkdir::WalkDir;
+use std::{fs::{self, DirEntry}, os, path::PathBuf};
+use walkdir::{WalkDir};
 
 // Plugin
 
@@ -27,7 +27,7 @@ impl Plugin for DotfilesPlugin {
 
 struct ApplySymlinks {
     dotfiles_path: PathBuf,
-    path: PathBuf,
+    dir_entry: DirEntry,
 }
 
 fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<ApplySymlinks>) {
@@ -40,11 +40,10 @@ fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<A
                 .unwrap()
                 .filter(|entry| entry.is_ok())
                 .filter_map(Result::ok)
-                .filter(|entry| entry.file_type().unwrap().is_dir())
                 .for_each(|dir_entry| {
                     apply_dotfiles.send(ApplySymlinks {
                         dotfiles_path: dotfiles_path.to_path_buf(),
-                        path: dir_entry.path(),
+                        dir_entry,
                     });
                 });
         } else {
@@ -63,18 +62,22 @@ fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<A
 
 fn apply_symlinks(mut events: EventReader<ApplySymlinks>) {
     events.iter().for_each(|e| {
-        WalkDir::new(&e.path)
+        WalkDir::new(&e.dir_entry.path())
             .into_iter()
             .filter_map(Result::ok)
-            .filter(|e| e.file_type().is_file())
-            .map(|entry| {
-                let original = entry.path().to_path_buf();
+            .filter_map(|entry| {
+                let original = entry.path().to_path_buf().canonicalize().unwrap();
                 let diff = diff_paths(entry.path(), &e.dotfiles_path).unwrap();
                 let dotfile_bundle_name = diff.iter().next().unwrap();
                 let stripped = diff.strip_prefix(dotfile_bundle_name).unwrap();
                 let link = dirs::home_dir().unwrap().join(stripped);
 
-                Symlink { original, link }
+                if entry.file_type().is_dir() {
+                    fs::create_dir_all(link).unwrap();
+                    None
+                } else {
+                    Some(Symlink { original, link })
+                }
             })
             .for_each(|symlink| symlink.apply());
     });
@@ -87,7 +90,13 @@ struct Symlink {
 
 impl Symlink {
     fn apply(&self) {
-        if self.link.is_file() {
+        if self.link.is_symlink() {
+            log::info!("----------------------------------------------------------");
+            log::info!("🟡 Skip: File is already symlinked");
+            log::info!("original : {:?}", self.original);
+            log::info!("link     : {:?}", self.link);
+        }
+        else if self.link.is_file() {
             log::info!("----------------------------------------------------------");
             log::info!("🟡 Skip: File already exists");
             log::info!("original : {:?}", self.original);
