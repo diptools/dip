@@ -1,18 +1,16 @@
-use crate::{ApplyBundle, BundleStage};
+use crate::{tool::InstallTools, ApplyBundle, BundleStage};
 use bevy::{
     app::{App, Plugin},
     ecs::event::EventReader,
     log,
 };
-use cmd_lib::{run_fun, spawn_with_output};
+use cmd_lib::spawn_with_output;
 use std::{
     fs::File,
     io::{BufRead, BufReader, Write},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 use tempfile::tempdir;
-
-use super::InstallTools;
 
 // Plugin
 
@@ -44,10 +42,18 @@ struct Homebrew {
 }
 
 impl Homebrew {
+    fn homebrew_path() -> &'static str {
+        "/opt/homebrew/bin/brew"
+    }
+
+    fn brewfile_path(&self) -> PathBuf {
+        self.path.join("bundle/homebrew/Brewfile")
+    }
+
     fn install(&self) {
-        match &self.path.join("bundle/homebrew/Brewfile").canonicalize() {
+        match &self.brewfile_path().canonicalize() {
             Ok(_brewfile_path) => {
-                if run_fun!(which brew).is_ok() {
+                if Path::new(Self::homebrew_path()).exists() {
                     log::info!("🟡 Skip: Install Homebrew");
                     log::info!("brew path already exists");
                 } else {
@@ -67,7 +73,8 @@ impl Homebrew {
                     file.write_all(install_sh.as_bytes())
                         .expect("Unable to write file");
 
-                    let mut install_brew = spawn_with_output!(/bin/bash -C $file_path_str).unwrap();
+                    let mut install_brew =
+                        spawn_with_output!(NONINTERACTIVE=1 /bin/bash -C $file_path_str).unwrap();
 
                     let result = if self.verbose {
                         install_brew.wait_with_pipe(&mut |pipe| {
@@ -100,9 +107,9 @@ impl Homebrew {
     }
 
     fn apply(&self) {
-        match &self.path.join("bundle/homebrew/Brewfile").canonicalize() {
-            Ok(brewfile_path) => match run_fun!(which brew) {
-                Ok(_brew_path) => {
+        match &self.brewfile_path().canonicalize() {
+            Ok(brewfile_path) => {
+                if Path::new(Self::homebrew_path()).exists() {
                     log::info!("📌 Apply Homebrew bundle");
                     let brewfile_path_str = &brewfile_path
                         .clone()
@@ -111,7 +118,8 @@ impl Homebrew {
                         .unwrap();
 
                     let mut brew_bundle =
-                        spawn_with_output!(brew bundle --file $brewfile_path_str).unwrap();
+                        spawn_with_output!(brew bundle --cleanup --file $brewfile_path_str)
+                            .unwrap();
 
                     let result = if self.verbose {
                         brew_bundle.wait_with_pipe(&mut |pipe| {
@@ -134,12 +142,10 @@ impl Homebrew {
                     } else {
                         log::info!("✅ Apply Homebrew bundle");
                     }
-                }
-                Err(e) => {
-                    log::error!("{e}");
+                } else {
                     log::error!("Could not find homebrew binary.");
                 }
-            },
+            }
             Err(_e) => {
                 log::info!("🟡 Skip: Apply Homebrew bundle");
                 log::info!("bundle/homebrew/Brewfile does not exists.");
