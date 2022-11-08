@@ -15,11 +15,11 @@ impl Plugin for BundleSchedulePlugin {
         )
         .add_stage_after(
             BundleStage::First,
-            BundleStage::Prepare,
+            BundleStage::Clean,
             SystemStage::parallel(),
         )
         .add_stage_after(
-            BundleStage::Prepare,
+            BundleStage::Clean,
             BundleStage::Install,
             SystemStage::parallel(),
         )
@@ -39,7 +39,7 @@ impl Plugin for BundleSchedulePlugin {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
 pub enum BundleStage {
     First,
-    Prepare,
+    Clean,
     Install,
     Apply,
     Last,

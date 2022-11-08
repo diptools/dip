@@ -15,7 +15,7 @@ pub struct ToolPlugin;
 
 impl Plugin for ToolPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<InstallTools>().add_event::<ApplyTools>();
+        app.add_event::<InstallTools>();
 
         #[cfg(target_family = "unix")]
         app.add_plugin(UnixToolPlugin);
@@ -26,11 +26,6 @@ impl Plugin for ToolPlugin {
 
 #[derive(Clone)]
 pub struct InstallTools {
-    pub verbose: bool,
-    pub path: PathBuf,
-}
-
-pub struct ApplyTools {
     pub verbose: bool,
     pub path: PathBuf,
 }

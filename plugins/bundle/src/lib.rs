@@ -9,7 +9,7 @@ use bevy::{
 // pub use config::BundleConfigPlugin;
 pub use schedule::{BundleSchedulePlugin, BundleStage};
 use std::path::PathBuf;
-use tool::{ApplyTools, InstallTools, ToolPlugin};
+use tool::{InstallTools, ToolPlugin};
 
 pub struct BundlePlugin;
 
@@ -17,10 +17,10 @@ impl Plugin for BundlePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(BundleSchedulePlugin)
             .add_event::<ApplyBundle>()
-            .add_event::<BundleApplied>()
+            .add_event::<CleanBundle>()
             // .add_plugin(BundleConfigPlugin)
             .add_plugin(ToolPlugin)
-            .add_system_to_stage(BundleStage::Prepare, apply_bundle);
+            .add_system_to_stage(BundleStage::Apply, apply_bundle);
     }
 }
 
@@ -32,29 +32,20 @@ pub struct ApplyBundle {
     pub path: PathBuf,
 }
 
-pub struct BundleApplied;
+#[derive(Clone)]
+pub struct CleanBundle {
+    pub verbose: bool,
+    pub path: PathBuf,
+}
 
 fn apply_bundle(
     mut events: EventReader<ApplyBundle>,
     mut install_tools: EventWriter<InstallTools>,
-    mut apply_tools: EventWriter<ApplyTools>,
 ) {
-    events
-        .iter()
-        .map(|e| {
-            (
-                InstallTools {
-                    verbose: e.verbose,
-                    path: e.path.clone(),
-                },
-                ApplyTools {
-                    verbose: e.verbose,
-                    path: e.path.clone(),
-                },
-            )
-        })
-        .for_each(|(install, apply)| {
-            install_tools.send(install);
-            apply_tools.send(apply);
+    events.iter().for_each(|e| {
+        install_tools.send(InstallTools {
+            verbose: e.verbose,
+            path: e.path.clone(),
         });
+    });
 }

@@ -40,10 +40,19 @@ pub struct BuildArgs {
 #[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
 pub enum BundleAction {
     Apply(ApplyBundleArgs),
+    Clean(CleanBundleArgs),
 }
 
 #[derive(clap::Args, Clone, Debug)]
 pub struct ApplyBundleArgs {
+    // #[clap(short, long, required = false)]
+    // pub verbose: bool,
+    #[clap(short, long, default_value_t = String::from("."))]
+    pub path: String,
+}
+
+#[derive(clap::Args, Clone, Debug)]
+pub struct CleanBundleArgs {
     // #[clap(short, long, required = false)]
     // pub verbose: bool,
     #[clap(short, long, default_value_t = String::from("."))]

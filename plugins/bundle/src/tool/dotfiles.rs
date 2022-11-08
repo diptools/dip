@@ -1,4 +1,4 @@
-use crate::{ApplyBundle, BundleStage};
+use crate::{ApplyBundle, BundleStage, CleanBundle};
 use bevy::{
     app::{App, Plugin},
     ecs::{
@@ -23,7 +23,8 @@ impl Plugin for DotfilesPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<ApplySymlinks>()
             .add_system_to_stage(BundleStage::Apply, apply)
-            .add_system_to_stage(BundleStage::Apply, apply_symlinks.after(apply));
+            .add_system_to_stage(BundleStage::Apply, apply_symlinks.after(apply))
+            .add_system_to_stage(BundleStage::Clean, clean);
     }
 }
 
@@ -85,6 +86,12 @@ fn apply_symlinks(mut events: EventReader<ApplySymlinks>) {
                 }
             })
             .for_each(|symlink| symlink.apply());
+    });
+}
+
+fn clean(mut events: EventReader<CleanBundle>) {
+    events.iter().for_each(|_e| {
+        println!("hey");
     });
 }
 
