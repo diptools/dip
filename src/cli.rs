@@ -32,8 +32,6 @@ fn install_bundle(
 ) {
     actions.iter().for_each(|a| {
         apply.send(ApplyBundle {
-            // verbose: a.verbose,
-            verbose: true,
             path: PathBuf::from(&a.path),
         });
     });
@@ -42,8 +40,6 @@ fn install_bundle(
 fn clean_bundle(mut actions: EventReader<CleanBundleAction>, mut clean: EventWriter<CleanBundle>) {
     actions.iter().for_each(|a| {
         clean.send(CleanBundle {
-            // verbose: a.verbose,
-            verbose: true,
             path: PathBuf::from(&a.path),
         })
     });

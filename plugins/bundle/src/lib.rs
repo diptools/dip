@@ -28,13 +28,11 @@ impl Plugin for BundlePlugin {
 
 #[derive(Clone)]
 pub struct ApplyBundle {
-    pub verbose: bool,
     pub path: PathBuf,
 }
 
 #[derive(Clone)]
 pub struct CleanBundle {
-    pub verbose: bool,
     pub path: PathBuf,
 }
 
@@ -48,7 +46,6 @@ fn apply_bundle(
 ) {
     events.iter().for_each(|e| {
         install_tools.send(InstallTools {
-            verbose: e.verbose,
             path: e.path.clone(),
         });
     });

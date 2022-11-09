@@ -56,20 +56,12 @@ impl Script {
                 let file_path_str = file_path.display();
                 let mut script = spawn_with_output!(/bin/bash -C $file_path_str).unwrap();
 
-                let result = if self.event.verbose {
-                    script.wait_with_pipe(&mut |pipe| {
-                        BufReader::new(pipe)
-                            .lines()
-                            .filter_map(|line| line.ok())
-                            .for_each(|f| println!("{f}"));
-                    })
-                } else {
-                    if let Err(e) = script.wait_with_output() {
-                        Err(e)
-                    } else {
-                        Ok(())
-                    }
-                };
+                let result = script.wait_with_pipe(&mut |pipe| {
+                    BufReader::new(pipe)
+                        .lines()
+                        .filter_map(|line| line.ok())
+                        .for_each(|f| println!("{f}"));
+                });
 
                 if let Err(e) = result {
                     println!("Failed to run {} script.", self.schedule.to_string());

@@ -90,7 +90,6 @@ fn apply_symlinks(mut events: EventReader<ApplySymlinks>) {
 }
 
 struct Dotfiles {
-    pub verbose: bool,
     pub path: PathBuf,
 }
 
@@ -101,14 +100,14 @@ impl Bundle for Dotfiles {
 }
 
 impl From<ApplyBundle> for Dotfiles {
-    fn from(ApplyBundle { verbose, path }: ApplyBundle) -> Self {
-        Self { verbose, path }
+    fn from(ApplyBundle { path }: ApplyBundle) -> Self {
+        Self { path }
     }
 }
 
 impl From<CleanBundle> for Dotfiles {
-    fn from(CleanBundle { verbose, path }: CleanBundle) -> Self {
-        Self { verbose, path }
+    fn from(CleanBundle { path }: CleanBundle) -> Self {
+        Self { path }
     }
 }
 

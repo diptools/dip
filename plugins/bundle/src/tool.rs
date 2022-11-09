@@ -26,7 +26,6 @@ impl Plugin for ToolPlugin {
 
 #[derive(Clone)]
 pub struct InstallTools {
-    pub verbose: bool,
     pub path: PathBuf,
 }
 

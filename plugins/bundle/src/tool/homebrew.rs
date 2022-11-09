@@ -36,7 +36,6 @@ fn apply(mut events: EventReader<ApplyBundle>) {
 }
 
 struct Homebrew {
-    pub verbose: bool,
     pub path: PathBuf,
 }
 
@@ -81,20 +80,12 @@ impl Homebrew {
                     let mut install_brew =
                         spawn_with_output!(NONINTERACTIVE=1 /bin/bash -C $file_path_str).unwrap();
 
-                    let result = if self.verbose {
-                        install_brew.wait_with_pipe(&mut |pipe| {
-                            BufReader::new(pipe)
-                                .lines()
-                                .filter_map(|line| line.ok())
-                                .for_each(|f| println!("{f}"));
-                        })
-                    } else {
-                        if let Err(e) = install_brew.wait_with_output() {
-                            Err(e)
-                        } else {
-                            Ok(())
-                        }
-                    };
+                    let result = install_brew.wait_with_pipe(&mut |pipe| {
+                        BufReader::new(pipe)
+                            .lines()
+                            .filter_map(|line| line.ok())
+                            .for_each(|f| println!("{f}"));
+                    });
 
                     if let Err(e) = result {
                         println!("Failed to run brew install.");
@@ -126,20 +117,12 @@ impl Homebrew {
                         spawn_with_output!(brew bundle --cleanup --file $brewfile_path_str)
                             .unwrap();
 
-                    let result = if self.verbose {
-                        brew_bundle.wait_with_pipe(&mut |pipe| {
-                            BufReader::new(pipe)
-                                .lines()
-                                .filter_map(|line| line.ok())
-                                .for_each(|line| println!("{:?}", line));
-                        })
-                    } else {
-                        if let Err(e) = brew_bundle.wait_with_output() {
-                            Err(e)
-                        } else {
-                            Ok(())
-                        }
-                    };
+                    let result = brew_bundle.wait_with_pipe(&mut |pipe| {
+                        BufReader::new(pipe)
+                            .lines()
+                            .filter_map(|line| line.ok())
+                            .for_each(|line| println!("{:?}", line));
+                    });
 
                     if let Err(e) = result {
                         println!("Failed to run brew bundle.");
@@ -160,13 +143,13 @@ impl Homebrew {
 }
 
 impl From<InstallTools> for Homebrew {
-    fn from(InstallTools { verbose, path }: InstallTools) -> Self {
-        Self { verbose, path }
+    fn from(InstallTools { path }: InstallTools) -> Self {
+        Self { path }
     }
 }
 
 impl From<ApplyBundle> for Homebrew {
-    fn from(ApplyBundle { verbose, path }: ApplyBundle) -> Self {
-        Self { verbose, path }
+    fn from(ApplyBundle { path }: ApplyBundle) -> Self {
+        Self { path }
     }
 }
