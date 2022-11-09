@@ -1,8 +1,7 @@
-use crate::{tool::InstallTools, ApplyBundle, BundleStage};
+use crate::{tool::InstallTools, ApplyBundle, Bundle, BundleStage};
 use bevy::{
     app::{App, Plugin},
     ecs::event::EventReader,
-    log,
 };
 use cmd_lib::spawn_with_output;
 use std::{
@@ -41,23 +40,29 @@ struct Homebrew {
     pub path: PathBuf,
 }
 
+impl Bundle for Homebrew {
+    fn bundle_path(&self) -> PathBuf {
+        self.path.join("bundle/homebrew")
+    }
+}
+
 impl Homebrew {
     fn homebrew_path() -> &'static str {
         "/opt/homebrew/bin/brew"
     }
 
     fn brewfile_path(&self) -> PathBuf {
-        self.path.join("bundle/homebrew/Brewfile")
+        self.bundle_path().join("bundle/homebrew/Brewfile")
     }
 
     fn install(&self) {
         match &self.brewfile_path().canonicalize() {
             Ok(_brewfile_path) => {
                 if Path::new(Self::homebrew_path()).exists() {
-                    log::info!("🟡 Skip: Install Homebrew");
-                    log::info!("brew path already exists");
+                    println!("🟡 Skip: Install Homebrew");
+                    println!("brew path already exists");
                 } else {
-                    log::info!("📌 Install Homebrew");
+                    println!("📌 Install Homebrew");
 
                     let install_sh = reqwest::blocking::get(
                         "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh",
@@ -81,7 +86,7 @@ impl Homebrew {
                             BufReader::new(pipe)
                                 .lines()
                                 .filter_map(|line| line.ok())
-                                .for_each(|f| log::info!("{f}"));
+                                .for_each(|f| println!("{f}"));
                         })
                     } else {
                         if let Err(e) = install_brew.wait_with_output() {
@@ -92,16 +97,16 @@ impl Homebrew {
                     };
 
                     if let Err(e) = result {
-                        log::error!("Failed to run brew install.");
-                        log::error!("{e}");
+                        println!("Failed to run brew install.");
+                        eprintln!("{e}");
                     } else {
-                        log::info!("✅ Install Homebrew");
+                        println!("✅ Install Homebrew");
                     }
                 }
             }
             Err(_e) => {
-                log::info!("🟡 Skip: Install Homebrew");
-                log::info!("bundle/homebrew/Brewfile does not exists.",);
+                println!("🟡 Skip: Install Homebrew");
+                println!("bundle/homebrew/Brewfile does not exists.",);
             }
         }
     }
@@ -110,7 +115,7 @@ impl Homebrew {
         match &self.brewfile_path().canonicalize() {
             Ok(brewfile_path) => {
                 if Path::new(Self::homebrew_path()).exists() {
-                    log::info!("📌 Apply Homebrew bundle");
+                    println!("📌 Apply Homebrew bundle");
                     let brewfile_path_str = &brewfile_path
                         .clone()
                         .into_os_string()
@@ -126,7 +131,7 @@ impl Homebrew {
                             BufReader::new(pipe)
                                 .lines()
                                 .filter_map(|line| line.ok())
-                                .for_each(|line| log::info!("{:?}", line));
+                                .for_each(|line| println!("{:?}", line));
                         })
                     } else {
                         if let Err(e) = brew_bundle.wait_with_output() {
@@ -137,18 +142,18 @@ impl Homebrew {
                     };
 
                     if let Err(e) = result {
-                        log::error!("{e}");
-                        log::error!("Failed to run brew bundle.");
+                        println!("Failed to run brew bundle.");
+                        eprintln!("{e}");
                     } else {
-                        log::info!("✅ Apply Homebrew bundle");
+                        println!("✅ Apply Homebrew bundle");
                     }
                 } else {
-                    log::error!("Could not find homebrew binary.");
+                    eprintln!("Could not find homebrew binary.");
                 }
             }
             Err(_e) => {
-                log::info!("🟡 Skip: Apply Homebrew bundle");
-                log::info!("bundle/homebrew/Brewfile does not exists.");
+                println!("🟡 Skip: Apply Homebrew bundle");
+                println!("bundle/homebrew/Brewfile does not exists.");
             }
         }
     }

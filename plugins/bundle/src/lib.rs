@@ -38,6 +38,10 @@ pub struct CleanBundle {
     pub path: PathBuf,
 }
 
+pub trait Bundle {
+    fn bundle_path(&self) -> PathBuf;
+}
+
 fn apply_bundle(
     mut events: EventReader<ApplyBundle>,
     mut install_tools: EventWriter<InstallTools>,

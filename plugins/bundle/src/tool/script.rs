@@ -1,7 +1,6 @@
 use bevy::{
     app::{App, Plugin},
     ecs::event::EventReader,
-    log,
 };
 use cmd_lib::spawn_with_output;
 use convert_case::{Case, Casing};
@@ -52,7 +51,7 @@ impl Script {
     fn run(&self) {
         match self.find_file() {
             Ok(file_path) => {
-                log::info!("📌 {} script", self.schedule.to_upper_camel());
+                println!("📌 {} script", self.schedule.to_upper_camel());
 
                 let file_path_str = file_path.display();
                 let mut script = spawn_with_output!(/bin/bash -C $file_path_str).unwrap();
@@ -62,7 +61,7 @@ impl Script {
                         BufReader::new(pipe)
                             .lines()
                             .filter_map(|line| line.ok())
-                            .for_each(|f| log::info!("{f}"));
+                            .for_each(|f| println!("{f}"));
                     })
                 } else {
                     if let Err(e) = script.wait_with_output() {
@@ -73,10 +72,10 @@ impl Script {
                 };
 
                 if let Err(e) = result {
-                    log::error!("Failed to run {} script.", self.schedule.to_string());
-                    log::error!("{e}");
+                    println!("Failed to run {} script.", self.schedule.to_string());
+                    eprintln!("{e}");
                 } else {
-                    log::info!("✅ {} script", self.schedule.to_upper_camel());
+                    println!("✅ {} script", self.schedule.to_upper_camel());
                 }
             }
             Err(_e) => {
@@ -86,8 +85,8 @@ impl Script {
     }
 
     fn skip(&self) {
-        log::info!("🟡 Skip: {} script", &self.schedule.to_upper_camel());
-        log::info!("{} does not exists.", &self.file_path().display());
+        println!("🟡 Skip: {} script", &self.schedule.to_upper_camel());
+        println!("{} does not exists.", &self.file_path().display());
     }
 
     fn find_file(&self) -> io::Result<PathBuf> {

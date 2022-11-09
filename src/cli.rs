@@ -8,10 +8,9 @@ use dip::{
         app::{App, Plugin},
         ecs::event::{EventReader, EventWriter},
     },
-    bundle::{ApplyBundle, BundlePlugin},
+    bundle::{ApplyBundle, BundlePlugin, CleanBundle},
     core::task::NoAsyncAction,
 };
-use dip_bundle::CleanBundle;
 use std::path::PathBuf;
 
 pub struct DipCliPlugin;
@@ -22,12 +21,15 @@ impl Plugin for DipCliPlugin {
             .add_plugin(ActionPlugin)
             .add_plugin(BundleActionPlugin)
             .add_plugin(BundlePlugin)
-            .add_system(apply_bundle)
+            .add_system(install_bundle)
             .add_system(clean_bundle);
     }
 }
 
-fn apply_bundle(mut actions: EventReader<ApplyBundleAction>, mut apply: EventWriter<ApplyBundle>) {
+fn install_bundle(
+    mut actions: EventReader<ApplyBundleAction>,
+    mut apply: EventWriter<ApplyBundle>,
+) {
     actions.iter().for_each(|a| {
         apply.send(ApplyBundle {
             // verbose: a.verbose,

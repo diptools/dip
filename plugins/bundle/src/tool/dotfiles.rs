@@ -1,11 +1,10 @@
-use crate::{ApplyBundle, BundleStage, CleanBundle};
+use crate::{ApplyBundle, Bundle, BundleStage, CleanBundle};
 use bevy::{
     app::{App, Plugin},
     ecs::{
         event::{EventReader, EventWriter},
         schedule::ParallelSystemDescriptorCoercion,
     },
-    log,
 };
 use pathdiff::diff_paths;
 use std::{
@@ -37,10 +36,11 @@ struct ApplySymlinks {
 
 fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<ApplySymlinks>) {
     events.iter().for_each(|e| {
-        let dotfiles_path = &e.path.join("bundle").join("dotfiles");
+        let dotfiles = Dotfiles::from(e.clone());
+        let dotfiles_path = &dotfiles.bundle_path();
 
         if dotfiles_path.is_dir() {
-            log::info!("📌 Apply dotfiles");
+            println!("📌 Apply dotfiles");
             fs::read_dir(dotfiles_path)
                 .unwrap()
                 .filter(|entry| entry.is_ok())
@@ -52,7 +52,7 @@ fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<A
                     });
                 });
         } else {
-            log::info!(
+            println!(
                 "dotfiles direcotry is empty: {}",
                 &dotfiles_path
                     .clone()
@@ -61,7 +61,7 @@ fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<A
                     .unwrap()
             );
 
-            log::info!("🟡 Skip: Apply dotfiles");
+            println!("🟡 Skip: Apply dotfiles");
         }
     });
 }
@@ -89,6 +89,29 @@ fn apply_symlinks(mut events: EventReader<ApplySymlinks>) {
     });
 }
 
+struct Dotfiles {
+    pub verbose: bool,
+    pub path: PathBuf,
+}
+
+impl Bundle for Dotfiles {
+    fn bundle_path(&self) -> PathBuf {
+        self.path.join("bundle/dotfiles")
+    }
+}
+
+impl From<ApplyBundle> for Dotfiles {
+    fn from(ApplyBundle { verbose, path }: ApplyBundle) -> Self {
+        Self { verbose, path }
+    }
+}
+
+impl From<CleanBundle> for Dotfiles {
+    fn from(CleanBundle { verbose, path }: CleanBundle) -> Self {
+        Self { verbose, path }
+    }
+}
+
 fn clean(mut events: EventReader<CleanBundle>) {
     events.iter().for_each(|_e| {
         println!("hey");
@@ -103,45 +126,46 @@ struct Symlink {
 impl Symlink {
     fn apply(&self) {
         if self.link.is_symlink() {
-            log::info!("----------------------------------------------------------");
-            log::info!("🟡 Skip: File is already symlinked");
-            log::info!("original : {:?}", self.original);
-            log::info!("link     : {:?}", self.link);
+            println!(
+                "{}",
+                &self.symlink_log_message(Some("🟡 Skip: File is already symlinked"))
+            );
         } else if self.link.is_file() {
-            log::info!("----------------------------------------------------------");
-            log::info!("🟡 Skip: File already exists");
-            log::info!("original : {:?}", self.original);
-            log::info!("link     : {:?}", self.link);
+            println!(
+                "{}",
+                &self.symlink_log_message(Some("🟡 Skip: File already exists"))
+            );
         } else {
             #[cfg(target_family = "unix")]
             match os::unix::fs::symlink(&self.original, &self.link) {
                 Ok(_) => {
-                    log::info!("----------------------------------------------------------");
-                    log::info!("original : {:?}", self.original);
-                    log::info!("link     : {:?}", self.link);
+                    println!("{}", &self.symlink_log_message(None));
                 }
                 Err(e) => {
-                    log::error!("----------------------------------------------------------");
-                    log::error!("{e}");
-                    log::error!("original : {:?}", self.original);
-                    log::error!("link     : {:?}", self.link);
+                    eprintln!("{}", &self.symlink_log_message(Some(&e.to_string())));
                 }
             }
 
             #[cfg(target_family = "windows")]
             match os::windows::fs::symlink(&self.original, &self.link) {
                 Ok(_) => {
-                    log::info!("----------------------------------------------------------");
-                    log::info!("original : {:?}", self.original);
-                    log::info!("link     : {:?}", self.link);
+                    println!("{}", &self.symlink_log_message(None));
                 }
                 Err(e) => {
-                    log::error!("----------------------------------------------------------");
-                    log::error!("{e}");
-                    log::error!("original : {:?}", self.original);
-                    log::error!("link     : {:?}", self.link);
+                    printlne!("{}", &self.symlink_log_message(Some(&e.to_string())));
                 }
             }
         }
+    }
+
+    fn symlink_log_message<'a>(&self, message: Option<&'a str>) -> String {
+        let message = message.unwrap_or("".into());
+        format!(
+            "----------------------------------------------------------\n\
+            {message}\n\
+            original : {:?}\n\
+            link     : {:?}",
+            &self.original, &self.link,
+        )
     }
 }
