@@ -34,7 +34,7 @@ struct ApplySymlinks {
     dir_entry: DirEntry,
 }
 
-fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<ApplySymlinks>) {
+fn apply(mut events: EventReader<ApplyBundle>, mut apply_symlinks: EventWriter<ApplySymlinks>) {
     events.iter().for_each(|e| {
         let dotfiles = Dotfiles::from(e.clone());
         let dotfiles_path = &dotfiles.bundle_path();
@@ -46,7 +46,7 @@ fn apply(mut events: EventReader<ApplyBundle>, mut apply_dotfiles: EventWriter<A
                 .filter(|entry| entry.is_ok())
                 .filter_map(Result::ok)
                 .for_each(|dir_entry| {
-                    apply_dotfiles.send(ApplySymlinks {
+                    apply_symlinks.send(ApplySymlinks {
                         dotfiles_path: dotfiles_path.to_path_buf(),
                         dir_entry,
                     });
@@ -127,37 +127,37 @@ impl Symlink {
         if self.link.is_symlink() {
             println!(
                 "{}",
-                &self.symlink_log_message(Some("🟡 Skip: File is already symlinked"))
+                &self.fmt_with_message("🟡 Skip: File is already symlinked")
             );
         } else if self.link.is_file() {
-            println!(
-                "{}",
-                &self.symlink_log_message(Some("🟡 Skip: File already exists"))
-            );
+            println!("{}", &self.fmt_with_message("🟡 Skip: File already exists"));
         } else {
             #[cfg(target_family = "unix")]
-            match os::unix::fs::symlink(&self.original, &self.link) {
-                Ok(_) => {
-                    println!("{}", &self.symlink_log_message(None));
-                }
-                Err(e) => {
-                    eprintln!("{}", &self.symlink_log_message(Some(&e.to_string())));
-                }
-            }
+            let res = os::unix::fs::symlink(&self.original, &self.link);
 
             #[cfg(target_family = "windows")]
-            match os::windows::fs::symlink(&self.original, &self.link) {
+            let res = os::windows::fs::symlink(&self.original, &self.link);
+
+            match res {
                 Ok(_) => {
-                    println!("{}", &self.symlink_log_message(None));
+                    println!("{}", &self.fmt());
                 }
                 Err(e) => {
-                    printlne!("{}", &self.symlink_log_message(Some(&e.to_string())));
+                    eprintln!("{}", &self.fmt_with_message(&e.to_string()));
                 }
             }
         }
     }
 
-    fn symlink_log_message<'a>(&self, message: Option<&'a str>) -> String {
+    fn fmt(&self) -> String {
+        self.fmt_message(None)
+    }
+
+    fn fmt_with_message<'a>(&self, message: &'a str) -> String {
+        self.fmt_message(Some(message))
+    }
+
+    fn fmt_message<'a>(&self, message: Option<&'a str>) -> String {
         let message = message.unwrap_or("".into());
         format!(
             "----------------------------------------------------------\n\
