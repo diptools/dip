@@ -51,7 +51,7 @@ impl Homebrew {
     }
 
     fn brewfile_path(&self) -> PathBuf {
-        self.bundle_path().join("bundle/homebrew/Brewfile")
+        self.bundle_path().join("Brewfile")
     }
 
     fn install(&self) {
