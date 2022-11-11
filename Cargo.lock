@@ -1302,6 +1302,7 @@ dependencies = [
 name = "dip_bundle"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bevy",
  "cmd_lib",
  "convert_case 0.5.0",

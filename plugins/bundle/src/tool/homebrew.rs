@@ -1,4 +1,4 @@
-use crate::{tool::InstallTools, ApplyBundle, Bundle, BundleStage};
+use crate::{tool::InstallTools, ApplyBundle, BundleStage};
 use bevy::{
     app::{App, Plugin},
     ecs::event::EventReader,
@@ -6,7 +6,7 @@ use bevy::{
 use cmd_lib::spawn_with_output;
 use std::{
     fs::File,
-    io::{BufRead, BufReader, Write},
+    io::{self, BufRead, BufReader, Write},
     path::{Path, PathBuf},
 };
 use tempfile::tempdir;
@@ -26,68 +26,17 @@ impl Plugin for HomebrewPlugin {
 
 fn install(mut events: EventReader<InstallTools>) {
     events.iter().for_each(|e| {
-        Homebrew::from(e.clone()).install();
-    });
-}
-fn apply(mut events: EventReader<ApplyBundle>) {
-    events.iter().for_each(|e| {
-        Homebrew::from(e.clone()).apply();
-    });
-}
+        let brew = Homebrew::from(e.clone());
 
-struct Homebrew {
-    pub path: PathBuf,
-}
-
-impl Bundle for Homebrew {
-    fn bundle_path(&self) -> PathBuf {
-        self.path.join("bundle/homebrew")
-    }
-}
-
-impl Homebrew {
-    fn homebrew_path() -> &'static str {
-        "/opt/homebrew/bin/brew"
-    }
-
-    fn brewfile_path(&self) -> PathBuf {
-        self.bundle_path().join("Brewfile")
-    }
-
-    fn install(&self) {
-        match &self.brewfile_path().canonicalize() {
+        match &brew.brewfile_path() {
             Ok(_brewfile_path) => {
-                if Path::new(Self::homebrew_path()).exists() {
+                if brew.installed() {
                     println!("🟡 Skip: Install Homebrew");
-                    println!("brew path already exists");
+                    println!("brew is already installed");
                 } else {
-                    println!("📌 Install Homebrew");
+                    println!("📌 Install Homebrew bundle");
 
-                    let install_sh = reqwest::blocking::get(
-                        "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh",
-                    )
-                    .expect("Failed to fetch Homebrew installation script")
-                    .text()
-                    .expect("Failed to parse Homebrew installation script into text");
-
-                    let dir = tempdir().unwrap();
-                    let file_path = dir.path().join("brew-install.sh");
-                    let file_path_str = file_path.clone().into_os_string();
-                    let mut file = File::create(file_path).unwrap();
-                    file.write_all(install_sh.as_bytes())
-                        .expect("Unable to write file");
-
-                    let mut install_brew =
-                        spawn_with_output!(NONINTERACTIVE=1 /bin/bash -C $file_path_str).unwrap();
-
-                    let result = install_brew.wait_with_pipe(&mut |pipe| {
-                        BufReader::new(pipe)
-                            .lines()
-                            .filter_map(|line| line.ok())
-                            .for_each(|f| println!("{f}"));
-                    });
-
-                    if let Err(e) = result {
+                    if let Err(e) = brew.install() {
                         println!("Failed to run brew install.");
                         eprintln!("{e}");
                     } else {
@@ -100,31 +49,19 @@ impl Homebrew {
                 println!("bundle/homebrew/Brewfile does not exists.",);
             }
         }
-    }
+    });
+}
 
-    fn apply(&self) {
-        match &self.brewfile_path().canonicalize() {
+fn apply(mut events: EventReader<ApplyBundle>) {
+    events.iter().for_each(|e| {
+        let brew = Homebrew::from(e.clone());
+
+        match &brew.brewfile_path() {
             Ok(brewfile_path) => {
-                if Path::new(Self::homebrew_path()).exists() {
+                if brew.installed() {
                     println!("📌 Apply Homebrew bundle");
-                    let brewfile_path_str = &brewfile_path
-                        .clone()
-                        .into_os_string()
-                        .into_string()
-                        .unwrap();
 
-                    let mut brew_bundle =
-                        spawn_with_output!(brew bundle --cleanup --file $brewfile_path_str)
-                            .unwrap();
-
-                    let result = brew_bundle.wait_with_pipe(&mut |pipe| {
-                        BufReader::new(pipe)
-                            .lines()
-                            .filter_map(|line| line.ok())
-                            .for_each(|line| println!("{:?}", line));
-                    });
-
-                    if let Err(e) = result {
+                    if let Err(e) = brew.apply(&brewfile_path) {
                         println!("Failed to run brew bundle.");
                         eprintln!("{e}");
                     } else {
@@ -139,6 +76,68 @@ impl Homebrew {
                 println!("bundle/homebrew/Brewfile does not exists.");
             }
         }
+    });
+}
+
+struct Homebrew {
+    pub path: PathBuf,
+}
+
+impl Homebrew {
+    fn homebrew_path() -> &'static str {
+        "/opt/homebrew/bin/brew"
+    }
+
+    fn bundle_path(&self) -> PathBuf {
+        self.path.join("bundle/homebrew")
+    }
+
+    fn brewfile_path(&self) -> io::Result<PathBuf> {
+        self.bundle_path().join("Brewfile").canonicalize()
+    }
+
+    fn installed(&self) -> bool {
+        Path::new(Self::homebrew_path()).exists()
+    }
+
+    fn install(&self) -> anyhow::Result<()> {
+        let install_sh = reqwest::blocking::get(
+            "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh",
+        )?
+        .text()?;
+
+        let dir = tempdir()?;
+        let file_path = dir.path().join("brew-install.sh");
+        let file_path_str = file_path.display().to_string();
+        let mut file = File::create(file_path)?;
+        file.write_all(install_sh.as_bytes())
+            .expect("Unable to write file");
+
+        let mut install_brew = spawn_with_output!(NONINTERACTIVE=1 /bin/bash -C $file_path_str)?;
+
+        let result = install_brew.wait_with_pipe(&mut |pipe| {
+            BufReader::new(pipe)
+                .lines()
+                .filter_map(|line| line.ok())
+                .for_each(|f| println!("{f}"));
+        })?;
+
+        Ok(result)
+    }
+
+    fn apply(&self, brewfile_path: &PathBuf) -> anyhow::Result<()> {
+        let brewfile_path_str = &brewfile_path.display();
+
+        let mut brew_bundle = spawn_with_output!(brew bundle --cleanup --file $brewfile_path_str)?;
+
+        let result = brew_bundle.wait_with_pipe(&mut |pipe| {
+            BufReader::new(pipe)
+                .lines()
+                .filter_map(|line| line.ok())
+                .for_each(|line| println!("{:?}", line));
+        })?;
+
+        Ok(result)
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::{ApplyBundle, Bundle, BundleStage, CleanBundle};
+use crate::{ApplyBundle, BundleStage, CleanBundle};
 use bevy::{
     app::{App, Plugin},
     ecs::event::EventReader,
@@ -22,13 +22,13 @@ impl Plugin for DotfilesPlugin {
     }
 }
 
-// Events
+// Systems
 
 fn apply(mut events: EventReader<ApplyBundle>) {
     events.iter().for_each(|e| {
         let dotfiles = Dotfiles::from(e.clone());
 
-        if dotfiles.bundle_path().is_dir() {
+        if dotfiles.bundle_exists() {
             println!("📌 Apply dotfiles");
 
             dotfiles.symlinks().for_each(|sym| sym.apply());
@@ -36,6 +36,25 @@ fn apply(mut events: EventReader<ApplyBundle>) {
             println!("🟡 Skip: Apply dotfiles");
             println!("bundle/dotfiles directory is empty",);
         }
+
+        println!("✅ Apply dotfiles");
+    });
+}
+
+fn clean(mut events: EventReader<CleanBundle>) {
+    events.iter().for_each(|e| {
+        let dotfiles = Dotfiles::from(e.clone());
+
+        if dotfiles.bundle_exists() {
+            println!("📌 Clean dotfiles");
+
+            dotfiles.symlinks().for_each(|sym| sym.clean());
+        } else {
+            println!("🟡 Skip: Clean dotfiles");
+            println!("bundle/dotfiles directory is empty",);
+        }
+
+        println!("✅ Clean dotfiles");
     });
 }
 
@@ -44,6 +63,14 @@ struct Dotfiles {
 }
 
 impl Dotfiles {
+    fn bundle_path(&self) -> PathBuf {
+        self.path.join("bundle/dotfiles")
+    }
+
+    fn bundle_exists(&self) -> bool {
+        self.bundle_path().is_dir()
+    }
+
     fn symlinks(&self) -> std::boxed::Box<dyn Iterator<Item = Symlink> + '_> {
         Box::new(
             self.packages()
@@ -51,7 +78,7 @@ impl Dotfiles {
                 .filter_map(Result::ok)
                 .filter_map(|dir| {
                     let original = dir.path().to_path_buf().canonicalize().unwrap();
-                    let diff = diff_paths(dir.path(), &self.path).unwrap();
+                    let diff = diff_paths(dir.path(), &self.bundle_path()).unwrap();
                     let dotfile_bundle_name = diff.iter().next().unwrap();
                     let stripped = diff.strip_prefix(dotfile_bundle_name).unwrap();
                     let link = dirs::home_dir().unwrap().join(stripped);
@@ -67,18 +94,11 @@ impl Dotfiles {
     }
 
     fn packages(&self) -> std::boxed::Box<dyn Iterator<Item = DirEntry> + '_> {
-        Box::new(
-            fs::read_dir(&self.bundle_path())
-                .unwrap()
-                .filter(|entry| entry.is_ok())
-                .filter_map(Result::ok),
-        )
-    }
-}
+        let dir = fs::read_dir(&self.bundle_path())
+            .unwrap()
+            .filter_map(Result::ok);
 
-impl Bundle for Dotfiles {
-    fn bundle_path(&self) -> PathBuf {
-        self.path.join("bundle/dotfiles")
+        Box::new(dir)
     }
 }
 
@@ -94,12 +114,6 @@ impl From<CleanBundle> for Dotfiles {
     }
 }
 
-fn clean(mut events: EventReader<CleanBundle>) {
-    events.iter().for_each(|_e| {
-        println!("hey");
-    });
-}
-
 struct Symlink {
     original: PathBuf,
     link: PathBuf,
@@ -110,10 +124,10 @@ impl Symlink {
         if self.link.is_symlink() {
             // println!(
             //     "{}",
-            //     &self.fmt_with_message("🟡 Skip: File is already symlinked")
+            //     &self.format("🟡 Skip: File is already symlinked")
             // );
         } else if self.link.is_file() {
-            // println!("{}", &self.fmt_with_message("🟡 Skip: File already exists"));
+            // println!("{}", &self.format("🟡 Skip: File already exists"));
         } else {
             #[cfg(target_family = "unix")]
             let res = os::unix::fs::symlink(&self.original, &self.link);
@@ -123,25 +137,29 @@ impl Symlink {
 
             match res {
                 Ok(_) => {
-                    println!("{}", &self.fmt());
+                    println!("{}", &self.format("Symlink created"));
                 }
                 Err(e) => {
-                    eprintln!("{}", &self.fmt_with_message(&e.to_string()));
+                    eprintln!("{}", &self.format(&e.to_string()));
                 }
             }
         }
     }
 
-    fn fmt(&self) -> String {
-        self.fmt_message(None)
+    fn clean(&self) {
+        if self.link.is_symlink() {
+            match fs::remove_file(&self.link) {
+                Ok(_) => {
+                    println!("{}", &self.format("Symlink removed"));
+                }
+                Err(e) => {
+                    eprintln!("{}", &self.format(&e.to_string()));
+                }
+            }
+        }
     }
 
-    fn fmt_with_message<'a>(&self, message: &'a str) -> String {
-        self.fmt_message(Some(message))
-    }
-
-    fn fmt_message<'a>(&self, message: Option<&'a str>) -> String {
-        let message = message.unwrap_or("".into());
+    fn format<'a>(&self, message: &'a str) -> String {
         format!(
             "----------------------------------------------------------\n\
             {message}\n\

@@ -20,7 +20,7 @@ impl Plugin for BundlePlugin {
             .add_event::<CleanBundle>()
             // .add_plugin(BundleConfigPlugin)
             .add_plugin(ToolPlugin)
-            .add_system_to_stage(BundleStage::Apply, apply_bundle);
+            .add_system_to_stage(BundleStage::First, apply_bundle);
     }
 }
 
@@ -34,10 +34,6 @@ pub struct ApplyBundle {
 #[derive(Clone)]
 pub struct CleanBundle {
     pub path: PathBuf,
-}
-
-pub trait Bundle {
-    fn bundle_path(&self) -> PathBuf;
 }
 
 fn apply_bundle(
