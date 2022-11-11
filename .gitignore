@@ -19,11 +19,11 @@ tarpaulin-report.html
 # Jetbrain
 .idea/
 
-/docs/handbook/.obsidian/app.json
-/docs/handbook/.obsidian/appearance.json
-/docs/handbook/.obsidian/hotkeys.json
-/docs/handbook/.obsidian/workspace.json
-/docs/handbook/.obsidian/plugins
-!/docs/handbook/.obsidian/plugins/obsidian-git/data.json
-!/docs/handbook/.obsidian/plugins/obsidian-linter/data.json
+.obsidian/app.json
+.obsidian/appearance.json
+.obsidian/hotkeys.json
+.obsidian/workspace.json
+.obsidian/plugins
+!.obsidian/plugins/obsidian-git/data.json
+!.obsidian/plugins/obsidian-linter/data.json
 

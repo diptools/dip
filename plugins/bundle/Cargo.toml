@@ -1,0 +1,23 @@
+[package]
+name = "dip_bundle"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+bevy.workspace = true
+dip_core.workspace = true
+dirs.workspace = true
+cmd_lib.workspace = true
+convert_case.workspace = true
+pathdiff.workspace = true
+reqwest.workspace = true
+tempfile.workspace = true
+walkdir.workspace = true
+
+[features]
+# default = ["full"]
+full = ["dotfiles", "brew", "tailwind"]
+dotfiles = []
+brew = []
+tailwind = []

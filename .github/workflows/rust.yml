@@ -17,6 +17,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Install prerequisites
         run: |
+          cargo install cargo-workspaces
+
           sudo apt-get update
           sudo apt-get install -y \
             libudev-dev \

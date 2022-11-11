@@ -1,25 +1,21 @@
 use crate::{
-    plugin::{AsyncAction, BuildAction},
+    cli::{action::BuildAction, async_action::AsyncAction},
     resource::tool::Tool,
 };
 use dip::{
     bevy::{
-        app::AppExit,
-        ecs::{
-            event::{EventReader, EventWriter},
-            schedule::ParallelSystemDescriptorCoercion,
-            system::Res,
-        },
+        app::{App, AppExit, Plugin},
+        ecs::prelude::*,
         log,
     },
-    prelude::{AsyncActionPool, Plugin},
+    core::task::AsyncActionPool,
 };
 use std::{fs, path::PathBuf, process::Command};
 
-pub struct HandlerPlugin;
+pub struct BuildActionPlugin;
 
-impl Plugin for HandlerPlugin {
-    fn build(&self, app: &mut dip::prelude::App) {
+impl Plugin for BuildActionPlugin {
+    fn build(&self, app: &mut App) {
         app.add_event::<BuildApp>()
             .add_event::<CompileCss>()
             .add_system(handle_build)
@@ -27,7 +23,6 @@ impl Plugin for HandlerPlugin {
             .add_system(build_app.after(handle_build).after(compile_css));
     }
 }
-
 fn handle_build(
     mut actions: EventReader<BuildAction>,
     mut build_app: EventWriter<BuildApp>,
@@ -54,6 +49,38 @@ fn handle_build(
             });
         }
     }
+}
+
+fn build_app(mut events: EventReader<BuildApp>, mut app_exit: EventWriter<AppExit>) {
+    for BuildApp { action } in events.iter() {
+        let mut cmd = Command::new("cargo");
+
+        cmd.current_dir(fs::canonicalize(&action.path).unwrap())
+            .args(["build"]);
+
+        let output = cmd.output().expect("Could not execute cargo build");
+        log::trace!("{output:?}");
+
+        if output.status.success() {
+            println!("Build finished");
+        } else {
+            println!("Failed to build project");
+            println!("{}", String::from_utf8(output.stderr).unwrap());
+        }
+
+        app_exit.send(AppExit);
+    }
+}
+
+#[derive(Clone, Debug)]
+struct BuildApp {
+    pub action: BuildAction,
+}
+
+#[derive(Clone, Debug)]
+struct CompileCss {
+    pub action: BuildAction,
+    pub tool: Tool,
 }
 
 fn compile_css(
@@ -96,36 +123,4 @@ fn compile_css(
             app_exit.send(AppExit);
         }
     }
-}
-
-fn build_app(mut events: EventReader<BuildApp>, mut app_exit: EventWriter<AppExit>) {
-    for BuildApp { action } in events.iter() {
-        let mut cmd = Command::new("cargo");
-
-        cmd.current_dir(fs::canonicalize(&action.path).unwrap())
-            .args(["build"]);
-
-        let output = cmd.output().expect("Could not execute cargo build");
-        log::trace!("{output:?}");
-
-        if output.status.success() {
-            println!("Build finished");
-        } else {
-            println!("Failed to build project");
-            println!("{}", String::from_utf8(output.stderr).unwrap());
-        }
-
-        app_exit.send(AppExit);
-    }
-}
-
-#[derive(Clone, Debug)]
-struct BuildApp {
-    pub action: BuildAction,
-}
-
-#[derive(Clone, Debug)]
-struct CompileCss {
-    pub action: BuildAction,
-    pub tool: Tool,
 }

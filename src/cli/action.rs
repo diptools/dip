@@ -1,3 +1,7 @@
+// mod build;
+
+// pub use build::*;
+
 use dip::cli::{CliPlugin, SubcommandPlugin};
 
 #[derive(CliPlugin, clap::Parser)]
@@ -12,7 +16,7 @@ pub enum Action {
     Build(BuildArgs),
 
     #[clap(subcommand)]
-    Tool(ToolAction),
+    Bundle(BundleAction),
 }
 
 #[derive(clap::Args, Clone, Debug)]
@@ -34,7 +38,19 @@ pub struct BuildArgs {
 }
 
 #[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
-pub enum ToolAction {
-    List,
-    Add { name: String },
+pub enum BundleAction {
+    Apply(ApplyBundleArgs),
+    Clean(CleanBundleArgs),
+}
+
+#[derive(clap::Args, Clone, Debug)]
+pub struct ApplyBundleArgs {
+    #[clap(short, long, default_value_t = String::from("."))]
+    pub path: String,
+}
+
+#[derive(clap::Args, Clone, Debug)]
+pub struct CleanBundleArgs {
+    #[clap(short, long, default_value_t = String::from("."))]
+    pub path: String,
 }
