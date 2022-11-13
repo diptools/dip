@@ -86,9 +86,13 @@ impl Script {
     }
 
     fn file_path(&self) -> PathBuf {
+<<<<<<< HEAD
         self.event
             .path
             .join(format!("bundle/scripts/{}", &self.file_name()))
+=======
+        self.bundle_path().join(&self.file_name())
+>>>>>>> 0f1f59e (Pass Config type to ConfigPlugin)
     }
 
     fn file_name(&self) -> String {

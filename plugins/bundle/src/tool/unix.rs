@@ -3,10 +3,24 @@ pub use crate::tool::{
     tailwind::TailwindPlugin, vm::VersionManagerPlugin,
 };
 use bevy::app::{App, Plugin};
+use std::{fmt::Debug, marker::PhantomData};
 
-pub struct UnixToolPlugin;
+pub struct UnixToolPlugin<Config> {
+    config: PhantomData<Config>,
+}
 
-impl Plugin for UnixToolPlugin {
+impl<Config> UnixToolPlugin<Config> {
+    pub fn new() -> Self {
+        Self {
+            config: PhantomData,
+        }
+    }
+}
+
+impl<Config> Plugin for UnixToolPlugin<Config>
+where
+    Config: 'static + Send + Sync + Debug,
+{
     fn build(&self, app: &mut App) {
         app.add_plugin(ScriptPlugin);
 
@@ -20,6 +34,6 @@ impl Plugin for UnixToolPlugin {
         app.add_plugin(TailwindPlugin);
 
         #[cfg(feature = "vm")]
-        app.add_plugin(VersionManagerPlugin);
+        app.add_plugin(VersionManagerPlugin::<Config>::new());
     }
 }

@@ -146,7 +146,7 @@ pub fn build_config<Config>(
         .build()
         .unwrap()
         .try_deserialize::<'static, Config>()
-        .unwrap();
+        .expect("Failed to parse config");
 
     if config.is_none() {
         commands.insert_resource(c);

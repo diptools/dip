@@ -1,7 +1,10 @@
 mod action;
 
-use crate::cli::action::{
-    ActionPlugin, ApplyBundleAction, BundleActionPlugin, CleanBundleAction, CliPlugin,
+use crate::{
+    cli::action::{
+        ActionPlugin, ApplyBundleAction, BundleActionPlugin, CleanBundleAction, CliPlugin,
+    },
+    config::DipConfig,
 };
 use dip::{
     bevy::{
@@ -20,7 +23,7 @@ impl Plugin for DipCliPlugin {
         app.add_plugin(CliPlugin::<NoAsyncAction>::oneshot())
             .add_plugin(ActionPlugin)
             .add_plugin(BundleActionPlugin)
-            .add_plugin(BundlePlugin)
+            .add_plugin(BundlePlugin::<DipConfig>::new())
             .add_system(install_bundle)
             .add_system(clean_bundle);
     }

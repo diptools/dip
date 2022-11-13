@@ -7,13 +7,19 @@ use serde::Deserialize;
 
 fn main() {
     App::new()
+<<<<<<< HEAD
         .add_plugin(ConfigPlugin::new())
         .add_startup_system(add_config_source.before(build_config))
         .add_system(log_config.after(build_config))
+=======
+        .add_plugin(ConfigPlugin::<AppConfig>::new())
+        .add_startup_system(add_custom_sources.before(build_config::<AppConfig>))
+        .add_system(log_config)
+>>>>>>> 0f1f59e (Pass Config type to ConfigPlugin)
         .run();
 }
 
-fn add_config_source(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
+fn add_custom_sources(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
     *builder = builder
         .clone()
         .add_source(File::with_name("examples/cli/config/config/development"));

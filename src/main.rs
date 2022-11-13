@@ -1,12 +1,9 @@
 mod cli;
 
-use crate::{cli::DipCliPlugin, config::Config};
-use dip::{
-    bevy::{
-        app::App,
-        log::{Level, LogPlugin, LogSettings},
-    },
-    core::config::ConfigPlugin,
+use crate::{cli::DipCliPlugin, config::ConfigPlugin};
+use dip::bevy::{
+    app::App,
+    log::{Level, LogPlugin, LogSettings},
 };
 
 fn main() {
@@ -26,6 +23,6 @@ fn main() {
 
     app.add_plugin(DipCliPlugin)
         .add_plugin(LogPlugin)
-        .add_plugin(ConfigPlugin::<Config>::new())
+        .add_plugin(ConfigPlugin)
         .run();
 }

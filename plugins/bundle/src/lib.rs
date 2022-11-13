@@ -8,18 +8,34 @@ use bevy::{
 };
 // pub use config::BundleConfigPlugin;
 pub use schedule::{BundleSchedulePlugin, BundleStage};
-use std::path::PathBuf;
+use std::{fmt::Debug, marker::PhantomData, path::PathBuf};
 use tool::{InstallTools, ToolPlugin};
 
-pub struct BundlePlugin;
+pub struct BundlePlugin<Config> {
+    config: PhantomData<Config>,
+}
 
-impl Plugin for BundlePlugin {
+impl<Config> BundlePlugin<Config>
+where
+    Config: Debug,
+{
+    pub fn new() -> Self {
+        Self {
+            config: PhantomData,
+        }
+    }
+}
+
+impl<Config> Plugin for BundlePlugin<Config>
+where
+    Config: 'static + Send + Sync + Debug,
+{
     fn build(&self, app: &mut App) {
         app.add_plugin(BundleSchedulePlugin)
             .add_event::<ApplyBundle>()
             .add_event::<CleanBundle>()
             // .add_plugin(BundleConfigPlugin)
-            .add_plugin(ToolPlugin)
+            .add_plugin(ToolPlugin::<Config>::new())
             .add_system_to_stage(BundleStage::First, apply_bundle);
     }
 }
