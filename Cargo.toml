@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "plugins/bundle",
+    "plugins/config",
     "plugins/core",
     "plugins/macro",
     "plugins/task",
@@ -30,6 +31,7 @@ convert_case = "0.5"
 dioxus = { version = "0.2", features = ["fermi"] }
 dip = { version = "0.1", path = ".", features = ["desktop"] }
 dip_bundle = { version = "0.1", path = "./plugins/bundle", features = ["full"] }
+dip_config = { version = "0.1", path = "./plugins/config" }
 dip_core = { version = "0.1", path = "./plugins/core" }
 dip_macro = { version = "0.1", path = "./plugins/macro" }
 dip_task = { version = "0.1", path = "./plugins/task" }

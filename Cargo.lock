@@ -1323,11 +1323,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "dip_config"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "config",
+ "dirs",
+ "serde",
+]
+
+[[package]]
 name = "dip_core"
 version = "0.1.0"
 dependencies = [
  "bevy",
  "dioxus",
+ "dip_config",
  "dip_macro",
  "dip_task",
 ]
