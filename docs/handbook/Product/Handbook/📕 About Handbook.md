@@ -2,7 +2,7 @@
 
 This is where all knowledge goes. Inspired by GitLab's [[🛒 Glossary#GitLab Handbook|handbook]]-first approach.
 
-- [[User Story]]
+- [[docs/handbook/Product/Handbook/User Story]]
 - [[Features]]
 - [[README#Installation|Installation]]
 - [[README#Setup|Setup]]
@@ -14,7 +14,7 @@ This is where all knowledge goes. Inspired by GitLab's [[🛒 Glossary#GitLab Ha
 
 ### Overview
 
-![[User Story]]
+![[docs/handbook/Product/Handbook/User Story]]
 
 ![[Features]]
 

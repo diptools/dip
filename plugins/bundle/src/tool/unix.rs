@@ -1,6 +1,6 @@
 pub use crate::tool::{
     dotfiles::DotfilesPlugin, homebrew::HomebrewPlugin, script::ScriptPlugin,
-    tailwind::TailwindPlugin,
+    tailwind::TailwindPlugin, vm::VersionManagerPlugin,
 };
 use bevy::app::{App, Plugin};
 
@@ -18,5 +18,8 @@ impl Plugin for UnixToolPlugin {
 
         #[cfg(feature = "tailwind")]
         app.add_plugin(TailwindPlugin);
+
+        #[cfg(feature = "vm")]
+        app.add_plugin(VersionManagerPlugin);
     }
 }

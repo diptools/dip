@@ -1,0 +1,15 @@
+- `README.md` (Optional) GitHub profile
+- `plugins/`
+	- `homebrew/`
+				- `Brewfile` (Optional)
+				- `Brewfile.lock.json` (Optional)
+- `dotfiles/` Each directory is a bundle of dotfiles. They are automatically linked to `$HOME` recursively
+	- `dip/` name of the bundle.
+		- `.config/`
+			- `dip/`
+				- `account.toml`
+- `src/`
+	- `main.rs` initializes `App` with plugins
+- `Cargo.toml`
+- `Cargo.lock`
+- `.gitignore`

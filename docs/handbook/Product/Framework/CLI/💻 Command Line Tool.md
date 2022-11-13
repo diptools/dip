@@ -1,7 +1,7 @@
 ### 💻 Command Line Tool
 
 - [[Product/Framework/CLI/Installation|Installation]]
-- [[Usage|Usage]]
+- [[docs/handbook/Product/Framework/CLI/Usage|Usage]]
 
 ---
 
@@ -9,6 +9,6 @@
 
 ![[Product/Framework/CLI/Installation#Installation]]
 
-![[Usage#Usage|Usage]]
+![[docs/handbook/Product/Framework/CLI/Usage#Usage|Usage]]
 
-![[Commands#Commands]]
+![[docs/handbook/Product/Framework/CLI/Commands/Commands#Commands]]

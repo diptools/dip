@@ -17,7 +17,8 @@ walkdir.workspace = true
 
 [features]
 # default = ["full"]
-full = ["dotfiles", "brew", "tailwind"]
-dotfiles = []
+full = ["brew", "dotfiles", "tailwind", "vm"]
 brew = []
+dotfiles = []
 tailwind = []
+vm = []

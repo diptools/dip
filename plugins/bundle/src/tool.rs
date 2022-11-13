@@ -3,6 +3,7 @@ mod homebrew;
 mod script;
 mod tailwind;
 mod unix;
+mod vm;
 
 pub use self::unix::UnixToolPlugin;
 use bevy::{
