@@ -10,29 +10,22 @@ use bevy::{
     app::{App, Plugin},
     ecs::component::Component,
 };
-use std::{fmt::Debug, marker::PhantomData, path::PathBuf};
+use std::path::PathBuf;
 
-pub struct ToolPlugin<Config> {
-    config: PhantomData<Config>,
-}
+pub struct ToolPlugin;
 
-impl<Config> ToolPlugin<Config> {
+impl ToolPlugin {
     pub fn new() -> Self {
-        Self {
-            config: PhantomData,
-        }
+        Self
     }
 }
 
-impl<Config> Plugin for ToolPlugin<Config>
-where
-    Config: 'static + Send + Sync + Debug,
-{
+impl Plugin for ToolPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<InstallTools>();
 
         #[cfg(target_family = "unix")]
-        app.add_plugin(UnixToolPlugin::<Config>::new());
+        app.add_plugin(UnixToolPlugin::new());
     }
 }
 

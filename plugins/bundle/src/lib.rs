@@ -1,41 +1,33 @@
-// mod config;
+mod config;
 mod schedule;
 mod tool;
 
+use crate::{
+    config::BundleConfigPlugin,
+    schedule::{BundleSchedulePlugin, BundleStage},
+    tool::{InstallTools, ToolPlugin},
+};
 use bevy::{
     app::{App, Plugin},
     ecs::event::{EventReader, EventWriter},
 };
-// pub use config::BundleConfigPlugin;
-pub use schedule::{BundleSchedulePlugin, BundleStage};
-use std::{fmt::Debug, marker::PhantomData, path::PathBuf};
-use tool::{InstallTools, ToolPlugin};
+use std::path::PathBuf;
 
-pub struct BundlePlugin<Config> {
-    config: PhantomData<Config>,
-}
+pub struct BundlePlugin;
 
-impl<Config> BundlePlugin<Config>
-where
-    Config: Debug,
-{
+impl BundlePlugin {
     pub fn new() -> Self {
-        Self {
-            config: PhantomData,
-        }
+        Self
     }
 }
 
-impl<Config> Plugin for BundlePlugin<Config>
-where
-    Config: 'static + Send + Sync + Debug,
-{
+impl Plugin for BundlePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(BundleSchedulePlugin)
             .add_event::<ApplyBundle>()
             .add_event::<CleanBundle>()
-            // .add_plugin(BundleConfigPlugin)
-            .add_plugin(ToolPlugin::<Config>::new())
+            .add_plugin(BundleConfigPlugin)
+            .add_plugin(ToolPlugin::new())
             .add_system_to_stage(BundleStage::First, apply_bundle);
     }
 }

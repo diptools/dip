@@ -1,43 +1,53 @@
-use bevy::app::{App, Plugin};
-use std::{fs, path::PathBuf};
+use bevy::{
+    app::{App, Plugin},
+    ecs::{schedule::ParallelSystemDescriptorCoercion, system::ResMut},
+};
+use config::{
+    builder::{ConfigBuilder, DefaultState},
+    File,
+};
+use dip_core::config::{build_config, ConfigPlugin as ConfigPluginRaw};
+use serde::Deserialize;
 
 pub struct BundleConfigPlugin;
 
 impl Plugin for BundleConfigPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<BundleConfig>();
+        app.add_plugin(ConfigPluginRaw::<BundleConfig>::with_default_str(
+            include_str!("config/default.toml"),
+        ))
+        .add_startup_system(add_sources.before(build_config::<BundleConfig>));
     }
 }
 
+fn add_sources(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
+    let dip_global_config_path = dirs::data_dir().unwrap().join("dip");
+    let user_bundle_config_path = dip_global_config_path.join("bundle.toml");
+
+    match user_bundle_config_path.canonicalize() {
+        Ok(user_bundle_config_path) => {
+            *builder = builder.clone().add_source(File::with_name(
+                &user_bundle_config_path.display().to_string(),
+            ));
+        }
+        Err(_e) => {
+            eprintln!(
+                "Cannot find dip config file: {}",
+                user_bundle_config_path.display()
+            );
+        }
+    }
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct BundleConfig {
-    app_path: PathBuf,
+    pub vm: VMConfig,
 }
 
-impl Default for BundleConfig {
-    fn default() -> Self {
-        Self {
-            app_path: dirs::home_dir().unwrap().join(".dip"),
-        }
-    }
+#[derive(Deserialize, Debug, Clone)]
+pub struct VMConfig {
+    pub tailwindcss: VersionList,
+    pub nodejs: VersionList,
 }
 
-impl BundleConfig {
-    pub fn app_path(&self) -> PathBuf {
-        Self::ensure_dir(&self.app_path);
-
-        self.app_path.clone()
-    }
-
-    pub fn install_path(&self) -> PathBuf {
-        let p = self.app_path().join("installs");
-        Self::ensure_dir(&p);
-
-        p
-    }
-
-    fn ensure_dir(p: &PathBuf) {
-        if !&p.is_dir() {
-            fs::create_dir_all(&p).unwrap();
-        }
-    }
-}
+pub type VersionList = Vec<String>;

@@ -1,26 +1,18 @@
 pub use crate::tool::{
     dotfiles::DotfilesPlugin, homebrew::HomebrewPlugin, script::ScriptPlugin,
-    tailwind::TailwindPlugin, vm::VersionManagerPlugin,
+    vm::VersionManagerPlugin,
 };
 use bevy::app::{App, Plugin};
-use std::{fmt::Debug, marker::PhantomData};
 
-pub struct UnixToolPlugin<Config> {
-    config: PhantomData<Config>,
-}
+pub struct UnixToolPlugin;
 
-impl<Config> UnixToolPlugin<Config> {
+impl UnixToolPlugin {
     pub fn new() -> Self {
-        Self {
-            config: PhantomData,
-        }
+        Self
     }
 }
 
-impl<Config> Plugin for UnixToolPlugin<Config>
-where
-    Config: 'static + Send + Sync + Debug,
-{
+impl Plugin for UnixToolPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(ScriptPlugin);
 
@@ -30,10 +22,7 @@ where
         #[cfg(feature = "brew")]
         app.add_plugin(HomebrewPlugin);
 
-        #[cfg(feature = "tailwind")]
-        app.add_plugin(TailwindPlugin);
-
         #[cfg(feature = "vm")]
-        app.add_plugin(VersionManagerPlugin::<Config>::new());
+        app.add_plugin(VersionManagerPlugin::new());
     }
 }

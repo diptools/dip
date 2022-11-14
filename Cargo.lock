@@ -1305,11 +1305,13 @@ dependencies = [
  "anyhow",
  "bevy",
  "cmd_lib",
+ "config",
  "convert_case 0.5.0",
  "dip_core",
  "dirs",
  "pathdiff",
  "reqwest",
+ "serde",
  "tempfile",
  "walkdir",
 ]
