@@ -13,7 +13,7 @@ fn main() {
         .add_system(log_config.after(build_config))
 =======
         .add_plugin(ConfigPlugin::<AppConfig>::new())
-        .add_startup_system(add_custom_sources.before(build_config::<AppConfig>))
+        .add_startup_system_to_stage(ConfigStartupStage::Setup, add_custom_sources)
         .add_system(log_config)
 >>>>>>> 0f1f59e (Pass Config type to ConfigPlugin)
         .run();

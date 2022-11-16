@@ -1,11 +1,15 @@
-use std::marker::PhantomData;
+mod schedule;
 
+use crate::schedule::ConfigSchedulePlugin;
 use bevy::{
     app::{App, Plugin},
     ecs::system::{Commands, Res, ResMut},
 };
 use config::{builder::DefaultState, ConfigBuilder};
 use serde::Deserialize;
+use std::marker::PhantomData;
+
+pub use crate::schedule::ConfigStartupStage;
 
 #[derive(Debug)]
 pub struct ConfigPlugin<Config> {
@@ -22,8 +26,9 @@ where
     Config: 'static + Send + Sync + Deserialize<'static>,
 {
     fn build(&self, app: &mut App) {
-        app.insert_resource(Self::builder(&self))
-            .add_startup_system(build_config::<Config>);
+        app.add_plugin(ConfigSchedulePlugin)
+            .insert_resource(Self::builder(&self))
+            .add_startup_system_to_stage(ConfigStartupStage::Build, build_config::<Config>);
     }
 }
 

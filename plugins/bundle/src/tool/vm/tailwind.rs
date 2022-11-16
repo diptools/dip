@@ -23,6 +23,7 @@ pub struct TailwindPlugin;
 impl Plugin for TailwindPlugin {
     fn build(&self, app: &mut App) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         app.add_event::<TailwindInstalled>().add_system(install);
     }
 }
@@ -34,6 +35,10 @@ fn install(mut events: EventReader<InstallTools>, mut installed: EventWriter<Tai
         installed.send(TailwindInstalled);
 =======
         app.add_system_to_stage(BundleStage::Clean, clean)
+=======
+        app
+            // .add_system_to_stage(BundleStage::Clean, clean)
+>>>>>>> a47ed81 (Add ConfigStartupStage)
             .add_system_to_stage(BundleStage::Apply, apply);
     }
 }
@@ -47,8 +52,8 @@ fn clean(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
             let installs = fs::read_dir(installs_dir).expect("Failed to read installs/ directory");
 
             // iterate over runtimes x versions currently installed but removed from the user bundle config
-            installs.for_each(|dir| {
-                println!("{dir:?}");
+            installs.map(Result::ok).for_each(|version| {
+                println!("{version:?}");
             });
         } else {
             println!("Tailwind CSS is not installed");

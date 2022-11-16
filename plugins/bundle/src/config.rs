@@ -1,12 +1,12 @@
 use bevy::{
     app::{App, Plugin},
-    ecs::{schedule::ParallelSystemDescriptorCoercion, system::ResMut},
+    ecs::system::ResMut,
 };
 use config::{
     builder::{ConfigBuilder, DefaultState},
     File,
 };
-use dip_core::config::{build_config, ConfigPlugin as ConfigPluginRaw};
+use dip_core::{config::ConfigPlugin as ConfigPluginRaw, prelude::ConfigStartupStage};
 use serde::Deserialize;
 use std::{collections::HashSet, fs, path::PathBuf};
 
@@ -17,7 +17,7 @@ impl Plugin for BundleConfigPlugin {
         app.add_plugin(ConfigPluginRaw::<BundleConfig>::with_default_str(
             include_str!("config/default.toml"),
         ))
-        .add_startup_system(add_sources.before(build_config::<BundleConfig>));
+        .add_startup_system_to_stage(ConfigStartupStage::Setup, add_sources);
     }
 }
 
