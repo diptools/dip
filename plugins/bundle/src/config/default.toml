@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 [bundle.vm]
+=======
+repo = "."
+
+[vm.runtime]
+>>>>>>> 051d114 (Create installs directory when it does not exist)
 tailwindcss = []
 nodejs = []
