@@ -14,12 +14,14 @@ use crate::cli::action::{
 use dip::{
     bevy::{
         app::{App, Plugin},
-        ecs::event::{EventReader, EventWriter},
+        ecs::{
+            event::{EventReader, EventWriter},
+            system::ResMut,
+        },
     },
-    bundle::{ApplyBundle, BundlePlugin, CleanBundle},
+    bundle::{ApplyBundle, BundleConfig, BundlePlugin, CleanBundle},
     core::task::NoAsyncAction,
 };
-use std::path::PathBuf;
 
 pub struct DipCliPlugin;
 
@@ -41,18 +43,39 @@ impl Plugin for DipCliPlugin {
 fn install_bundle(
     mut actions: EventReader<ApplyBundleAction>,
     mut apply: EventWriter<ApplyBundle>,
+    mut config: ResMut<BundleConfig>,
 ) {
     actions.iter().for_each(|a| {
+<<<<<<< HEAD
         apply.send(ApplyBundle {
             path: PathBuf::from(&a.path),
         });
+=======
+        if let Some(value) = a.repo.clone() {
+            config.set_repo(value);
+        }
+
+        apply.send(ApplyBundle);
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     });
 }
 
-fn clean_bundle(mut actions: EventReader<CleanBundleAction>, mut clean: EventWriter<CleanBundle>) {
+fn clean_bundle(
+    mut actions: EventReader<CleanBundleAction>,
+    mut clean: EventWriter<CleanBundle>,
+    mut config: ResMut<BundleConfig>,
+) {
     actions.iter().for_each(|a| {
+<<<<<<< HEAD
         clean.send(CleanBundle {
             path: PathBuf::from(&a.path),
         })
+=======
+        if let Some(value) = a.repo.clone() {
+            config.set_repo(value);
+        }
+
+        clean.send(CleanBundle)
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     });
 }

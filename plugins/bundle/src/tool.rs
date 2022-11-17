@@ -10,7 +10,6 @@ use bevy::{
     app::{App, Plugin},
     ecs::component::Component,
 };
-use std::path::PathBuf;
 
 pub struct ToolPlugin;
 
@@ -32,10 +31,14 @@ impl Plugin for ToolPlugin {
 // Events
 
 #[derive(Clone)]
+<<<<<<< HEAD
 pub struct InstallTools {
     pub path: PathBuf,
 }
 
+=======
+pub struct InstallTools;
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
 // Commponents
 
 #[derive(Component)]

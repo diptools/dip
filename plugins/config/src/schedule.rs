@@ -7,8 +7,6 @@ use bevy::{
 pub enum ConfigStartupStage {
     Setup,
     Build,
-    Parse,
-    Merge,
 }
 
 pub struct ConfigSchedulePlugin;
@@ -23,16 +21,6 @@ impl Plugin for ConfigSchedulePlugin {
         .add_startup_stage_after(
             ConfigStartupStage::Setup,
             ConfigStartupStage::Build,
-            SystemStage::parallel(),
-        )
-        .add_startup_stage_after(
-            ConfigStartupStage::Build,
-            ConfigStartupStage::Parse,
-            SystemStage::parallel(),
-        )
-        .add_startup_stage_after(
-            StartupStage::Startup,
-            ConfigStartupStage::Merge,
             SystemStage::parallel(),
         );
     }

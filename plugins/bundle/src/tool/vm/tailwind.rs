@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 use crate::tool::InstallTools;
 =======
 use crate::{
@@ -7,6 +8,9 @@ use crate::{
     ApplyBundle, CleanBundle,
 };
 >>>>>>> 051d114 (Create installs directory when it does not exist)
+=======
+use crate::{config::BundleConfig, schedule::BundleStage, ApplyBundle};
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
 use bevy::{
     app::{App, Plugin},
     ecs::event::{EventReader, EventWriter},
@@ -19,7 +23,6 @@ use std::{fs, path::PathBuf};
 
 // Plugin
 pub struct TailwindPlugin;
-
 impl Plugin for TailwindPlugin {
     fn build(&self, app: &mut App) {
 <<<<<<< HEAD

@@ -45,12 +45,20 @@ pub enum BundleAction {
 
 #[derive(clap::Args, Clone, Debug)]
 pub struct ApplyBundleArgs {
+<<<<<<< HEAD
     #[clap(short, long, default_value_t = String::from("."))]
     pub path: String,
+=======
+    pub repo: Option<String>,
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
 }
 
 #[derive(clap::Args, Clone, Debug)]
 pub struct CleanBundleArgs {
+<<<<<<< HEAD
     #[clap(short, long, default_value_t = String::from("."))]
     pub path: String,
+=======
+    pub repo: Option<String>,
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
 }

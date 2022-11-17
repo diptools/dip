@@ -1,7 +1,7 @@
-use crate::{tool::InstallTools, ApplyBundle, BundleStage};
+use crate::{tool::InstallTools, ApplyBundle, BundleConfig, BundleStage};
 use bevy::{
     app::{App, Plugin},
-    ecs::event::EventReader,
+    ecs::{event::EventReader, system::Res},
 };
 use cmd_lib::spawn_with_output;
 use std::{
@@ -24,9 +24,9 @@ impl Plugin for HomebrewPlugin {
 
 // Systems
 
-fn install(mut events: EventReader<InstallTools>) {
-    events.iter().for_each(|e| {
-        let brew = Homebrew::from(e.clone());
+fn install(mut events: EventReader<InstallTools>, config: Res<BundleConfig>) {
+    events.iter().for_each(|_e| {
+        let brew = Homebrew::from(config.clone());
 
         match &brew.brewfile_path() {
             Ok(_brewfile_path) => {
@@ -52,9 +52,9 @@ fn install(mut events: EventReader<InstallTools>) {
     });
 }
 
-fn apply(mut events: EventReader<ApplyBundle>) {
-    events.iter().for_each(|e| {
-        let brew = Homebrew::from(e.clone());
+fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
+    events.iter().for_each(|_e| {
+        let brew = Homebrew::from(config.clone());
 
         match &brew.brewfile_path() {
             Ok(brewfile_path) => {
@@ -80,7 +80,11 @@ fn apply(mut events: EventReader<ApplyBundle>) {
 }
 
 struct Homebrew {
+<<<<<<< HEAD
     pub path: PathBuf,
+=======
+    pub repo: PathBuf,
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
 }
 
 impl Homebrew {
@@ -88,12 +92,17 @@ impl Homebrew {
         "/opt/homebrew/bin/brew"
     }
 
+<<<<<<< HEAD
     fn bundle_path(&self) -> PathBuf {
         self.path.join("bundle/homebrew")
+=======
+    fn bundle_dir(&self) -> PathBuf {
+        self.repo.join("bundle/homebrew")
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     }
 
     fn brewfile_path(&self) -> io::Result<PathBuf> {
-        self.bundle_path().join("Brewfile").canonicalize()
+        self.bundle_dir().join("Brewfile").canonicalize()
     }
 
     fn installed(&self) -> bool {
@@ -141,6 +150,7 @@ impl Homebrew {
     }
 }
 
+<<<<<<< HEAD
 impl From<InstallTools> for Homebrew {
     fn from(InstallTools { path }: InstallTools) -> Self {
         Self { path }
@@ -150,5 +160,12 @@ impl From<InstallTools> for Homebrew {
 impl From<ApplyBundle> for Homebrew {
     fn from(ApplyBundle { path }: ApplyBundle) -> Self {
         Self { path }
+=======
+impl From<BundleConfig> for Homebrew {
+    fn from(config: BundleConfig) -> Self {
+        Self {
+            repo: config.repo(),
+        }
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     }
 }

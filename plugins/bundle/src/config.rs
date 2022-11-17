@@ -91,6 +91,10 @@ impl BundleConfig {
         p
     }
 
+    pub fn set_repo(&mut self, value: String) {
+        self.repo = value;
+    }
+
     pub fn config_file() -> PathBuf {
         let p = Config::config_dir().join("bundle");
         Config::ensure_dir(&p);

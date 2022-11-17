@@ -1,6 +1,7 @@
+use crate::{ApplyBundle, BundleConfig, BundleStage};
 use bevy::{
     app::{App, Plugin},
-    ecs::event::EventReader,
+    ecs::{event::EventReader, system::Res},
 };
 use cmd_lib::spawn_with_output;
 use convert_case::{Case, Casing};
@@ -8,8 +9,6 @@ use std::{
     io::{self, BufRead, BufReader},
     path::PathBuf,
 };
-
-use crate::{ApplyBundle, BundleStage};
 
 pub struct ScriptPlugin;
 
@@ -20,30 +19,50 @@ impl Plugin for ScriptPlugin {
     }
 }
 
-fn pre_script(mut events: EventReader<ApplyBundle>) {
-    events.iter().for_each(|e| Script::pre(e.clone()).run());
+fn pre_script(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
+    events
+        .iter()
+        .for_each(|_e| Script::pre(config.clone()).run());
 }
 
-fn post_script(mut events: EventReader<ApplyBundle>) {
-    events.iter().for_each(|e| Script::post(e.clone()).run());
+fn post_script(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
+    events
+        .iter()
+        .for_each(|_e| Script::post(config.clone()).run());
 }
 
 struct Script {
+<<<<<<< HEAD
     event: ApplyBundle,
+=======
+    repo: PathBuf,
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     schedule: ScriptSchedule,
 }
 
 impl Script {
+<<<<<<< HEAD
     fn pre(event: ApplyBundle) -> Self {
         Self {
             event,
+=======
+    fn pre(config: BundleConfig) -> Self {
+        Self {
+            repo: config.repo(),
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
             schedule: ScriptSchedule::Pre,
         }
     }
 
+<<<<<<< HEAD
     fn post(event: ApplyBundle) -> Self {
         Self {
             event,
+=======
+    fn post(config: BundleConfig) -> Self {
+        Self {
+            repo: config.repo(),
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
             schedule: ScriptSchedule::Post,
         }
     }
@@ -81,11 +100,19 @@ impl Script {
         println!("{} does not exists.", &self.file_path().display());
     }
 
+<<<<<<< HEAD
+=======
+    fn bundle_dir(&self) -> PathBuf {
+        self.repo.join("bundle/scripts")
+    }
+
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     fn find_file(&self) -> io::Result<PathBuf> {
         self.file_path().canonicalize()
     }
 
     fn file_path(&self) -> PathBuf {
+<<<<<<< HEAD
 <<<<<<< HEAD
         self.event
             .path
@@ -93,6 +120,9 @@ impl Script {
 =======
         self.bundle_path().join(&self.file_name())
 >>>>>>> 0f1f59e (Pass Config type to ConfigPlugin)
+=======
+        self.bundle_dir().join(&self.file_name())
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     }
 
     fn file_name(&self) -> String {
