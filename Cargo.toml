@@ -7,6 +7,7 @@ members = [
     "plugins/task",
     "plugins/ui/cli",
     "plugins/ui/desktop",
+    "plugins/web3/device",
     "examples/todomvc",
 ]
 
@@ -33,6 +34,7 @@ dip = { version = "0.1", path = ".", features = ["desktop"] }
 dip_bundle = { version = "0.1", path = "./plugins/bundle", features = ["full"] }
 dip_config = { version = "0.1", path = "./plugins/config" }
 dip_core = { version = "0.1", path = "./plugins/core" }
+dip_device = { version = "0.1", path = "./plugins/web3/device" }
 dip_macro = { version = "0.1", path = "./plugins/macro" }
 dip_task = { version = "0.1", path = "./plugins/task" }
 dirs = "4.0"
@@ -71,6 +73,7 @@ dip_bundle.workspace = true
 dip_cli = { version = "0.1", path = "./plugins/ui/cli", optional = true }
 dip_core = { version = "0.1", path = "./plugins/core" }
 dip_desktop = { version = "0.1", path = "./plugins/ui/desktop", optional = true }
+dip_device.workspace = true
 dip_macro.workspace = true
 dirs.workspace = true
 reqwest.workspace = true

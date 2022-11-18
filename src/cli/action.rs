@@ -17,6 +17,9 @@ pub enum Action {
 
     #[clap(subcommand)]
     Bundle(BundleAction),
+
+    #[clap(subcommand)]
+    Device(DeviceAction),
 }
 
 #[derive(clap::Args, Clone, Debug)]
@@ -46,19 +49,33 @@ pub enum BundleAction {
 #[derive(clap::Args, Clone, Debug)]
 pub struct ApplyBundleArgs {
 <<<<<<< HEAD
-    #[clap(short, long, default_value_t = String::from("."))]
-    pub path: String,
-=======
-    pub repo: Option<String>,
->>>>>>> e04d1b0 (Merge bundle config with cli arguments)
-}
-
-#[derive(clap::Args, Clone, Debug)]
-pub struct CleanBundleArgs {
 <<<<<<< HEAD
     #[clap(short, long, default_value_t = String::from("."))]
     pub path: String,
 =======
     pub repo: Option<String>,
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
+=======
+    pub bundle_root: Option<String>,
+>>>>>>> 24b4c2e (It's totally unrelated but succeeded to reteive Ledger device info)
+}
+
+#[derive(clap::Args, Clone, Debug)]
+pub struct CleanBundleArgs {
+<<<<<<< HEAD
+<<<<<<< HEAD
+    #[clap(short, long, default_value_t = String::from("."))]
+    pub path: String,
+=======
+    pub repo: Option<String>,
+>>>>>>> e04d1b0 (Merge bundle config with cli arguments)
+=======
+    pub bundle_root: Option<String>,
+}
+
+#[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
+pub enum DeviceAction {
+    List,
+    Info,
+>>>>>>> 24b4c2e (It's totally unrelated but succeeded to reteive Ledger device info)
 }
