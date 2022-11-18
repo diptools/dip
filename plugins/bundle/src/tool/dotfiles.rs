@@ -1,4 +1,4 @@
-use crate::{ApplyBundle, BundleConfig, BundleStage, CleanBundle};
+use crate::{ApplyBundle, BundleConfig, BundleStage, Bundler, CleanBundle};
 use bevy::{
     app::{App, Plugin},
     ecs::{event::EventReader, system::Res},
@@ -60,6 +60,7 @@ fn clean(mut events: EventReader<CleanBundle>, config: Res<BundleConfig>) {
 
 struct Dotfiles {
 <<<<<<< HEAD
+<<<<<<< HEAD
     pub path: PathBuf,
 }
 
@@ -81,13 +82,30 @@ impl Dotfiles {
     }
 
     fn symlinks(&self) -> std::boxed::Box<dyn Iterator<Item = Symlink> + '_> {
+=======
+    pub bundle: PathBuf,
+}
+
+impl Bundler for Dotfiles {
+    fn name() -> &'static str {
+        "dotfiles"
+    }
+
+    fn bundle(&self) -> &PathBuf {
+        &self.bundle
+    }
+}
+
+impl Dotfiles {
+    fn symlinks(&self) -> Box<dyn Iterator<Item = Symlink> + '_> {
+>>>>>>> 51d7a93 (Parse path and url from config file)
         Box::new(
             self.packages()
                 .flat_map(|dir| WalkDir::new(&dir.path().into_iter()))
                 .filter_map(Result::ok)
                 .filter_map(|dir| {
                     let original = dir.path().to_path_buf().canonicalize().unwrap();
-                    let diff = diff_paths(dir.path(), &self.bundle_dir()).unwrap();
+                    let diff = diff_paths(dir.path(), &self.bundle()).unwrap();
                     let dotfile_bundle_name = diff.iter().next().unwrap();
                     let stripped = diff.strip_prefix(dotfile_bundle_name).unwrap();
                     let link = dirs::home_dir().unwrap().join(stripped);
@@ -107,10 +125,14 @@ impl Dotfiles {
         let dir = fs::read_dir(&self.bundle_path())
 =======
     fn packages(&self) -> Box<dyn Iterator<Item = DirEntry> + '_> {
+<<<<<<< HEAD
         let dir = fs::read_dir(&self.bundle_dir())
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
             .unwrap()
             .filter_map(Result::ok);
+=======
+        let dir = fs::read_dir(&self.bundle()).unwrap().filter_map(Result::ok);
+>>>>>>> 51d7a93 (Parse path and url from config file)
 
         Box::new(dir)
     }
@@ -130,7 +152,7 @@ impl From<CleanBundle> for Dotfiles {
 impl From<BundleConfig> for Dotfiles {
     fn from(config: BundleConfig) -> Self {
         Self {
-            repo: config.repo(),
+            bundle: config.bundle_root().join("dotfiles"),
         }
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     }

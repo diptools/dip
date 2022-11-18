@@ -1,4 +1,4 @@
-use crate::{ApplyBundle, BundleConfig, BundleStage};
+use crate::{ApplyBundle, BundleConfig, BundleStage, Bundler};
 use bevy::{
     app::{App, Plugin},
     ecs::{event::EventReader, system::Res},
@@ -6,7 +6,7 @@ use bevy::{
 use cmd_lib::spawn_with_output;
 use convert_case::{Case, Casing};
 use std::{
-    io::{self, BufRead, BufReader},
+    io::{BufRead, BufReader},
     path::PathBuf,
 };
 
@@ -33,14 +33,29 @@ fn post_script(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) 
 
 struct Script {
 <<<<<<< HEAD
+<<<<<<< HEAD
     event: ApplyBundle,
 =======
     repo: PathBuf,
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
+=======
+    bundle: PathBuf,
+>>>>>>> 51d7a93 (Parse path and url from config file)
     schedule: ScriptSchedule,
 }
 
+impl Bundler for Script {
+    fn name() -> &'static str {
+        "scripts"
+    }
+
+    fn bundle(&self) -> &PathBuf {
+        &self.bundle
+    }
+}
+
 impl Script {
+<<<<<<< HEAD
 <<<<<<< HEAD
     fn pre(event: ApplyBundle) -> Self {
         Self {
@@ -50,6 +65,15 @@ impl Script {
         Self {
             repo: config.repo(),
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
+=======
+    fn name() -> &'static str {
+        "scripts"
+    }
+
+    fn pre(config: BundleConfig) -> Self {
+        Self {
+            bundle: config.bundle_root().join(Self::name()),
+>>>>>>> 51d7a93 (Parse path and url from config file)
             schedule: ScriptSchedule::Pre,
         }
     }
@@ -61,45 +85,48 @@ impl Script {
 =======
     fn post(config: BundleConfig) -> Self {
         Self {
+<<<<<<< HEAD
             repo: config.repo(),
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
+=======
+            bundle: config.bundle_root().join(Self::name()),
+>>>>>>> 51d7a93 (Parse path and url from config file)
             schedule: ScriptSchedule::Post,
         }
     }
 
     fn run(&self) {
-        match self.find_file() {
-            Ok(file_path) => {
-                println!("📌 {} script", self.schedule.to_upper_camel());
+        let script_file_path = self.script_file_path();
+        if script_file_path.is_file() {
+            println!("📌 {} script", self.schedule.to_upper_camel());
 
-                let file_path_str = file_path.display();
-                let mut script = spawn_with_output!(/bin/bash -C $file_path_str).unwrap();
+            let file_path_str = script_file_path.display();
+            let mut script = spawn_with_output!(/bin/bash -C $file_path_str).unwrap();
 
-                let result = script.wait_with_pipe(&mut |pipe| {
-                    BufReader::new(pipe)
-                        .lines()
-                        .filter_map(|line| line.ok())
-                        .for_each(|f| println!("{f}"));
-                });
+            let result = script.wait_with_pipe(&mut |pipe| {
+                BufReader::new(pipe)
+                    .lines()
+                    .filter_map(|line| line.ok())
+                    .for_each(|f| println!("{f}"));
+            });
 
-                if let Err(e) = result {
-                    println!("Failed to run {} script.", self.schedule.to_string());
-                    eprintln!("{e}");
-                } else {
-                    println!("✅ {} script", self.schedule.to_upper_camel());
-                }
+            if let Err(e) = result {
+                println!("Failed to run {} script.", self.schedule.to_string());
+                eprintln!("{e}");
+            } else {
+                println!("✅ {} script", self.schedule.to_upper_camel());
             }
-            Err(_e) => {
-                self.skip();
-            }
+        } else {
+            self.skip();
         }
     }
 
     fn skip(&self) {
         println!("🟡 Skip: {} script", &self.schedule.to_upper_camel());
-        println!("{} does not exists.", &self.file_path().display());
+        println!("{} does not exists.", &self.script_file_path().display());
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     fn bundle_dir(&self) -> PathBuf {
@@ -126,6 +153,13 @@ impl Script {
     }
 
     fn file_name(&self) -> String {
+=======
+    fn script_file_path(&self) -> PathBuf {
+        self.bundle().join(&self.script_name())
+    }
+
+    fn script_name(&self) -> String {
+>>>>>>> 51d7a93 (Parse path and url from config file)
         format!("{}.sh", self.schedule.to_string())
     }
 }

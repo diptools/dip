@@ -1,4 +1,4 @@
-use crate::{tool::InstallTools, ApplyBundle, BundleConfig, BundleStage};
+use crate::{tool::InstallTools, ApplyBundle, BundleConfig, BundleStage, Bundler};
 use bevy::{
     app::{App, Plugin},
     ecs::{event::EventReader, system::Res},
@@ -6,8 +6,8 @@ use bevy::{
 use cmd_lib::spawn_with_output;
 use std::{
     fs::File,
-    io::{self, BufRead, BufReader, Write},
-    path::{Path, PathBuf},
+    io::{BufRead, BufReader, Write},
+    path::PathBuf,
 };
 use tempfile::tempdir;
 
@@ -28,26 +28,24 @@ fn install(mut events: EventReader<InstallTools>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let brew = Homebrew::from(config.clone());
 
-        match &brew.brewfile_path() {
-            Ok(_brewfile_path) => {
-                if brew.installed() {
-                    println!("🟡 Skip: Install Homebrew");
-                    println!("brew is already installed");
-                } else {
-                    println!("📌 Install Homebrew bundle");
+        if brew.brewfile_exists() {
+            let homebrew_path = Homebrew::homebrew_path();
+            if homebrew_path.is_file() {
+                println!("🟡 Skip: Install Homebrew");
+                println!("brew is already installed");
+            } else {
+                println!("📌 Install Homebrew bundle");
 
-                    if let Err(e) = brew.install() {
-                        println!("Failed to run brew install.");
-                        eprintln!("{e}");
-                    } else {
-                        println!("✅ Install Homebrew");
-                    }
+                if let Err(e) = brew.install() {
+                    println!("Failed to run brew install.");
+                    eprintln!("{e}");
+                } else {
+                    println!("✅ Install Homebrew");
                 }
             }
-            Err(_e) => {
-                println!("🟡 Skip: Install Homebrew");
-                println!("bundle/homebrew/Brewfile does not exists.",);
-            }
+        } else {
+            println!("🟡 Skip: Install Homebrew");
+            println!("bundle/homebrew/Brewfile does not exists.",);
         }
     });
 }
@@ -56,42 +54,55 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let brew = Homebrew::from(config.clone());
 
-        match &brew.brewfile_path() {
-            Ok(brewfile_path) => {
-                if brew.installed() {
-                    println!("📌 Apply Homebrew bundle");
+        if brew.brewfile_exists() {
+            let homebrew_path = Homebrew::homebrew_path();
+            if homebrew_path.is_file() {
+                println!("📌 Apply Homebrew bundle");
 
-                    if let Err(e) = brew.apply(&brewfile_path) {
-                        println!("Failed to run brew bundle.");
-                        eprintln!("{e}");
-                    } else {
-                        println!("✅ Apply Homebrew bundle");
-                    }
+                if let Err(e) = brew.apply(&brew.brewfile_path()) {
+                    println!("Failed to run brew bundle.");
+                    eprintln!("{e}");
                 } else {
-                    eprintln!("Could not find homebrew binary.");
+                    println!("✅ Apply Homebrew bundle");
                 }
+            } else {
+                eprintln!("Could not find homebrew binary.");
             }
-            Err(_e) => {
-                println!("🟡 Skip: Apply Homebrew bundle");
-                println!("bundle/homebrew/Brewfile does not exists.");
-            }
+        } else {
+            println!("🟡 Skip: Apply Homebrew bundle");
+            println!("bundle/homebrew/Brewfile does not exists.");
         }
     });
 }
 
 struct Homebrew {
 <<<<<<< HEAD
+<<<<<<< HEAD
     pub path: PathBuf,
 =======
     pub repo: PathBuf,
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
+=======
+    pub bundle: PathBuf,
+}
+
+impl Bundler for Homebrew {
+    fn name() -> &'static str {
+        "homebrew"
+    }
+
+    fn bundle(&self) -> &PathBuf {
+        &self.bundle
+    }
+>>>>>>> 51d7a93 (Parse path and url from config file)
 }
 
 impl Homebrew {
-    fn homebrew_path() -> &'static str {
-        "/opt/homebrew/bin/brew"
+    fn homebrew_path() -> PathBuf {
+        PathBuf::from("/opt/homebrew/bin/brew")
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     fn bundle_path(&self) -> PathBuf {
         self.path.join("bundle/homebrew")
@@ -99,14 +110,14 @@ impl Homebrew {
     fn bundle_dir(&self) -> PathBuf {
         self.repo.join("bundle/homebrew")
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
+=======
+    fn brewfile_path(&self) -> PathBuf {
+        self.bundle().join("Brewfile")
+>>>>>>> 51d7a93 (Parse path and url from config file)
     }
 
-    fn brewfile_path(&self) -> io::Result<PathBuf> {
-        self.bundle_dir().join("Brewfile").canonicalize()
-    }
-
-    fn installed(&self) -> bool {
-        Path::new(Self::homebrew_path()).exists()
+    fn brewfile_exists(&self) -> bool {
+        self.brewfile_path().is_file()
     }
 
     fn install(&self) -> anyhow::Result<()> {
@@ -164,7 +175,7 @@ impl From<ApplyBundle> for Homebrew {
 impl From<BundleConfig> for Homebrew {
     fn from(config: BundleConfig) -> Self {
         Self {
-            repo: config.repo(),
+            bundle: config.bundle_root().join("homebrew"),
         }
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     }

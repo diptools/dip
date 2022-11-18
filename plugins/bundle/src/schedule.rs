@@ -15,6 +15,14 @@ impl Plugin for BundleSchedulePlugin {
         )
         .add_stage_after(
             BundleStage::First,
+<<<<<<< HEAD
+=======
+            BundleStage::PreScript,
+            SystemStage::parallel(),
+        )
+        .add_stage_after(
+            BundleStage::PreScript,
+>>>>>>> 51d7a93 (Parse path and url from config file)
             BundleStage::Clean,
             SystemStage::parallel(),
         )
@@ -30,6 +38,14 @@ impl Plugin for BundleSchedulePlugin {
         )
         .add_stage_after(
             BundleStage::Apply,
+<<<<<<< HEAD
+=======
+            BundleStage::PostScript,
+            SystemStage::parallel(),
+        )
+        .add_stage_before(
+            BundleStage::PostScript,
+>>>>>>> 51d7a93 (Parse path and url from config file)
             BundleStage::Last,
             SystemStage::parallel(),
         );

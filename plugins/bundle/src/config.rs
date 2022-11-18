@@ -1,14 +1,17 @@
+use anyhow::{Context, Result};
 use bevy::{
     app::{App, Plugin},
     ecs::system::ResMut,
+    log,
 };
 use config::{
     builder::{ConfigBuilder, DefaultState},
     File,
 };
 use dip_core::{config::ConfigPlugin as ConfigPluginRaw, prelude::ConfigStartupStage};
-use serde::Deserialize;
+use serde::{de, Deserialize, Deserializer};
 use std::{collections::HashSet, fs, path::PathBuf};
+use url::Url;
 
 pub struct BundleConfigPlugin;
 
@@ -22,18 +25,11 @@ impl Plugin for BundleConfigPlugin {
 }
 
 fn add_sources(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
-    let config_file = BundleConfig::config_file();
+    let config_file_path = BundleConfig::config_file_path();
 
-    match config_file.canonicalize() {
-        Ok(p) => {
-            *builder = builder
-                .clone()
-                .add_source(File::with_name(&p.display().to_string()));
-        }
-        Err(_e) => {
-            eprintln!("Cannot find dip config file: {}", config_file.display());
-        }
-    }
+    *builder = builder
+        .clone()
+        .add_source(File::with_name(&config_file_path.display().to_string()));
 }
 
 /// General dip configuration
@@ -53,67 +49,105 @@ impl Config {
             fs::create_dir_all(&p).unwrap();
         }
     }
-
-    pub fn to_path(value: &String) -> PathBuf {
-        value
-            .replace(
-                "$HOME",
-                dirs::home_dir()
-                    .expect("Cannot find home directory.")
-                    .to_str()
-                    .expect("Failed to convert path to string."),
-            )
-            .replace(
-                "$CONFIG_DIR",
-                dirs::config_dir()
-                    .expect("Cannot find config directory.")
-                    .to_str()
-                    .expect("Failed to convert path to string."),
-            )
-            .into()
-    }
 }
 
 #[derive(Deserialize, Debug, Clone)]
 /// Dip configuration regarding to bundle feature.
 pub struct BundleConfig {
+    /// URL of remote repository
+    #[serde(default)]
+    #[serde(deserialize_with = "ConfigParser::url_from_str")]
+    pub repository: Option<Url>,
+
     /// Path to your local bundle repository.
-    repo: String,
+    #[serde(deserialize_with = "ConfigParser::path_from_str")]
+    bundle_root: PathBuf,
+
     /// Section for the Version Manager
     pub vm: VMConfig,
 }
 
 impl BundleConfig {
-    pub fn repo(&self) -> PathBuf {
-        let p = Config::to_path(&self.repo);
-        Config::ensure_dir(&p);
-
-        p
-    }
-
-    pub fn set_repo(&mut self, value: String) {
-        self.repo = value;
-    }
-
-    pub fn config_file() -> PathBuf {
+    pub fn config_file_path() -> PathBuf {
         let p = Config::config_dir().join("bundle");
         Config::ensure_dir(&p);
 
         p
     }
 
-    pub fn bundle_dir(&self) -> PathBuf {
-        let p = Config::config_dir().join("bundle");
-        Config::ensure_dir(&p);
+    pub fn bundle_root(&self) -> &PathBuf {
+        Config::ensure_dir(&self.bundle_root);
 
-        p
+        &self.bundle_root
     }
 
     pub fn installs_dir(&self) -> PathBuf {
-        let p = self.bundle_dir().join("installs");
+        let p = self.bundle_root.join("installs");
         Config::ensure_dir(&p);
 
         p
+    }
+
+    pub fn set_bundle_root(&mut self, bundle_root: &String) -> anyhow::Result<()> {
+        self.bundle_root = ConfigParser::to_path(&bundle_root.to_string())?;
+        Ok(())
+    }
+}
+
+struct ConfigParser;
+
+impl ConfigParser {
+    fn url_from_str<'de, D: Deserializer<'de>>(d: D) -> Result<Option<Url>, D::Error> {
+        let s = Deserialize::deserialize(d);
+        match s {
+            Ok(s) => match Url::parse(s) {
+                Ok(url) => Ok(Some(url)),
+                Err(e) => {
+                    log::warn!("{e}");
+                    Ok(None)
+                }
+            },
+            Err(e) => {
+                log::warn!("{e}");
+                Ok(None)
+            }
+        }
+    }
+
+    fn path_from_str<'de, D: Deserializer<'de>>(d: D) -> Result<PathBuf, D::Error> {
+        let s: String = Deserialize::deserialize(d)?;
+
+        match Self::to_path(&s) {
+            Ok(path) => {
+                if path.is_dir() {
+                    Ok(path)
+                } else {
+                    Err(de::Error::custom("Bundle path is not a directory"))
+                }
+            }
+            Err(_e) => Err(de::Error::custom("Failed to parse bundle directory path")),
+        }
+    }
+
+    fn to_path(value: &String) -> Result<PathBuf> {
+        let p = value
+            .replace(
+                "$HOME",
+                dirs::home_dir()
+                    .context("Cannot find home directory.")?
+                    .to_str()
+                    .context("Failed to convert path to string.")?,
+            )
+            .replace(
+                "$CONFIG_DIR",
+                dirs::config_dir()
+                    .context("Cannot find config directory.")?
+                    .to_str()
+                    .context("Failed to convert path to string.")?,
+            )
+            .into();
+
+        Ok(p)
     }
 }
 

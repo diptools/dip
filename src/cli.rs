@@ -52,7 +52,9 @@ fn install_bundle(
         });
 =======
         if let Some(value) = a.repo.clone() {
-            config.set_repo(value);
+            config
+                .set_bundle_root(&value)
+                .expect("Bundle root is not a directry");
         }
 
         apply.send(ApplyBundle);
@@ -72,7 +74,9 @@ fn clean_bundle(
         })
 =======
         if let Some(value) = a.repo.clone() {
-            config.set_repo(value);
+            config
+                .set_bundle_root(&value)
+                .expect("Bundle root is not a directry");
         }
 
         clean.send(CleanBundle)

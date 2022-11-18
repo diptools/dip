@@ -11,6 +11,7 @@ use bevy::{
     app::{App, Plugin},
     ecs::event::{EventReader, EventWriter},
 };
+use std::path::PathBuf;
 
 pub struct BundlePlugin;
 
@@ -64,4 +65,14 @@ fn apply_bundle(
         install_tools.send(InstallTools);
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     });
+}
+
+pub trait Bundler {
+    fn name() -> &'static str;
+
+    fn bundle(&self) -> &PathBuf;
+
+    fn bundle_exists(&self) -> bool {
+        self.bundle().is_dir()
+    }
 }

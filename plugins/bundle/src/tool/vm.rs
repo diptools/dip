@@ -10,6 +10,7 @@ use std::{fmt::Debug, marker::PhantomData, path::PathBuf};
 mod tailwind;
 >>>>>>> 0a64aae (Replace ConfigPlugin with BundleConfigPlugin)
 
+<<<<<<< HEAD
 use std::path::PathBuf;
 
 use crate::{
@@ -23,6 +24,11 @@ use bevy::{
     log,
 >>>>>>> 0f1f59e (Pass Config type to ConfigPlugin)
 };
+=======
+use crate::{tool::vm::tailwind::TailwindPlugin, Bundler};
+use bevy::app::{App, Plugin};
+use std::path::PathBuf;
+>>>>>>> 51d7a93 (Parse path and url from config file)
 
 pub struct VersionManagerPlugin;
 
@@ -35,6 +41,7 @@ impl Plugin for VersionManagerPlugin {
     }
 }
 
+<<<<<<< HEAD
 fn apply(mut events: EventReader<ApplyBundle>) {
     events.iter().for_each(|e| {
         todo!("Implement install system for Version Manager");
@@ -98,4 +105,12 @@ impl VersionManager {
         self.project_path.join("bundle/vm")
     }
 >>>>>>> 0a64aae (Replace ConfigPlugin with BundleConfigPlugin)
+=======
+pub trait VersionManager: Bundler {
+    fn installs_dir(&self) -> PathBuf {
+        self.bundle().join("installs").join(Self::name())
+    }
+
+    fn versions(&self) -> std::collections::hash_set::Iter<'_, String>;
+>>>>>>> 51d7a93 (Parse path and url from config file)
 }

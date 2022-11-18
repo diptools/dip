@@ -23,6 +23,7 @@ tarpaulin-report.html
 .obsidian/appearance.json
 .obsidian/hotkeys.json
 .obsidian/workspace.json
+.obsidian/graph.json
 .obsidian/plugins
 !.obsidian/plugins/obsidian-git/data.json
 !.obsidian/plugins/obsidian-linter/data.json

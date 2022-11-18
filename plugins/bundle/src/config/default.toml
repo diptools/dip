@@ -1,7 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 [bundle.vm]
 =======
 repo = "."
+=======
+bundle_root = "./bundle"
+>>>>>>> 51d7a93 (Parse path and url from config file)
 
 [vm.runtime]
 >>>>>>> 051d114 (Create installs directory when it does not exist)

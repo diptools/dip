@@ -21,11 +21,17 @@ pathdiff.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 tempfile.workspace = true
+url.workspace = true
 walkdir.workspace = true
 
 [features]
 # default = ["full"]
+<<<<<<< HEAD
 full = ["brew", "dotfiles", "tailwind", "vm"]
+=======
+# full = ["brew", "dotfiles", "scripts", "tailwind", "vm"]
+full = ["dotfiles", "scripts", "tailwind", "vm"]
+>>>>>>> 51d7a93 (Parse path and url from config file)
 brew = []
 dotfiles = []
 tailwind = []
