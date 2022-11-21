@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 use crate::tool::InstallTools;
 =======
 use crate::{
@@ -31,8 +32,23 @@ use std::{collections::HashSet, fs, path::PathBuf};
 use super::VersionManager;
 >>>>>>> 51d7a93 (Parse path and url from config file)
 
+=======
+use crate::{
+    config::BundleConfig, platform::Platform, schedule::BundleStage, tool::vm::VersionManager,
+    ApplyBundle, Bundler,
+};
+use anyhow::{bail, Context};
+use bevy::{
+    app::{App, Plugin},
+    ecs::{event::EventReader, system::Res},
+};
+use reqwest::StatusCode;
+use std::{collections::HashSet, fs, os::unix::fs::PermissionsExt, path::PathBuf};
+use tokio::io::AsyncWriteExt;
+>>>>>>> ced7a90 (Install standalone Tailwind CSS binary through version manager)
 // Plugin
 pub struct TailwindPlugin;
+
 impl Plugin for TailwindPlugin {
     fn build(&self, app: &mut App) {
 <<<<<<< HEAD
@@ -62,37 +78,80 @@ fn install(mut events: EventReader<InstallTools>, mut installed: EventWriter<Tai
 
 fn clean(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        log::warn!("TODO: Implement clean system for Version Manager");
-        let tw = TailwindCSS::from(config.clone());
+        let tw = TailwindCSS::from(config.as_ref());
 
-        if let Ok(installs_dir) = tw.installs_dir().canonicalize() {
-            let installs = fs::read_dir(installs_dir).expect("Failed to read installs/ directory");
-
-            // iterate over each versions currently installed but removed from the user bundle config
-            installs.map(Result::ok).for_each(|version| {
-                println!("{version:?}");
-            });
+        println!("📌 Clean Tailwind CSS");
+        if let Err(e) = tw.clean_all() {
+            eprintln!("Failed to clean Tailwind CSS: {e}");
         } else {
-            println!("Tailwind CSS is not installed");
+            println!("✅ Clean Tailwind CSS");
         }
     });
 }
 
 fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        log::warn!("TODO: Implement install system for Version Manager");
+        println!("📌　Install Tailwind CSS");
+        let tw = TailwindCSS::from(config.as_ref());
 
-        let tw = TailwindCSS::from(config.clone());
-        log::info!("{:#?}", tw.bundle);
-        tw.versions().for_each(|v| {
-            log::info!("{v}");
-        });
+        tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(async move {
+                if let Err(e) = tw.install_all().await {
+                    eprintln!("Failed to install tailwind: {e}");
+                } else {
+                    println!("✅ Install Tailwind CSS");
+                }
+            });
     });
 }
 
 struct TailwindCSS {
+    bundle_root: PathBuf,
     bundle: PathBuf,
     versions: HashSet<String>,
+    platform: Platform,
+}
+
+impl TailwindCSS {
+    async fn install(&self, version: &String) -> anyhow::Result<()> {
+        let p = self.bin_path(version);
+
+        if p.is_file() {
+            return Ok(());
+        }
+
+        fs::create_dir_all(p.parent().context("Failed to get parent path")?)?;
+        let download_url = self.download_url(version);
+
+        let mut res = reqwest::get(&download_url)
+            .await
+            .with_context(|| format!("Failed to download tool: {}", Self::name()))?;
+
+        if res.status() == StatusCode::NOT_FOUND {
+            bail!("Download URL not found: {download_url}");
+        }
+
+        let mut file = tokio::fs::File::create(&p)
+            .await
+            .context("Failed to create download target file")?;
+        file.set_permissions(fs::Permissions::from_mode(0o755))
+            .await
+            .context("Failed to give permission to download target file")?;
+        while let Some(chunk) = res
+            .chunk()
+            .await
+            .context("Failed to stream chunks of downloading content")?
+        {
+            file.write(chunk.as_ref())
+                .await
+                .context("Failed to write chunks of downloading content")?;
+        }
+
+        println!("Installed: {}", p.display());
+
+        Ok(())
+    }
 }
 
 impl Bundler for TailwindCSS {
@@ -119,16 +178,85 @@ impl Bundler for TailwindCSS {
 }
 
 impl VersionManager for TailwindCSS {
-    fn versions(&self) -> std::collections::hash_set::Iter<'_, String> {
-        self.versions.iter()
+    fn bundle_root(&self) -> &PathBuf {
+        &self.bundle_root
+    }
+
+    fn versions(&self) -> &HashSet<String> {
+        &self.versions
+    }
+
+    fn bin_name(&self) -> String {
+        format!(
+            "tailwindcss-{target}-{arch}{optional_ext}",
+            target = self.platform.to_string(),
+            arch = Platform::arch(),
+            optional_ext = self.platform.ext(),
+        )
+    }
+
+    fn download_url(&self, version: &String) -> String {
+        format!(
+            "https://github.com/tailwindlabs/tailwindcss/releases/download/v{version}/{bin_name}",
+            bin_name = self.bin_name(),
+        )
+    }
+
+    fn clean_all(&self) -> anyhow::Result<()> {
+        if self.installs_dir().is_dir() {
+            let installs =
+                fs::read_dir(self.installs_dir()).context("Failed to read installs/ directory")?;
+
+            installs
+                .filter_map(Result::ok)
+                .filter(|dir| dir.path().is_dir())
+                .filter(|dir| {
+                    let v = &dir
+                        .path()
+                        .file_name()
+                        .unwrap()
+                        .to_os_string()
+                        .into_string()
+                        .unwrap();
+                    !self.versions().contains(v)
+                })
+                .for_each(|dir| {
+                    let path = dir.path();
+                    if let Err(e) = fs::remove_dir_all(&path) {
+                        eprintln!("Failed to cleanup directory: {e}");
+                    } else {
+                        println!("Cleaned: {}", path.display());
+                    }
+                });
+
+            if fs::read_dir(self.installs_dir())?.next().is_none() {
+                fs::remove_dir(self.installs_dir())
+                    .context("Failed to clean empty installs directory")?;
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn install_all(&self) -> anyhow::Result<()> {
+        let mut versions = self.versions().iter();
+        while let Some(v) = versions.next() {
+            if let Err(e) = self.install(v).await {
+                eprintln!("Failed to install Tailwind CSS: {e}");
+            };
+        }
+
+        Ok(())
     }
 }
 
-impl From<BundleConfig> for TailwindCSS {
-    fn from(config: BundleConfig) -> Self {
+impl From<&BundleConfig> for TailwindCSS {
+    fn from(config: &BundleConfig) -> Self {
         Self {
+            bundle_root: config.bundle_root(),
             bundle: config.bundle_root().join("tailwindcss"),
-            versions: config.vm.runtime.tailwindcss,
+            versions: config.vm.runtime.tailwindcss.clone(),
+            platform: Platform::new(),
         }
 >>>>>>> 51d7a93 (Parse path and url from config file)
     }

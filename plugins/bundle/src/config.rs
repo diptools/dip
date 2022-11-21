@@ -9,9 +9,9 @@ use config::{
     File,
 };
 use dip_core::{config::ConfigPlugin as ConfigPluginRaw, prelude::ConfigStartupStage};
+use reqwest::Url;
 use serde::{de, Deserialize, Deserializer};
 use std::{collections::HashSet, fs, path::PathBuf};
-use url::Url;
 
 pub struct BundleConfigPlugin;
 
@@ -75,10 +75,10 @@ impl BundleConfig {
         p
     }
 
-    pub fn bundle_root(&self) -> &PathBuf {
+    pub fn bundle_root(&self) -> PathBuf {
         Config::ensure_dir(&self.bundle_root);
 
-        &self.bundle_root
+        self.bundle_root.clone()
     }
 
     pub fn installs_dir(&self) -> PathBuf {

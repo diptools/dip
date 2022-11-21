@@ -34,7 +34,9 @@
 
 > WARNING: `dip` is still in the very early stages of development.
 
-> `main` branch is currently preparing for v0.2 release.
+> `main` branch is currently preparing for `v0.2` release.
+
+> `v0.1` is totally a different application. I wanted to make a cross-platform text editor but ended up making this framework.
 
 ```rust, no_run
 use dip::prelude::*;
@@ -328,7 +330,9 @@ fn Root(cx: Scope) -> Element {
 </details>
 
 ## About Bevy and Dioxus
+
 ### Bevy
+
 [https://github.com/bevyengine/bevy](https://github.com/bevyengine/bevy)
 - Data-driven game engine based on Entity Component System(ECS) design pattern
 - Flexible Plugin design
@@ -336,7 +340,19 @@ fn Root(cx: Scope) -> Element {
 
 Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS) design pattern. Think of it as a global state management tool like Redux but much more performant because all systems will run as parallel as possible. Thanks to its plugin system, there's already a handful of third-party Bevy plugins out there. Imagine implementing core logic as `CorePlugin` separated from UI layer. You may start with `dip::desktop` to build desktop application. Then let's say you want to release a metaverse edition at some point in the future, it's as simple as swapping UI plugin to Bevy's 3d rendering plugin while still using the same CorePlugin.
 
+### Tauri
+
+- [TAO](https://github.com/tauri-apps/tao)
+- [WRY](https://github.com/tauri-apps/wry)
+
+Tao is a window manager and the fork of `winit`. `DesktopPlugin` depends on this library to render webview. And the webview is powered by WRY which is essentailly a Rust wrapper around OS specific webview.
+
+#### Why not Tauri?
+
+If you want to write frontend in any languages other than Rust, then Tauri is a better fit! If you want to go full Rust, then that's where `dip` shines.
+
 ### Dioxus
+
 [https://github.com/DioxusLabs/dioxus](https://github.com/DioxusLabs/dioxus)
 - Cross-platform (macOS, Linux, Windows, TUI, etc.)
 - React-like declarative UI library
@@ -344,7 +360,9 @@ Bevy is a cutting-edge game engine in Rust based on Entity Component System(ECS)
 - Minimum bundle size is around 20x lighter than Electron (8 MB vs 160MB)
 
 Dioxus is a cross-platform declarative UI library. It provides familiar features that React developer expects such as component, state, props, hooks, global state, and router. If you familiar with any modern state driven UI framework, you should be able to read or write Dioxus components without knowing Rust. 
+
 ## Examples
+
 Make sure to install all prerequisites for Tauri.
 - [Prerequisites](https://tauri.studio/v1/guides/getting-started/prerequisites)
 

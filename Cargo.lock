@@ -1320,7 +1320,7 @@ dependencies = [
  "reqwest",
  "serde",
  "tempfile",
- "url",
+ "tokio",
  "walkdir",
 ]
 

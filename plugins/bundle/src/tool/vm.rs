@@ -27,8 +27,12 @@ use bevy::{
 =======
 use crate::{tool::vm::tailwind::TailwindPlugin, Bundler};
 use bevy::app::{App, Plugin};
+<<<<<<< HEAD
 use std::path::PathBuf;
 >>>>>>> 51d7a93 (Parse path and url from config file)
+=======
+use std::{collections::HashSet, path::PathBuf};
+>>>>>>> ced7a90 (Install standalone Tailwind CSS binary through version manager)
 
 pub struct VersionManagerPlugin;
 
@@ -107,10 +111,30 @@ impl VersionManager {
 >>>>>>> 0a64aae (Replace ConfigPlugin with BundleConfigPlugin)
 =======
 pub trait VersionManager: Bundler {
+    fn bundle_root(&self) -> &PathBuf;
+
     fn installs_dir(&self) -> PathBuf {
-        self.bundle().join("installs").join(Self::name())
+        self.bundle_root().join("installs").join(Self::name())
     }
 
+<<<<<<< HEAD
     fn versions(&self) -> std::collections::hash_set::Iter<'_, String>;
 >>>>>>> 51d7a93 (Parse path and url from config file)
+=======
+    fn bin_path(&self, version: &String) -> PathBuf {
+        self.installs_dir().join(version).join(self.bin_name())
+    }
+
+    fn versions(&self) -> &HashSet<String>;
+
+    fn bin_name(&self) -> String;
+
+    fn download_url(&self, version: &String) -> String;
+
+    /// Iterate over each versions currently installed but removed from the user bundle config
+    fn clean_all(&self) -> anyhow::Result<()>;
+
+    /// Iterate over version set defined in user config. Install only if bin doesn't exist.
+    async fn install_all(&self) -> anyhow::Result<()>;
+>>>>>>> ced7a90 (Install standalone Tailwind CSS binary through version manager)
 }

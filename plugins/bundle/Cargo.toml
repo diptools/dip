@@ -21,7 +21,7 @@ pathdiff.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 tempfile.workspace = true
-url.workspace = true
+tokio.workspace = true
 walkdir.workspace = true
 
 [features]
@@ -30,8 +30,12 @@ walkdir.workspace = true
 full = ["brew", "dotfiles", "tailwind", "vm"]
 =======
 # full = ["brew", "dotfiles", "scripts", "tailwind", "vm"]
+<<<<<<< HEAD
 full = ["dotfiles", "scripts", "tailwind", "vm"]
 >>>>>>> 51d7a93 (Parse path and url from config file)
+=======
+full = ["vm", "tailwind"]
+>>>>>>> ced7a90 (Install standalone Tailwind CSS binary through version manager)
 brew = []
 dotfiles = []
 tailwind = []
