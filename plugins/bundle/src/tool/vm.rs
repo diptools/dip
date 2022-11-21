@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 use crate::{ApplyBundle, BundleStage, CleanBundle};
 use bevy::{
     app::{App, Plugin},
@@ -33,6 +34,18 @@ use std::path::PathBuf;
 =======
 use std::{collections::HashSet, path::PathBuf};
 >>>>>>> ced7a90 (Install standalone Tailwind CSS binary through version manager)
+=======
+mod nodejs;
+mod tailwindcss;
+
+use crate::{
+    tool::vm::{nodejs::NodeJSPlugin, tailwindcss::TailwindCSSPlugin},
+    Bundler,
+};
+use anyhow::Context;
+use bevy::app::{App, Plugin};
+use std::{collections::HashSet, fs, path::PathBuf};
+>>>>>>> cdc95b3 (Fetch compressed files for Node.js runtime)
 
 pub struct VersionManagerPlugin;
 
@@ -40,8 +53,16 @@ impl Plugin for VersionManagerPlugin {
     fn build(&self, app: &mut App) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         app.add_system_to_stage(BundleStage::Apply, apply)
             .add_system_to_stage(BundleStage::Clean, clean);
+=======
+        #[cfg(feature = "tailwindcss")]
+        app.add_plugin(TailwindCSSPlugin);
+
+        #[cfg(feature = "nodejs")]
+        app.add_plugin(NodeJSPlugin);
+>>>>>>> cdc95b3 (Fetch compressed files for Node.js runtime)
     }
 }
 
@@ -118,6 +139,7 @@ pub trait VersionManager: Bundler {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     fn versions(&self) -> std::collections::hash_set::Iter<'_, String>;
 >>>>>>> 51d7a93 (Parse path and url from config file)
 =======
@@ -125,16 +147,81 @@ pub trait VersionManager: Bundler {
         self.installs_dir().join(version).join(self.bin_name())
     }
 
+=======
+>>>>>>> cdc95b3 (Fetch compressed files for Node.js runtime)
     fn versions(&self) -> &HashSet<String>;
 
-    fn bin_name(&self) -> String;
+    fn version_dir(&self, version: &String) -> PathBuf {
+        self.installs_dir().join(version)
+    }
 
     fn download_url(&self, version: &String) -> String;
 
-    /// Iterate over each versions currently installed but removed from the user bundle config
-    fn clean_all(&self) -> anyhow::Result<()>;
+    async fn install(&self, version: &String) -> anyhow::Result<()>;
 
     /// Iterate over version set defined in user config. Install only if bin doesn't exist.
+<<<<<<< HEAD
     async fn install_all(&self) -> anyhow::Result<()>;
 >>>>>>> ced7a90 (Install standalone Tailwind CSS binary through version manager)
+=======
+    async fn install_all(&self) -> anyhow::Result<()> {
+        let mut versions = self.versions().iter();
+        while let Some(v) = versions.next() {
+            let p = self.version_dir(v);
+
+            // Skip install if the version already exists
+            if p.is_dir() && fs::read_dir(&p)?.next().is_some() {
+                return Ok(());
+            }
+
+            // Ensure install path
+            fs::create_dir_all(&p)?;
+
+            if let Err(e) = self.install(v).await {
+                eprintln!("Failed to install {}: {e}", Self::name());
+            } else {
+                println!("Installed: {}", &p.display());
+            };
+        }
+
+        Ok(())
+    }
+
+    /// Iterate over each versions currently installed but removed from the user bundle config
+    fn clean_all(&self) -> anyhow::Result<()> {
+        if self.installs_dir().is_dir() {
+            let installs =
+                fs::read_dir(self.installs_dir()).context("Failed to read installs/ directory")?;
+
+            installs
+                .filter_map(Result::ok)
+                .filter(|dir| dir.path().is_dir())
+                .filter(|dir| {
+                    let v = &dir
+                        .path()
+                        .file_name()
+                        .unwrap()
+                        .to_os_string()
+                        .into_string()
+                        .unwrap();
+                    !self.versions().contains(v)
+                })
+                .for_each(|dir| {
+                    let path = dir.path();
+                    if let Err(e) = fs::remove_dir_all(&path) {
+                        eprintln!("Failed to cleanup directory: {e}");
+                    } else {
+                        println!("Cleaned: {}", path.display());
+                    }
+                });
+
+            if fs::read_dir(self.installs_dir())?.next().is_none() {
+                fs::remove_dir(self.installs_dir())
+                    .context("Failed to clean empty installs directory")?;
+            }
+        }
+
+        Ok(())
+    }
+>>>>>>> cdc95b3 (Fetch compressed files for Node.js runtime)
 }

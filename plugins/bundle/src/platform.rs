@@ -30,6 +30,21 @@ impl Platform {
             _ => "",
         }
     }
+
+    pub fn compression_ext(&self) -> &'static str {
+        match self {
+            Platform::Windows => ".zip",
+            _ => ".tar.xz",
+        }
+    }
+
+    pub fn name(&self) -> &'static str {
+        match self {
+            Platform::Linux => "linux",
+            Platform::Macos => "darwin",
+            Platform::Windows => "win",
+        }
+    }
 }
 
 impl fmt::Display for Platform {

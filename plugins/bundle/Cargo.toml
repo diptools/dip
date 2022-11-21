@@ -27,6 +27,7 @@ walkdir.workspace = true
 [features]
 # default = ["full"]
 <<<<<<< HEAD
+<<<<<<< HEAD
 full = ["brew", "dotfiles", "tailwind", "vm"]
 =======
 # full = ["brew", "dotfiles", "scripts", "tailwind", "vm"]
@@ -39,4 +40,13 @@ full = ["vm", "tailwind"]
 brew = []
 dotfiles = []
 tailwind = []
+=======
+# full = ["brew", "dotfiles", "nodejs", "scripts", "tailwindcss", "vm"]
+full = ["vm", "nodejs", "tailwindcss"]
+brew = []
+dotfiles = []
+nodejs = []
+scripts = []
+tailwindcss = []
+>>>>>>> cdc95b3 (Fetch compressed files for Node.js runtime)
 vm = []
