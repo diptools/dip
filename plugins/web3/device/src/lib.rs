@@ -47,14 +47,18 @@ pub fn device_info(mut actions: EventReader<InfoDevice>) {
             const CLA: u8 = 0;
         }
 
-        let ledger = TransportNativeHID::new(hidapi()).expect("Could not get a device");
-
-        // use device info command that works in the dashboard
-        let result = tokio::runtime::Runtime::new()
-            .unwrap()
-            .block_on(Dummy::get_device_info(&ledger))
-            .expect("Error during exchange");
-        log::info!("{result:?}");
+        match TransportNativeHID::new(hidapi()) {
+            Ok(ledger) => {
+                let result = tokio::runtime::Runtime::new()
+                    .unwrap()
+                    .block_on(Dummy::get_device_info(&ledger))
+                    .expect("Error during exchange");
+                log::info!("{result:?}");
+            }
+            Err(e) => {
+                eprintln!("{e}");
+            }
+        }
     });
 }
 

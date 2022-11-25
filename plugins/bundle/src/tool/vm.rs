@@ -132,11 +132,7 @@ impl VersionManager {
 >>>>>>> 0a64aae (Replace ConfigPlugin with BundleConfigPlugin)
 =======
 pub trait VersionManager: Bundler {
-    fn bundle_root(&self) -> &PathBuf;
-
-    fn installs_dir(&self) -> PathBuf {
-        self.bundle_root().join("installs").join(Self::name())
-    }
+    fn installs_dir(&self) -> &PathBuf;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -157,14 +153,18 @@ pub trait VersionManager: Bundler {
 
     fn download_url(&self, version: &String) -> String;
 
-    async fn install(&self, version: &String) -> anyhow::Result<()>;
+    fn install(&self, version: &String) -> anyhow::Result<()>;
 
     /// Iterate over version set defined in user config. Install only if bin doesn't exist.
+<<<<<<< HEAD
 <<<<<<< HEAD
     async fn install_all(&self) -> anyhow::Result<()>;
 >>>>>>> ced7a90 (Install standalone Tailwind CSS binary through version manager)
 =======
     async fn install_all(&self) -> anyhow::Result<()> {
+=======
+    fn install_all(&self) -> anyhow::Result<()> {
+>>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
         let mut versions = self.versions().iter();
         while let Some(v) = versions.next() {
             let p = self.version_dir(v);
@@ -177,8 +177,8 @@ pub trait VersionManager: Bundler {
             // Ensure install path
             fs::create_dir_all(&p)?;
 
-            if let Err(e) = self.install(v).await {
-                eprintln!("Failed to install {}: {e}", Self::name());
+            if let Err(e) = self.install(v) {
+                eprintln!("Failed to install {}: {e}", Self::key());
             } else {
                 println!("Installed: {}", &p.display());
             };

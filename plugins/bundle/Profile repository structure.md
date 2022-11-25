@@ -1,15 +1,17 @@
 - `README.md` (Optional) GitHub profile
-- `plugins/`
+- `bundle/`
+	- `dotfiles/`
+		- Each directory is a bundle of dotfiles. They are automatically linked to `$HOME` recursively
+		- `dip/` name of the bundle.
+			- `.config/`
+				- `dip/`
+					- `account.toml`
 	- `homebrew/`
 				- `Brewfile` (Optional)
 				- `Brewfile.lock.json` (Optional)
-- `dotfiles/` Each directory is a bundle of dotfiles. They are automatically linked to `$HOME` recursively
-	- `dip/` name of the bundle.
-		- `.config/`
-			- `dip/`
-				- `account.toml`
-- `src/`
-	- `main.rs` initializes `App` with plugins
-- `Cargo.toml`
-- `Cargo.lock`
-- `.gitignore`
+	- `scripts/`
+- Optional
+	- `src/`
+		- If you want to create your own dip command, here's a place
+	- `Cargo.toml`
+	- `Cargo.lock`

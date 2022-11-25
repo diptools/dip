@@ -34,6 +34,7 @@ fn post_script(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) 
 struct Script {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     event: ApplyBundle,
 =======
     repo: PathBuf,
@@ -41,20 +42,28 @@ struct Script {
 =======
     bundle: PathBuf,
 >>>>>>> 51d7a93 (Parse path and url from config file)
+=======
+    bundle_dir: PathBuf,
+>>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
     schedule: ScriptSchedule,
 }
 
 impl Bundler for Script {
-    fn name() -> &'static str {
+    fn key() -> &'static str {
         "scripts"
     }
 
-    fn bundle(&self) -> &PathBuf {
-        &self.bundle
+    fn name() -> &'static str {
+        "Scripts"
+    }
+
+    fn bundle_dir(&self) -> &PathBuf {
+        &self.bundle_dir
     }
 }
 
 impl Script {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     fn pre(event: ApplyBundle) -> Self {
@@ -74,6 +83,11 @@ impl Script {
         Self {
             bundle: config.bundle_root().join(Self::name()),
 >>>>>>> 51d7a93 (Parse path and url from config file)
+=======
+    fn pre(config: BundleConfig) -> Self {
+        Self {
+            bundle_dir: config.bundle_root().join(Self::key()),
+>>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
             schedule: ScriptSchedule::Pre,
         }
     }
@@ -86,11 +100,15 @@ impl Script {
     fn post(config: BundleConfig) -> Self {
         Self {
 <<<<<<< HEAD
+<<<<<<< HEAD
             repo: config.repo(),
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
 =======
             bundle: config.bundle_root().join(Self::name()),
 >>>>>>> 51d7a93 (Parse path and url from config file)
+=======
+            bundle_dir: config.bundle_root().join(Self::key()),
+>>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
             schedule: ScriptSchedule::Post,
         }
     }
@@ -155,7 +173,7 @@ impl Script {
     fn file_name(&self) -> String {
 =======
     fn script_file_path(&self) -> PathBuf {
-        self.bundle().join(&self.script_name())
+        self.bundle_dir().join(&self.script_name())
     }
 
     fn script_name(&self) -> String {

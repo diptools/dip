@@ -59,12 +59,16 @@ pub struct BundleConfig {
     #[serde(deserialize_with = "ConfigParser::url_from_str")]
     pub repository: Option<Url>,
 
-    /// Path to your local bundle repository.
+    /// Path to local bundle repository.
     #[serde(deserialize_with = "ConfigParser::path_from_str")]
     bundle_root: PathBuf,
 
-    /// Section for the Version Manager
+    /// Section for the Version Manager.
     pub vm: VMConfig,
+
+    /// Where all data resides. Runtime installs etc.
+    #[serde(deserialize_with = "ConfigParser::path_from_str")]
+    pub data_dir: PathBuf,
 }
 
 impl BundleConfig {
@@ -81,8 +85,8 @@ impl BundleConfig {
         self.bundle_root.clone()
     }
 
-    pub fn installs_dir(&self) -> PathBuf {
-        let p = self.bundle_root.join("installs");
+    pub fn install_root(&self) -> PathBuf {
+        let p = self.data_dir.join("installs");
         Config::ensure_dir(&p);
 
         p
@@ -142,6 +146,13 @@ impl ConfigParser {
                 "$CONFIG_DIR",
                 dirs::config_dir()
                     .context("Cannot find config directory.")?
+                    .to_str()
+                    .context("Failed to convert path to string.")?,
+            )
+            .replace(
+                "$DATA_DIR",
+                dirs::data_dir()
+                    .context("Cannot find data directory.")?
                     .to_str()
                     .context("Failed to convert path to string.")?,
             )

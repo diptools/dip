@@ -43,6 +43,7 @@ use bevy::{
     ecs::{event::EventReader, system::Res},
 };
 use reqwest::StatusCode;
+<<<<<<< HEAD
 use std::{collections::HashSet, fs, os::unix::fs::PermissionsExt, path::PathBuf};
 use tokio::io::AsyncWriteExt;
 <<<<<<< HEAD:plugins/bundle/src/tool/vm/tailwind.rs
@@ -51,6 +52,9 @@ use tokio::io::AsyncWriteExt;
 pub struct TailwindPlugin;
 =======
 >>>>>>> cdc95b3 (Fetch compressed files for Node.js runtime):plugins/bundle/src/tool/vm/tailwindcss.rs
+=======
+use std::{collections::HashSet, fs, io::Write, os::unix::fs::PermissionsExt, path::PathBuf};
+>>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
 
 pub struct TailwindCSSPlugin;
 
@@ -84,36 +88,34 @@ fn install(mut events: EventReader<InstallTools>, mut installed: EventWriter<Tai
 fn clean(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let vm = TailwindCSS::from(config.as_ref());
+        let action = format!("Clean {}", &TailwindCSS::name());
 
-        println!("📌 Clean Tailwind CSS");
+        println!("📌 {}", &action);
         if let Err(e) = vm.clean_all() {
-            eprintln!("Failed to clean {}: {e}", TailwindCSS::name());
+            eprintln!("Failed to clean {}: {e}", TailwindCSS::key());
         } else {
-            println!("✅ Clean Tailwind CSS");
+            println!("✅ {}", &action);
         }
     });
 }
 
 fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        println!("📌　Install Tailwind CSS");
         let vm = TailwindCSS::from(config.as_ref());
+        let action = format!("Apply {}", &TailwindCSS::name());
 
-        tokio::runtime::Runtime::new()
-            .unwrap()
-            .block_on(async move {
-                if let Err(e) = vm.install_all().await {
-                    eprintln!("Failed to install Tailwind CSS: {e}");
-                } else {
-                    println!("✅ Install Tailwind CSS");
-                }
-            });
+        println!("📌 {}", &action);
+        if let Err(e) = vm.install_all() {
+            eprintln!("Failed to install Tailwind CSS: {e}");
+        } else {
+            println!("✅ {}", &action);
+        }
     });
 }
 
 struct TailwindCSS {
-    bundle_root: PathBuf,
-    bundle: PathBuf,
+    bundle_dir: PathBuf,
+    installs_dir: PathBuf,
     versions: HashSet<String>,
     platform: Platform,
 }
@@ -130,10 +132,11 @@ impl TailwindCSS {
 }
 
 impl Bundler for TailwindCSS {
-    fn name() -> &'static str {
+    fn key() -> &'static str {
         "tailwindcss"
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     fn bundle_dir(&self) -> PathBuf {
         self.config.repo().join("bundle/vm")
@@ -149,12 +152,20 @@ impl Bundler for TailwindCSS {
 =======
     fn bundle(&self) -> &PathBuf {
         &self.bundle
+=======
+    fn name() -> &'static str {
+        "Tailwind CSS"
+    }
+
+    fn bundle_dir(&self) -> &PathBuf {
+        &self.bundle_dir
+>>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
     }
 }
 
 impl VersionManager for TailwindCSS {
-    fn bundle_root(&self) -> &PathBuf {
-        &self.bundle_root
+    fn installs_dir(&self) -> &PathBuf {
+        &self.installs_dir
     }
 
     fn versions(&self) -> &HashSet<String> {
@@ -168,32 +179,21 @@ impl VersionManager for TailwindCSS {
         )
     }
 
-    async fn install(&self, version: &String) -> anyhow::Result<()> {
+    fn install(&self, version: &String) -> anyhow::Result<()> {
         let download_url = self.download_url(version);
 
-        let mut res = reqwest::get(&download_url)
-            .await
-            .with_context(|| format!("Failed to download tool: {}", &Self::name()))?;
+        let res = reqwest::blocking::get(&download_url)
+            .with_context(|| format!("Failed to download tool: {}", &Self::key()))?;
 
         if res.status() == StatusCode::NOT_FOUND {
             bail!("Download URL not found: {download_url}");
         }
 
-        let mut file = tokio::fs::File::create(self.version_dir(&version))
-            .await
+        let mut file = fs::File::create(self.version_dir(&version).join(Self::key()))
             .context("Failed to create download target file")?;
         file.set_permissions(fs::Permissions::from_mode(0o755))
-            .await
             .context("Failed to give permission to download target file")?;
-        while let Some(chunk) = res
-            .chunk()
-            .await
-            .context("Failed to stream chunks of downloading content")?
-        {
-            file.write(chunk.as_ref())
-                .await
-                .context("Failed to write chunks of downloading content")?;
-        }
+        file.write(&res.bytes()?)?;
 
         Ok(())
     }
@@ -202,8 +202,8 @@ impl VersionManager for TailwindCSS {
 impl From<&BundleConfig> for TailwindCSS {
     fn from(config: &BundleConfig) -> Self {
         Self {
-            bundle_root: config.bundle_root(),
-            bundle: config.bundle_root().join("tailwindcss"),
+            bundle_dir: config.bundle_root().join(Self::key()),
+            installs_dir: config.install_root().join(Self::key()),
             versions: config.vm.runtime.tailwindcss.clone(),
             platform: Platform::new(),
         }

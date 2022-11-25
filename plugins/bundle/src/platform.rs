@@ -31,10 +31,10 @@ impl Platform {
         }
     }
 
-    pub fn compression_ext(&self) -> &'static str {
+    pub fn archive_ext(&self) -> &'static str {
         match self {
             Platform::Windows => ".zip",
-            _ => ".tar.xz",
+            _ => ".tar.gz",
         }
     }
 

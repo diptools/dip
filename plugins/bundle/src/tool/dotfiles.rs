@@ -27,38 +27,41 @@ impl Plugin for DotfilesPlugin {
 fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let dotfiles = Dotfiles::from(config.clone());
+        let action = format!("Apply {}", &Dotfiles::name());
 
         if dotfiles.bundle_exists() {
-            println!("📌 Apply dotfiles");
+            println!("📌 {}", &action);
 
             dotfiles.symlinks().for_each(|sym| sym.apply());
         } else {
-            println!("🟡 Skip: Apply dotfiles");
+            println!("🟡 Skip: {}", &action);
             println!("bundle/dotfiles directory is empty",);
         }
 
-        println!("✅ Apply dotfiles");
+        println!("✅ {}", &action);
     });
 }
 
 fn clean(mut events: EventReader<CleanBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let dotfiles = Dotfiles::from(config.clone());
+        let action = format!("Apply {}", &Dotfiles::name());
 
         if dotfiles.bundle_exists() {
-            println!("📌 Clean dotfiles");
+            println!("📌 {}", &action);
 
             dotfiles.symlinks().for_each(|sym| sym.clean());
         } else {
-            println!("🟡 Skip: Clean dotfiles");
+            println!("🟡 Skip: {}", &action);
             println!("bundle/dotfiles directory is empty",);
         }
 
-        println!("✅ Clean dotfiles");
+        println!("✅ {}", &action);
     });
 }
 
 struct Dotfiles {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     pub path: PathBuf,
@@ -84,15 +87,22 @@ impl Dotfiles {
     fn symlinks(&self) -> std::boxed::Box<dyn Iterator<Item = Symlink> + '_> {
 =======
     pub bundle: PathBuf,
+=======
+    pub bundle_dir: PathBuf,
+>>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
 }
 
 impl Bundler for Dotfiles {
+    fn key() -> &'static str {
+        "dotfiles"
+    }
+
     fn name() -> &'static str {
         "dotfiles"
     }
 
-    fn bundle(&self) -> &PathBuf {
-        &self.bundle
+    fn bundle_dir(&self) -> &PathBuf {
+        &self.bundle_dir
     }
 }
 
@@ -105,7 +115,7 @@ impl Dotfiles {
                 .filter_map(Result::ok)
                 .filter_map(|dir| {
                     let original = dir.path().to_path_buf().canonicalize().unwrap();
-                    let diff = diff_paths(dir.path(), &self.bundle()).unwrap();
+                    let diff = diff_paths(dir.path(), &self.bundle_dir()).unwrap();
                     let dotfile_bundle_name = diff.iter().next().unwrap();
                     let stripped = diff.strip_prefix(dotfile_bundle_name).unwrap();
                     let link = dirs::home_dir().unwrap().join(stripped);
@@ -126,6 +136,7 @@ impl Dotfiles {
 =======
     fn packages(&self) -> Box<dyn Iterator<Item = DirEntry> + '_> {
 <<<<<<< HEAD
+<<<<<<< HEAD
         let dir = fs::read_dir(&self.bundle_dir())
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
             .unwrap()
@@ -133,6 +144,11 @@ impl Dotfiles {
 =======
         let dir = fs::read_dir(&self.bundle()).unwrap().filter_map(Result::ok);
 >>>>>>> 51d7a93 (Parse path and url from config file)
+=======
+        let dir = fs::read_dir(&self.bundle_dir())
+            .unwrap()
+            .filter_map(Result::ok);
+>>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
 
         Box::new(dir)
     }
@@ -152,7 +168,7 @@ impl From<CleanBundle> for Dotfiles {
 impl From<BundleConfig> for Dotfiles {
     fn from(config: BundleConfig) -> Self {
         Self {
-            bundle: config.bundle_root().join("dotfiles"),
+            bundle_dir: config.bundle_root().join(Self::key()),
         }
 >>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     }

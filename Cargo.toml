@@ -38,8 +38,10 @@ dip_device = { version = "0.1", path = "./plugins/web3/device" }
 dip_macro = { version = "0.1", path = "./plugins/macro" }
 dip_task = { version = "0.1", path = "./plugins/task" }
 dirs = "4.0"
+flate2 = "1.0"
 pathdiff = "0.2"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
+tar = "0.4"
 tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros", "fs"], default-features = false }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

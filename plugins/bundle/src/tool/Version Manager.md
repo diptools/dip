@@ -10,7 +10,7 @@ This plugin manages runtimes with different versions. Inspired by asdf and imple
 
 ### Dependencies
 
-- [[Configuration]]
+- [[docs/handbook/Product/Framework/Plugins/Configuration]]
 
 ### Configuration
 

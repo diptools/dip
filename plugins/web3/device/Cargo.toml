@@ -11,7 +11,7 @@ keywords.workspace = true
 
 [dependencies]
 bevy.workspace = true
-hidapi = "1.3"
+hidapi = { version = "1.3", features = ["linux-static-hidraw"], default-features = false }
 ledger-transport-hid = "0.10"
 ledger-zondax-generic = "0.10"
 once_cell = "1.16"

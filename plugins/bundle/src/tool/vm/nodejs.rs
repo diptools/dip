@@ -8,15 +8,10 @@ use bevy::{
     ecs::{event::EventReader, system::Res},
 };
 
+use flate2::read::GzDecoder;
 use reqwest::StatusCode;
-use std::{
-    collections::HashSet,
-    io::Write,
-    // fs, os::unix::fs::PermissionsExt,
-    path::PathBuf,
-};
-use tempfile::tempfile;
-// use tokio::io::AsyncWriteExt;
+use std::{collections::HashSet, fs, path::PathBuf};
+use tar::Archive;
 
 pub struct NodeJSPlugin;
 
@@ -30,12 +25,13 @@ impl Plugin for NodeJSPlugin {
 fn clean(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let vm = NodeJS::from(config.as_ref());
+        let action = format!("Clean {}", &NodeJS::name());
 
-        println!("📌 Clean Node.js");
+        println!("📌 {}", &action);
         if let Err(e) = vm.clean_all() {
-            eprintln!("Failed to clean {}: {e}", NodeJS::name());
+            eprintln!("Failed to clean {}: {e}", NodeJS::key());
         } else {
-            println!("✅ Clean Node.js");
+            println!("✅ {}", &action);
         }
     });
 }
@@ -43,40 +39,59 @@ fn clean(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
 fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let vm = NodeJS::from(config.as_ref());
+        let action = format!("Apply {}", &NodeJS::name());
 
-        tokio::runtime::Runtime::new()
-            .unwrap()
-            .block_on(async move {
-                println!("📌 Install Node.js");
-                if let Err(e) = vm.install_all().await {
-                    eprintln!("Failed to install Node.js: {e}");
-                } else {
-                    println!("✅ Install Node.js");
-                }
-            });
+        println!("📌 {}", &action);
+        if let Err(e) = vm.install_all() {
+            eprintln!("Failed to install Node.js: {e}");
+        } else {
+            println!("✅ {}", &action);
+        }
     });
 }
 
 struct NodeJS {
-    bundle_root: PathBuf,
-    bundle: PathBuf,
+    bundle_dir: PathBuf,
+    installs_dir: PathBuf,
     versions: HashSet<String>,
     platform: Platform,
 }
 
 impl Bundler for NodeJS {
-    fn name() -> &'static str {
+    fn key() -> &'static str {
         "nodejs"
     }
 
-    fn bundle(&self) -> &PathBuf {
-        &self.bundle
+    fn name() -> &'static str {
+        "Node.js"
+    }
+
+    fn bundle_dir(&self) -> &PathBuf {
+        &self.bundle_dir
+    }
+}
+
+impl NodeJS {
+    fn file_name_without_ext(&self, version: &String) -> String {
+        format!(
+            "node-v{version}-{name}-{arch}",
+            name = self.platform.name(),
+            arch = Platform::arch(),
+        )
+    }
+
+    fn file_name(&self, version: &String) -> String {
+        format!(
+            "{}{archive_ext}",
+            self.file_name_without_ext(version),
+            archive_ext = self.platform.archive_ext(),
+        )
     }
 }
 
 impl VersionManager for NodeJS {
-    fn bundle_root(&self) -> &PathBuf {
-        &self.bundle_root
+    fn installs_dir(&self) -> &PathBuf {
+        &self.installs_dir
     }
 
     fn versions(&self) -> &HashSet<String> {
@@ -85,46 +100,36 @@ impl VersionManager for NodeJS {
 
     fn download_url(&self, version: &String) -> String {
         format!(
-            "https://nodejs.org/dist/v{version}/node-v{version}-{name}-{arch}{compression_ext}",
-            name = self.platform.name(),
-            arch = Platform::arch(),
-            compression_ext = self.platform.compression_ext(),
+            "https://nodejs.org/dist/v{version}/{file_name}",
+            file_name = &self.file_name(&version),
         )
     }
 
-    async fn install(&self, version: &String) -> anyhow::Result<()> {
+    fn install(&self, version: &String) -> anyhow::Result<()> {
         let download_url = self.download_url(version);
 
-        let mut res = reqwest::get(&download_url)
-            .await
-            .with_context(|| format!("Failed to download tool: {}", &Self::name()))?;
+        let res = reqwest::blocking::get(&download_url)
+            .with_context(|| format!("Failed to download tool: {}", &Self::key()))?;
 
         if res.status() == StatusCode::NOT_FOUND {
             bail!("Download URL not found: {download_url}");
         }
+        let bytes = res.bytes()?;
 
-        println!("{}", download_url);
-        println!("{:#?}", res.status());
-        println!("{res:#?}");
+        if cfg!(unix) {
+            let tar = GzDecoder::new(&bytes[..]);
+            let mut archive = Archive::new(tar);
 
-        let mut file = tempfile()?;
-
-        // let mut file = tokio::fs::File::create(&p)
-        //     .await
-        //     .context("Failed to create download target file")?;
-        // file.set_permissions(fs::Permissions::from_mode(0o755))
-        //     .await
-        //     .context("Failed to give permission to download target file")?;
-        while let Some(chunk) = res
-            .chunk()
-            .await
-            .context("Failed to stream chunks of downloading content")?
-        {
-            file.write(chunk.as_ref())
-                .context("Failed to write chunks of downloading content")?;
+            archive.unpack(&self.installs_dir())?;
+            fs::rename(
+                &self
+                    .installs_dir()
+                    .join(&self.file_name_without_ext(&version)),
+                &self.installs_dir().join(&version),
+            )?;
+        } else if cfg!(windows) {
+            // win: zip
         }
-
-        println!("{:?}", &file);
 
         Ok(())
     }
@@ -133,8 +138,8 @@ impl VersionManager for NodeJS {
 impl From<&BundleConfig> for NodeJS {
     fn from(config: &BundleConfig) -> Self {
         Self {
-            bundle_root: config.bundle_root(),
-            bundle: config.bundle_root().join("nodejs"),
+            bundle_dir: config.bundle_root().join(Self::key()),
+            installs_dir: config.install_root().join(Self::key()),
             versions: config.vm.runtime.nodejs.clone(),
             platform: Platform::new(),
         }

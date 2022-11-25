@@ -5,7 +5,11 @@
 repo = "."
 =======
 bundle_root = "./bundle"
+<<<<<<< HEAD
 >>>>>>> 51d7a93 (Parse path and url from config file)
+=======
+data_dir = "$DATA_DIR/dip/bundle"
+>>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
 
 [vm.runtime]
 >>>>>>> 051d114 (Create installs directory when it does not exist)

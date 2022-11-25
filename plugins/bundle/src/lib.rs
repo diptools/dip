@@ -72,11 +72,13 @@ fn apply_bundle(
 }
 
 pub trait Bundler {
+    fn key() -> &'static str;
+
     fn name() -> &'static str;
 
-    fn bundle(&self) -> &PathBuf;
+    fn bundle_dir(&self) -> &PathBuf;
 
     fn bundle_exists(&self) -> bool {
-        self.bundle().is_dir()
+        self.bundle_dir().is_dir()
     }
 }

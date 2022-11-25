@@ -1,3 +1,4 @@
+
 ```mermaid
 graph TD
 	A($ dip bundle apply) --> |ApplyBundleAction| B(BundlePlugin: apply_bundle)

@@ -18,9 +18,9 @@ This is where all knowledge goes. Inspired by GitLab's [[🛒 Glossary#GitLab Ha
 
 ![[Features]]
 
-![[README#Installation]]
+![[docs/handbook/README#Installation]]
 
-![[README#Setup]]
+![[docs/handbook/README#Setup]]
 
 ![[🛒 Glossary#Obsidian]]
 
