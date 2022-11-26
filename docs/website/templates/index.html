@@ -27,13 +27,13 @@
 
         <ul>
             <li>
-                <a href="https://discord.gg/4R8AtxAxk3" alt="Docs Page" class="underline text-accent" target="_blank">
+                <a href="{{ config.extra.discord }}" alt="Docs Page" class="underline text-accent" target="_blank">
                     Discord
                 </a>
             </li>
 
             <li>
-                <a href="https://github.com/diptools/dip/discussions" alt="Github Discussions" class="underline text-accent" target="_blank">
+                <a href="{{ config.extra.github.discussions }}" alt="Github Discussions" class="underline text-accent" target="_blank">
                     GitHub Discussions
                 </a>
                 : Q & A, feature request etc.
@@ -48,14 +48,14 @@
             </li>
 
             <li>
-                <a href="https://docs.rs/dip/latest/dip/" alt="API Reference" class="underline text-accent" target="_blank">
+                <a href="{{ config.extra.api_reference }}" alt="API Reference" class="underline text-accent" target="_blank">
                     API Reference (docs.rs)
                 </a>
                 : Auto generated Rust docs based on <a href="https://doc.rust-lang.org/reference/comments.html#doc-comments" alt="Doc comments" class="underline text-accent" target="_blank">doc comment</a> in src/ directory.
             </li>
 
             <li>
-                <a href="https://github.com/diptools/dip/tree/main/docs/handbook" alt="Handbook" class="underline text-accent" target="_blank">
+                <a href="{{ config.extra.github.handbook }}" alt="Handbook" class="underline text-accent" target="_blank">
                     Handbook
                 </a>
                 : Obsidian based documentation. I'm using this to brainstorm specs. It would be nice to generate <a href="{{ get_url(path = "@/docs/_index.md") }}" alt="Docs Page" class="underline text-accent">docs/</a> based on this in the future.
@@ -64,7 +64,7 @@
             <br/>
 
             <li>
-                <a href="https://github.com/orgs/diptools/projects/1" alt="GitHub Projects" class="underline text-accent" target="_blank">
+                <a href="{{ config.extra.github.projects }}" alt="GitHub Projects" class="underline text-accent" target="_blank">
                     GitHub Projects
                 </a>
                 : Milestone, kanban, tasks etc...
