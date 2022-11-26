@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% include "head.html" %}
+
+    <body class="h-screen w-screen bg-background text-text flex items-center flex-col">
+        {% include "header/index.html" %}
+
+        <div class="w-full h-full max-w-screen-xl pt-32 md:pt-14">
+            {% block content %}
+            {% endblock content %}
+        </div>
+
+        <script>
+            const themes = ["light", "dark", "system"];
+
+            applyTheme();
+
+            const mediaQuery = window.matchMedia("(min-width: 768px)");
+
+            mediaQuery.addListener((e) => {
+                if (e.matches) {
+                    closeNav();
+                    closeMenu();
+                }
+            });
+
+            // handlers
+            function openNav() {
+                document.getElementById("nav").classList.replace("hidden", "fixed");
+                document.body.classList.add("overflow-hidden");
+            }
+
+            function closeNav() {
+                document.getElementById("nav").classList.replace("fixed", "hidden");
+                document.body.classList.remove("overflow-hidden");
+            }
+
+            function openMenu() {
+                document.getElementById("menu").classList.replace("hidden", "flex");
+            }
+
+            function closeMenu() {
+                document.getElementById("menu").classList.replace("flex", "hidden");
+                closeThemeOptions();
+            }
+
+            function openThemeOptions() {
+                openDesktopThemeOptions();
+                openMobileThemeOptions();
+
+                updateThemeOptions();
+            }
+
+            function openMobileThemeOptions() {
+                const $el = document.getElementById("theme-options");
+                const ul = document.createElement("ul");
+                ul.id = "theme-options";
+                ul.className = "absolute w-40 border border-neutral-600 rounded flex flex-col top-4 right-0 bg-background";
+
+                ul.innerHTML = `
+                    <li>
+                        <button id="theme-options-light" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900 rounded-t" onclick="onSelectTheme('light')">
+                            <div class="mr-4 text-neutral-600">
+                                {% include "icons/sun.html" %}
+                            </div>
+                            <div class="text-neutral-300">Light</div>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="theme-options-dark" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('dark')">
+                            <div class="mr-4 text-neutral-600">
+                                {% include "icons/moon.html" %}
+                            </div>
+                            <div class="text-neutral-300">Dark</div>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="theme-options-system" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900 rounded-b" onclick="onSelectTheme('system')">
+                            <div class="mr-4 text-neutral-600">
+                                {% include "icons/desktop-computer.html" %}
+                            </div>
+                            <div class="text-neutral-300">System</div>
+                        </button>
+                    </li>
+                `;
+
+                $el.replaceWith(ul);
+            }
+
+            function openDesktopThemeOptions() {
+                const $el = document.getElementById("md:theme-options");
+                const ul = document.createElement("ul");
+                ul.id = "md:theme-options";
+                ul.className = "fixed w-40 border border-neutral-600 rounded flex flex-col top-16 bg-background";
+
+                ul.innerHTML = `
+                    <li>
+                        <button id="md:theme-options-light" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900 rounded-t" onclick="onSelectTheme('light')">
+                            <div class="mr-4 text-neutral-600">
+                                {% include "icons/sun.html" %}
+                            </div>
+                            <div class="text-neutral-300">Light</div>
+                        </button>
+                    </li>
+
+                    <li>
+                        <button id="md:theme-options-dark" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900" onclick="onSelectTheme('dark')">
+                            <div class="mr-4 text-neutral-600">
+                                {% include "icons/moon.html" %}
+                            </div>
+                            <div class="text-neutral-300">Dark</div>
+                        </button>
+                    </li>
+
+                    <li>
+                        <button id="md:theme-options-system" class="w-full flex items-center p-4 cursor-pointer hover:bg-neutral-900 rounded-b" onclick="onSelectTheme('system')">
+                            <div class="mr-4 text-neutral-600">
+                                {% include "icons/desktop-computer.html" %}
+                            </div>
+                            <div class="text-neutral-300">System</div>
+                        </button>
+                    </li>
+                `;
+
+                $el.replaceWith(ul);
+            }
+
+            function closeThemeOptions() {
+                hideThemeOptions("theme-options");
+                hideThemeOptions("md:theme-options");
+            }
+
+            function hideThemeOptions(id) {
+                const $el = document.getElementById(id);
+                $el.classList.remove("flex");
+                $el.classList.add("hidden");
+            }
+
+            function onSelectTheme(theme) {
+                setTheme(theme);
+                applyTheme();
+                closeThemeOptions();
+            }
+
+            // utils
+            function applyTheme() {
+                updateThemeClass();
+                updateSelectedTheme();
+            }
+
+            function setTheme(theme) {
+                switch (theme) {
+                    case "light":
+                    case "dark":
+                        localStorage.setItem("theme", theme);
+                        break;
+                    case "system":
+                        localStorage.removeItem("theme");
+                        break;
+                }
+            }
+
+            function updateThemeClass() {
+                if (
+                    localStorage.theme === "dark" || (
+                        !("theme" in localStorage) &&
+                        window.matchMedia("(prefers-color-scheme: dark)").matches)
+                ) {
+                    document.documentElement.classList.add("dark");
+                } else {
+                    document.documentElement.classList.remove("dark");
+                }
+            }
+
+            function updateSelectedTheme() {
+                updateDesktopSelectedTheme();
+                updateMobileSelectedTheme();
+            }
+
+            function updateMobileSelectedTheme() {
+                const $el = document.getElementById("theme-selected");
+                const theme = getTheme(false);
+                const div = document.createElement("div");
+                div.id = "theme-selected";
+                div.className = "flex items-center justify-between w-full";
+
+                switch (theme) {
+                    case "light":
+                        div.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="mr-4 text-neutral-600">
+                                    {% include "icons/sun.html" %}
+                                </div>
+                                <div>Light</div>
+                            </div>
+                            <div class="text-neutral-600">{% include "icons/chevron-down.html" %}</div>
+                        `;
+                        break;
+                    case "dark":
+                        div.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="mr-4 text-neutral-600">
+                                    {% include "icons/moon.html" %}
+                                </div>
+                                <div>Dark</div>
+                            </div>
+                            <div class="text-neutral-600">{% include "icons/chevron-down.html" %}</div>
+                        `;
+                        break;
+                    case "system":
+                        div.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="mr-4 text-neutral-600">
+                                    {% include "icons/desktop-computer.html" %}
+                                </div>
+                                <div>System</div>
+                            </div>
+                            <div class="text-neutral-600">{% include "icons/chevron-down.html" %}</div>
+                        `;
+                        break;
+                }
+                $el.replaceWith(div);
+            }
+
+            function updateDesktopSelectedTheme() {
+                const $el = document.getElementById("md:theme-selected");
+                const theme = getTheme();
+                const div = document.createElement("div");
+                div.id = "md:theme-selected";
+
+                switch (theme) {
+                    case "light":
+                        div.innerHTML = `
+                            <button
+                                class="w-10 h-10 flex justify-center items-center mx-2 text-accent"
+                                onclick="openThemeOptions()"
+                            >
+                                {% include "icons/sun.html" %}
+                            </button>
+                        `;
+                        break;
+                    case "dark":
+                        div.innerHTML = `
+                            <button
+                                class="w-10 h-10 flex justify-center items-center mx-2 text-accent"
+                                onclick="openThemeOptions()"
+                            >
+                                {% include "icons/moon.html" %}
+                            </button>
+                        `;
+                        break;
+                    case "system-light":
+                        div.innerHTML = `
+                            <button
+                                class="w-10 h-10 flex justify-center items-center mx-2 text-neutral-300 hover:text-text"
+                                onclick="openThemeOptions()"
+                            >
+                                {% include "icons/sun.html" %}
+                            </button>
+                        `;
+                        break;
+                    case "system-dark":
+                        const theme = "bg-neutral-50"
+                        div.innerHTML = `
+                            <button
+                                class="w-10 h-10 flex justify-center items-center mx-2 text-neutral-300 hover:text-text"
+                                onclick="openThemeOptions()"
+                            >
+                                {% include "icons/moon.html" %}
+                            </button>
+                        `;
+                        break;
+                }
+                $el.replaceWith(div);
+            }
+
+            function updateThemeOptions() {
+                removeAccents();
+                addAccent();
+                removeAccents("md:");
+                addAccent("md:");
+            }
+
+            function addAccent(prefix = "") {
+                const [$icon, $text] = document.getElementById(`${prefix}theme-options-${getTheme(false)}`).getElementsByTagName("div");
+                $icon.classList.replace("text-neutral-600", "text-accent");
+                $text.classList.replace("text-neutral-300", "text-accent");
+            }
+
+            function removeAccents(prefix = "") {
+                themes
+                    .filter(t => t !== getTheme(false))
+                    .forEach(theme => {
+                        const [$icon, $text] = document.getElementById(`${prefix}theme-options-${theme}`).getElementsByTagName("div");
+                        $icon.classList.replace("text-accent", "text-neutral-600");
+                        $text.classList.replace("text-accent", "text-neutral-300");
+                    });
+            }
+
+            function getTheme(system_theme = true) {
+                const system = system_theme ? getSystemTheme() : "system";
+                return localStorage.theme ?? system;
+            }
+
+            function getSystemTheme() {
+                return window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "system-dark" 
+                    : "system-light";
+            }
+        </script>
+    </body>
+</html>
