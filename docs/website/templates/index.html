@@ -1,9 +1,42 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <ul class="flex justify-center">
-        <a href="{{ get_url(path = "@/docs/_index.md") }}" alt="Docs Page" class="underline text-accent">
-            <li>Docs</li>
-        </a>
-    </ul>
+    <br />
+
+    <section>
+        <h1>Write cross-platform application with React-like declarative UI and scalable ECS architecture all in Rust.</h1>
+
+        <br />
+
+        <p>dip is aiming to provide essential tool sets to build Web3 applications which runs everywhere. (desktop, CLI, game etc.)</p>
+
+        <br />
+
+        <p>All plugins are based on <a href="https://bevyengine.org/" alt="Bevy" class="underline text-accent" target="_blank">Bevy ECS</a> design pattern.</p>
+        <p>dip plugins are not only compatible with dekstop applications but also games like metaverse.</p>
+    </section>
+
+    <br />
+
+    <section>
+        <p>Docs are WIP but nothing prevent me from posting here. </p>
+        <p>I know it's still confusing. We're on the edge.</p>
+        <p>Ping me on Discord if you need. I'm here to help.</p>
+
+        <br />
+
+        <ul>
+            <a href="https://discord.gg/4R8AtxAxk3" alt="Docs Page" class="underline text-accent" target="_blank">
+                <li>Discord</li>
+            </a>
+
+            <a href="{{ get_url(path = "@/docs/_index.md") }}" alt="Docs Page" class="underline text-accent">
+                <li>Docs</li>
+            </a>
+
+            <a href="https://docs.rs/dip/latest/dip/" alt="API Reference" class="underline text-accent" target="_blank">
+                <li>API Reference (docs.rs)</li>
+            </a>
+        </ul>
+    </section>
 {% endblock content %}
