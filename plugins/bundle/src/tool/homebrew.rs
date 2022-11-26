@@ -27,13 +27,12 @@ impl Plugin for HomebrewPlugin {
 fn install(mut events: EventReader<InstallTools>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let brew = Homebrew::from(config.clone());
-        let action = format!("Install {} bundle", &Homebrew::name());
+        let action = format!("Install {}", &Homebrew::name());
 
         if brew.brewfile_exists() {
             let homebrew_path = Homebrew::homebrew_path();
             if homebrew_path.is_file() {
-                println!("🟡 Skip: {}", &action);
-                println!("brew is already installed");
+                println!("🟡 Skip: {}: brew is already installed", &action);
             } else {
                 println!("📌 {}", &action);
 
@@ -45,8 +44,10 @@ fn install(mut events: EventReader<InstallTools>, config: Res<BundleConfig>) {
                 }
             }
         } else {
-            println!("🟡 Skip: {}", &action);
-            println!("bundle/homebrew/Brewfile does not exists.",);
+            println!(
+                "🟡 Skip: {}: bundle/homebrew/Brewfile does not exists.",
+                &action
+            );
         }
     });
 }
@@ -78,18 +79,7 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
 }
 
 struct Homebrew {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    pub path: PathBuf,
-=======
-    pub repo: PathBuf,
->>>>>>> e04d1b0 (Merge bundle config with cli arguments)
-=======
-    pub bundle: PathBuf,
-=======
     pub bundle_dir: PathBuf,
->>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
 }
 
 impl Bundler for Homebrew {
@@ -104,7 +94,6 @@ impl Bundler for Homebrew {
     fn bundle_dir(&self) -> &PathBuf {
         &self.bundle_dir
     }
->>>>>>> 51d7a93 (Parse path and url from config file)
 }
 
 impl Homebrew {
@@ -112,22 +101,8 @@ impl Homebrew {
         PathBuf::from("/opt/homebrew/bin/brew")
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    fn bundle_path(&self) -> PathBuf {
-        self.path.join("bundle/homebrew")
-=======
-    fn bundle_dir(&self) -> PathBuf {
-        self.repo.join("bundle/homebrew")
->>>>>>> e04d1b0 (Merge bundle config with cli arguments)
-=======
     fn brewfile_path(&self) -> PathBuf {
-<<<<<<< HEAD
-        self.bundle().join("Brewfile")
->>>>>>> 51d7a93 (Parse path and url from config file)
-=======
         self.bundle_dir().join("Brewfile")
->>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
     }
 
     fn brewfile_exists(&self) -> bool {
@@ -175,22 +150,10 @@ impl Homebrew {
     }
 }
 
-<<<<<<< HEAD
-impl From<InstallTools> for Homebrew {
-    fn from(InstallTools { path }: InstallTools) -> Self {
-        Self { path }
-    }
-}
-
-impl From<ApplyBundle> for Homebrew {
-    fn from(ApplyBundle { path }: ApplyBundle) -> Self {
-        Self { path }
-=======
 impl From<BundleConfig> for Homebrew {
     fn from(config: BundleConfig) -> Self {
         Self {
             bundle_dir: config.bundle_root().join(Self::key()),
         }
->>>>>>> e04d1b0 (Merge bundle config with cli arguments)
     }
 }

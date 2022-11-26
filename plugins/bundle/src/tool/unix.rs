@@ -1,8 +1,13 @@
-pub use crate::tool::{
-    dotfiles::DotfilesPlugin, homebrew::HomebrewPlugin, script::ScriptPlugin,
-    vm::VersionManagerPlugin,
-};
 use bevy::app::{App, Plugin};
+
+#[cfg(feature = "dotfiles")]
+use crate::tool::dotfiles::DotfilesPlugin;
+#[cfg(feature = "brew")]
+use crate::tool::homebrew::HomebrewPlugin;
+#[cfg(feature = "scripts")]
+use crate::tool::script::ScriptPlugin;
+#[cfg(feature = "vm")]
+use crate::tool::vm::VersionManagerPlugin;
 
 pub struct UnixToolPlugin;
 
@@ -14,6 +19,7 @@ impl UnixToolPlugin {
 
 impl Plugin for UnixToolPlugin {
     fn build(&self, app: &mut App) {
+        #[cfg(feature = "scripts")]
         app.add_plugin(ScriptPlugin);
 
         #[cfg(feature = "dotfiles")]
@@ -23,6 +29,6 @@ impl Plugin for UnixToolPlugin {
         app.add_plugin(HomebrewPlugin);
 
         #[cfg(feature = "vm")]
-        app.add_plugin(VersionManagerPlugin::new());
+        app.add_plugin(VersionManagerPlugin);
     }
 }

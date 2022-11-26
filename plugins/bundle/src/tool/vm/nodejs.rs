@@ -7,10 +7,9 @@ use bevy::{
     app::{App, Plugin},
     ecs::{event::EventReader, system::Res},
 };
-
 use flate2::read::GzDecoder;
 use reqwest::StatusCode;
-use std::{collections::HashSet, fs, path::PathBuf};
+use std::{fs, io::Write, os::unix::fs::PermissionsExt, path::PathBuf};
 use tar::Archive;
 
 pub struct NodeJSPlugin;
@@ -27,7 +26,7 @@ fn clean(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
         let vm = NodeJS::from(config.as_ref());
         let action = format!("Clean {}", &NodeJS::name());
 
-        println!("📌 {}", &action);
+        println!("🫧  {}", &action);
         if let Err(e) = vm.clean_all() {
             eprintln!("Failed to clean {}: {e}", NodeJS::key());
         } else {
@@ -53,7 +52,8 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
 struct NodeJS {
     bundle_dir: PathBuf,
     installs_dir: PathBuf,
-    versions: HashSet<String>,
+    shims_dir: PathBuf,
+    versions: Vec<String>,
     platform: Platform,
 }
 
@@ -94,7 +94,11 @@ impl VersionManager for NodeJS {
         &self.installs_dir
     }
 
-    fn versions(&self) -> &HashSet<String> {
+    fn shims_dir(&self) -> &PathBuf {
+        &self.shims_dir
+    }
+
+    fn versions(&self) -> &Vec<String> {
         &self.versions
     }
 
@@ -111,26 +115,54 @@ impl VersionManager for NodeJS {
         let res = reqwest::blocking::get(&download_url)
             .with_context(|| format!("Failed to download tool: {}", &Self::key()))?;
 
-        if res.status() == StatusCode::NOT_FOUND {
-            bail!("Download URL not found: {download_url}");
+        match res.status() {
+            StatusCode::NOT_FOUND => {
+                bail!("Download URL not found: {download_url}");
+            }
+            StatusCode::OK => {
+                if res.status() == StatusCode::NOT_FOUND {
+                    bail!("Download URL not found: {download_url}");
+                }
+                let bytes = res.bytes()?;
+
+                if cfg!(unix) {
+                    let tar = GzDecoder::new(&bytes[..]);
+                    let mut archive = Archive::new(tar);
+
+                    archive.unpack(&self.installs_dir())?;
+                    fs::rename(
+                        &self
+                            .installs_dir()
+                            .join(&self.file_name_without_ext(&version)),
+                        &self.installs_dir().join(&version),
+                    )?;
+                } else if cfg!(windows) {
+                    // win: zip
+                    todo!("Implement zip extraction logic for Windows");
+                }
+
+                Ok(())
+            }
+            _ => {
+                bail!("Fail to download binary")
+            }
         }
-        let bytes = res.bytes()?;
+    }
 
-        if cfg!(unix) {
-            let tar = GzDecoder::new(&bytes[..]);
-            let mut archive = Archive::new(tar);
+    fn shim(&self, version: &String) -> anyhow::Result<()> {
+        let runtime_path = self.version_dir(version).join("bin");
+        for e in fs::read_dir(&runtime_path)?.flat_map(Result::ok) {
+            if e.path().is_file() {
+                let shim_path = &self.shims_dir().join(e.file_name());
 
-            archive.unpack(&self.installs_dir())?;
-            fs::rename(
-                &self
-                    .installs_dir()
-                    .join(&self.file_name_without_ext(&version)),
-                &self.installs_dir().join(&version),
-            )?;
-        } else if cfg!(windows) {
-            // win: zip
+                let mut shim_file = fs::File::create(shim_path)?;
+                shim_file
+                    .set_permissions(fs::Permissions::from_mode(0o755))
+                    .context("Failed to give permission to shim")?;
+
+                shim_file.write_all(&Self::format_shim(&e.path())?.as_bytes())?;
+            }
         }
-
         Ok(())
     }
 }
@@ -140,6 +172,7 @@ impl From<&BundleConfig> for NodeJS {
         Self {
             bundle_dir: config.bundle_root().join(Self::key()),
             installs_dir: config.install_root().join(Self::key()),
+            shims_dir: config.shim_root(),
             versions: config.vm.runtime.nodejs.clone(),
             platform: Platform::new(),
         }

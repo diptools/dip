@@ -32,19 +32,7 @@ fn post_script(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) 
 }
 
 struct Script {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    event: ApplyBundle,
-=======
-    repo: PathBuf,
->>>>>>> e04d1b0 (Merge bundle config with cli arguments)
-=======
-    bundle: PathBuf,
->>>>>>> 51d7a93 (Parse path and url from config file)
-=======
     bundle_dir: PathBuf,
->>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
     schedule: ScriptSchedule,
 }
 
@@ -63,52 +51,16 @@ impl Bundler for Script {
 }
 
 impl Script {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    fn pre(event: ApplyBundle) -> Self {
-        Self {
-            event,
-=======
-    fn pre(config: BundleConfig) -> Self {
-        Self {
-            repo: config.repo(),
->>>>>>> e04d1b0 (Merge bundle config with cli arguments)
-=======
-    fn name() -> &'static str {
-        "scripts"
-    }
-
-    fn pre(config: BundleConfig) -> Self {
-        Self {
-            bundle: config.bundle_root().join(Self::name()),
->>>>>>> 51d7a93 (Parse path and url from config file)
-=======
     fn pre(config: BundleConfig) -> Self {
         Self {
             bundle_dir: config.bundle_root().join(Self::key()),
->>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
             schedule: ScriptSchedule::Pre,
         }
     }
 
-<<<<<<< HEAD
-    fn post(event: ApplyBundle) -> Self {
-        Self {
-            event,
-=======
     fn post(config: BundleConfig) -> Self {
         Self {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            repo: config.repo(),
->>>>>>> e04d1b0 (Merge bundle config with cli arguments)
-=======
-            bundle: config.bundle_root().join(Self::name()),
->>>>>>> 51d7a93 (Parse path and url from config file)
-=======
             bundle_dir: config.bundle_root().join(Self::key()),
->>>>>>> f6c8a2b (Unpack Node.js runtime in installs/ directory)
             schedule: ScriptSchedule::Post,
         }
     }
@@ -140,44 +92,18 @@ impl Script {
     }
 
     fn skip(&self) {
-        println!("🟡 Skip: {} script", &self.schedule.to_upper_camel());
-        println!("{} does not exists.", &self.script_file_path().display());
+        println!(
+            "🟡 Skip: {} script: {} does not exists.",
+            &self.schedule.to_upper_camel(),
+            &self.script_file_path().display()
+        );
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    fn bundle_dir(&self) -> PathBuf {
-        self.repo.join("bundle/scripts")
-    }
-
->>>>>>> e04d1b0 (Merge bundle config with cli arguments)
-    fn find_file(&self) -> io::Result<PathBuf> {
-        self.file_path().canonicalize()
-    }
-
-    fn file_path(&self) -> PathBuf {
-<<<<<<< HEAD
-<<<<<<< HEAD
-        self.event
-            .path
-            .join(format!("bundle/scripts/{}", &self.file_name()))
-=======
-        self.bundle_path().join(&self.file_name())
->>>>>>> 0f1f59e (Pass Config type to ConfigPlugin)
-=======
-        self.bundle_dir().join(&self.file_name())
->>>>>>> e04d1b0 (Merge bundle config with cli arguments)
-    }
-
-    fn file_name(&self) -> String {
-=======
     fn script_file_path(&self) -> PathBuf {
         self.bundle_dir().join(&self.script_name())
     }
 
     fn script_name(&self) -> String {
->>>>>>> 51d7a93 (Parse path and url from config file)
         format!("{}.sh", self.schedule.to_string())
     }
 }

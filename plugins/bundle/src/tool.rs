@@ -1,8 +1,12 @@
+#[cfg(feature = "dotfiles")]
 mod dotfiles;
+#[cfg(feature = "brew")]
 mod homebrew;
+#[cfg(feature = "scripts")]
 mod script;
-mod tailwind;
+#[cfg(target_family = "unix")]
 mod unix;
+#[cfg(feature = "vm")]
 mod vm;
 
 pub use self::unix::UnixToolPlugin;
@@ -28,18 +32,8 @@ impl Plugin for ToolPlugin {
     }
 }
 
-// Events
-
 #[derive(Clone)]
-<<<<<<< HEAD
-pub struct InstallTools {
-    pub path: PathBuf,
-}
-
-=======
 pub struct InstallTools;
->>>>>>> e04d1b0 (Merge bundle config with cli arguments)
-// Commponents
 
 #[derive(Component)]
 pub struct Tool;

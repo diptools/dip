@@ -141,7 +141,7 @@ impl<Config> ConfigPlugin<Config> {
 
 pub fn build_config<Config>(
     builder: Res<config::builder::ConfigBuilder<config::builder::DefaultState>>,
-    mut config: Option<ResMut<Config>>,
+    config: Option<ResMut<Config>>,
     mut commands: Commands,
 ) where
     Config: 'static + Send + Sync + Deserialize<'static>,
@@ -156,10 +156,4 @@ pub fn build_config<Config>(
     if config.is_none() {
         commands.insert_resource(c);
     }
-}
-
-struct Config;
-
-impl Config {
-    fn builder() {}
 }

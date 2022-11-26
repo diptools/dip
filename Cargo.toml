@@ -31,7 +31,7 @@ config = "0.13"
 convert_case = "0.5"
 dioxus = { version = "0.2", features = ["fermi"] }
 dip = { version = "0.1", path = ".", features = ["desktop"] }
-dip_bundle = { version = "0.1", path = "./plugins/bundle", features = ["full"] }
+dip_bundle = { version = "0.1", path = "./plugins/bundle" }
 dip_config = { version = "0.1", path = "./plugins/config" }
 dip_core = { version = "0.1", path = "./plugins/core" }
 dip_device = { version = "0.1", path = "./plugins/web3/device" }

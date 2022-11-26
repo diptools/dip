@@ -11,7 +11,7 @@ use config::{
 use dip_core::{config::ConfigPlugin as ConfigPluginRaw, prelude::ConfigStartupStage};
 use reqwest::Url;
 use serde::{de, Deserialize, Deserializer};
-use std::{collections::HashSet, fs, path::PathBuf};
+use std::{fs, path::PathBuf};
 
 pub struct BundleConfigPlugin;
 
@@ -92,6 +92,13 @@ impl BundleConfig {
         p
     }
 
+    pub fn shim_root(&self) -> PathBuf {
+        let p = self.data_dir.join("shims");
+        Config::ensure_dir(&p);
+
+        p
+    }
+
     pub fn set_bundle_root(&mut self, bundle_root: &String) -> anyhow::Result<()> {
         self.bundle_root = ConfigParser::to_path(&bundle_root.to_string())?;
         Ok(())
@@ -165,10 +172,6 @@ impl ConfigParser {
 #[derive(Deserialize, Debug, Clone)]
 /// Version Manager related configurations
 pub struct VMConfig {
-<<<<<<< HEAD
-    pub tailwindcss: VersionList,
-    pub nodejs: VersionList,
-=======
     /// All runtime versions
     pub runtime: VMRuntime,
 }
@@ -179,7 +182,6 @@ pub struct VMRuntime {
     pub tailwindcss: VersionSet,
     /// [Node.js](https://nodejs.org/)
     pub nodejs: VersionSet,
->>>>>>> 051d114 (Create installs directory when it does not exist)
 }
 
-pub type VersionSet = HashSet<String>;
+pub type VersionSet = Vec<String>;

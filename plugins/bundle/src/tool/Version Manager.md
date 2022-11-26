@@ -14,64 +14,55 @@ This plugin manages runtimes with different versions. Inspired by asdf and imple
 
 ### Configuration
 
-`dip.toml`
+#### Global
+
+`$DATA_DIR/dip/bundle.toml`
 
 ```toml
+bundle_root = "./bundle"
+
 [vm.runtime]
 tailwindcss = ["3.2.4"] # ["default-version", ..other-versions]
 ```
 
-### Installed destination
+### Installation destination
 
-- `$HOME/.dip/bundle/`
-	- `installed/`
-		- `node/`
-
-### Binary PATH setup
- `~/.zshrc`
- 
-```sh
-dip bundle init
-```
+`$DATA_DIR/dip/bundle/installs/<version>/<runtime>`
 
 ### Supported runtime
 	
 - Tailwind CSS
-- Todo
-	- Node
-		- [Mirror Registry](https://registry.npmmirror.com/binary.html?path=node/)
-	- Yarn
-	- Python
-	- Ruby
-	- Java
+- Node
+	- [Mirror Registry](https://registry.npmmirror.com/binary.html?path=node/)
+- Yarn ?
+- Pnpm ?
+- Go ?
+- Python ?
+- Ruby ?
+- Java ?
 
-### Versions
+### Events
 
-#### Set Current Version
+#### ApplyBundle 
 
-- `dip bundle global name@version`: `$HOME/.dip/dip.toml`
-- `dip bundle shell name@version`: `DIP_BUNDLE_${RUNTIME}_VERSION`
-- `dip bundle local name@version`: `$PWD/bundle/vm/versions.toml` ?
-
-#### Supported versions
-
-- `10.15.0`
-- `ref:v1.0.2` ?
-- `path:/src/elixir` ?
-- `system` ?
-
-### Hooks
-
-#### Apply
-
-- Check binary for each runtime x version matrix
+- Check binary for each (runtime x version) matrix
 - Clean installs which removed from config file
 - Install all newly added versions
-- Set current version
+- Create shim file
 
-#### Clean
+#### CleanBundle ?
 
-- Cleanup `~/.dip/bundle/installs`
+- Cleanup `~/.dip/bundle/installs/` ?
+
+### Shims
+
+Path: `$DATA_DIR/dip/shims/`
+
+```sh
+#!/bin/sh 
+
+"$HOME/Library/Application Support/dip/bundle/installs/<runtime>/x.y.z/bin/<bin-name>"
+```
 
 ## Unsolved topics 
 
