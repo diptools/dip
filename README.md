@@ -59,10 +59,10 @@ fn Root(cx: Scope) -> Element {
 }
 ```
 
-- All plugins are based on [Bevy](https://bevyengine.org/) ECS design pattern.
+- All plugins are based on [Bevy](#bevy) ECS design pattern.
 - Share your logic between games, desktop apps and command line tools
-- Webview based UI powered by [Tauri](https://tauri.app/)
-- React-like declarative UI via [Dioxus](https://dioxuslabs.com/)
+- Webview based UI powered by [Tauri](#tauri)
+- React-like declarative UI via [Dioxus](#dioxus)
 - Developer tools
 	- Bundle: Tools to setup your computer with one command
 		- Homebrew: Installs [Homebrew](https://brew.sh/) formula, cask, mas via `brew bundle`
