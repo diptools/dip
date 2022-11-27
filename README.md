@@ -4,7 +4,7 @@
     <p align="center">
         <a href="https://github.com/JunichiSugiura/dip/actions/workflows/rust.yml" alt="Github Actions">
             <img src="https://img.shields.io/github/workflow/status/JunichiSugiura/dip/Rust?style=for-the-badge&logo=github" />
-        </>
+        </a>
         <a href="https://docs.rs/dip/latest/dip/" alt="API Docs">
             <img src="https://img.shields.io/docsrs/dip?style=for-the-badge" />
         </a>
@@ -14,29 +14,30 @@
         <img src="https://img.shields.io/crates/d/dip?style=for-the-badge" />
         <img src="https://img.shields.io/crates/l/dip?style=for-the-badge" />
     </p>
-    <p>Previously called bevy_dioxus.</p>
-    <p>Write cross-platform application with React-like declarative UI<br/>and scalable ECS architecture all in Rust.</p>
+    <p>
+        Full-Rust Web3 application toolkit focus on ECS based event-driven development.
+    </p>
+    <p>Powered by <a href="https://github.com/bevyengine/bevy" alt="Bevy  website">Bevy</a> game engine.</p>
+    <!-- <p>Previously called bevy_dioxus.</p> -->
+    <!-- <p>Write cross-platform application with React-like declarative UI<br/>and scalable ECS architecture all in Rust.</p> -->
     <p align="center">
+        <a href="https://discord.gg/4R8AtxAxk3" alt="Discord">
+            <img src="https://img.shields.io/badge/Discord-000?style=for-the-badge&logo=discord" />
+        </a>
         <a href="https://www.dip.tools" alt="Website">
-            <img src="https://img.shields.io/badge/Website-000?style=for-the-badge" />
+            <img src="https://img.shields.io/badge/🌐 Website-000?style=for-the-badge" />
         </a>
         <a href="https://www.dip.tools/docs/getting-started/overview/" alt="Documentation">
-            <img src="https://img.shields.io/badge/Documentation-000?style=for-the-badge" />
+            <img src="https://img.shields.io/badge/📕 Docs-000?style=for-the-badge&logo=book" />
         </a>
         <a href="https://docs.rs/dip/latest/dip/" alt="API Refenrence">
             <img src="https://img.shields.io/badge/API Reference-000?style=for-the-badge&logo=docsdotrs" />
         </a>
+        <a href="https://github.com/orgs/diptools/projects/1" alt="Milestone">
+            <img src="https://img.shields.io/badge/🏔️ Milestone-000?style=for-the-badge" />
+        </a>
     </p>
 </div>
-
-<br/>
-
-
-> WARNING: `dip` is still in the very early stages of development.
-
-> `main` branch is currently preparing for `v0.2` release.
-
-> `v0.1` is totally a different application. I wanted to make a cross-platform text editor but ended up making this framework.
 
 ```rust, no_run
 use dip::prelude::*;
@@ -57,6 +58,23 @@ fn Root(cx: Scope) -> Element {
     })
 }
 ```
+
+- All plugins are based on [Bevy](https://bevyengine.org/) ECS design pattern.
+- Share your logic between games, desktop apps and command line tools
+- Webview based UI powered by [Tauri](https://tauri.app/)
+- React-like declarative UI via [Dioxus](https://dioxuslabs.com/)
+- Developer tools
+	- Bundle: Tools to setup your computer with one command
+		- Homebrew: Installs [Homebrew](https://brew.sh/) formula, cask, mas via `brew bundle`
+		- Symlink manager aka Dotfiles: inspired by [GNU Stow](https://www.gnu.org/software/stow/).
+		- Version Manager: like [`asdf`](https://asdf-vm.com/), [`nvm`](https://github.com/nvm-sh/nvm), `rbenv`, `gvm` etc.
+	- Device: interact with hardware crypto wallet.
+
+> WARNING: `dip` is still in the very early stages of development.
+
+> `main` branch is currently preparing for `v0.2` release.
+
+> `v0.1` is totally a different application. I wanted to make a cross-platform text editor but ended up making this framework.
 
 ## Features
 
@@ -404,6 +422,3 @@ dip build -p examples/todomvc
 ```sh
 cargo run -p todomvc
 ```
-
-## Milestone
-[📌 dip - Project board](https://github.com/orgs/diptools/projects/1)
