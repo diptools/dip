@@ -19,6 +19,7 @@
         Full-Rust Web3 application toolkit focus on<br />ECS based event-driven development.
     </p>
     <p>Powered by <a href="https://github.com/bevyengine/bevy" alt="Bevy  website">Bevy</a> game engine.</p>
+    <p>From desktop apps to the Metaverse.</p>
     <br />
     <p align="center">
         <a href="https://discord.gg/4R8AtxAxk3" alt="Discord">
@@ -60,7 +61,7 @@ fn Root(cx: Scope) -> Element {
 ```
 
 - All features are implemented as [Bevy](#bevy) plugins
-- Scalable ECS design pattern
+- Data-driven ECS design pattern
 - Share your logic between games, desktop apps and command line tools
 - Webview based UI powered by [Tauri](#tauri)
 - React-like declarative UI via [Dioxus](#dioxus)
