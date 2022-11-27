@@ -59,7 +59,8 @@ fn Root(cx: Scope) -> Element {
 }
 ```
 
-- All plugins are based on [Bevy](#bevy) ECS design pattern.
+- All features are implemented as [Bevy](#bevy) plugins
+- Scalable ECS design pattern
 - Share your logic between games, desktop apps and command line tools
 - Webview based UI powered by [Tauri](#tauri)
 - React-like declarative UI via [Dioxus](#dioxus)
