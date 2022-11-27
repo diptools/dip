@@ -14,12 +14,12 @@
         <img src="https://img.shields.io/crates/d/dip?style=for-the-badge" />
         <img src="https://img.shields.io/crates/l/dip?style=for-the-badge" />
     </p>
+    <br />
     <p>
-        Full-Rust Web3 application toolkit focus on ECS based event-driven development.
+        Full-Rust Web3 application toolkit focus<br />on ECS based event-driven development.
     </p>
     <p>Powered by <a href="https://github.com/bevyengine/bevy" alt="Bevy  website">Bevy</a> game engine.</p>
-    <!-- <p>Previously called bevy_dioxus.</p> -->
-    <!-- <p>Write cross-platform application with React-like declarative UI<br/>and scalable ECS architecture all in Rust.</p> -->
+    <br />
     <p align="center">
         <a href="https://discord.gg/4R8AtxAxk3" alt="Discord">
             <img src="https://img.shields.io/badge/Discord-000?style=for-the-badge&logo=discord" />
