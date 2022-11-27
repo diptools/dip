@@ -12,7 +12,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Junichi Sugiura"]
 edition = "2021"
 description = "Write cross-platform application with React-like declarative UI framework and scalable ECS architecture all in Rust."
@@ -30,13 +30,13 @@ cmd_lib = "1"
 config = "0.13"
 convert_case = "0.5"
 dioxus = { version = "0.2", features = ["fermi"] }
-dip = { version = "0.1", path = ".", features = ["desktop"] }
-dip_bundle = { version = "0.1", path = "./plugins/bundle" }
-dip_config = { version = "0.1", path = "./plugins/config" }
-dip_core = { version = "0.1", path = "./plugins/core" }
-dip_device = { version = "0.1", path = "./plugins/web3/device" }
-dip_macro = { version = "0.1", path = "./plugins/macro" }
-dip_task = { version = "0.1", path = "./plugins/task" }
+dip = { path = ".", features = ["desktop"] }
+dip_bundle = { path = "./plugins/bundle" }
+dip_config = { path = "./plugins/config" }
+dip_core = { path = "./plugins/core" }
+dip_device = { path = "./plugins/web3/device" }
+dip_macro = { path = "./plugins/macro" }
+dip_task = { path = "./plugins/task" }
 dirs = "4.0"
 flate2 = "1.0"
 pathdiff = "0.2"
@@ -71,9 +71,9 @@ clap = { version = "3.2", features = ["derive"], optional = true }
 config.workspace = true
 dioxus.workspace = true
 dip_bundle.workspace = true
-dip_cli = { version = "0.1", path = "./plugins/ui/cli", optional = true }
-dip_core = { version = "0.1", path = "./plugins/core" }
-dip_desktop = { version = "0.1", path = "./plugins/ui/desktop", optional = true }
+dip_cli = { path = "./plugins/ui/cli", optional = true }
+dip_core = { path = "./plugins/core" }
+dip_desktop = { path = "./plugins/ui/desktop", optional = true }
 dip_device.workspace = true
 dip_macro.workspace = true
 dirs.workspace = true

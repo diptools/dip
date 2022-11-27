@@ -1285,7 +1285,7 @@ checksum = "7d78a436643ca61ca4f5dec869fb91318c72068a013d2d5e21f9960810453b47"
 
 [[package]]
 name = "dip"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "bevy",
@@ -1307,7 +1307,7 @@ dependencies = [
 
 [[package]]
 name = "dip_bundle"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "bevy",
@@ -1328,7 +1328,7 @@ dependencies = [
 
 [[package]]
 name = "dip_cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bevy",
  "dip_macro",
@@ -1336,7 +1336,7 @@ dependencies = [
 
 [[package]]
 name = "dip_config"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bevy",
  "config",
@@ -1346,7 +1346,7 @@ dependencies = [
 
 [[package]]
 name = "dip_core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bevy",
  "dioxus",
@@ -1357,7 +1357,7 @@ dependencies = [
 
 [[package]]
 name = "dip_desktop"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "approx",
  "bevy",
@@ -1383,7 +1383,7 @@ dependencies = [
 
 [[package]]
 name = "dip_device"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bevy",
  "hidapi",
@@ -1395,7 +1395,7 @@ dependencies = [
 
 [[package]]
 name = "dip_macro"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "convert_case 0.5.0",
  "dirs",
@@ -1406,7 +1406,7 @@ dependencies = [
 
 [[package]]
 name = "dip_task"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "dip_macro",
  "tokio",
@@ -3886,7 +3886,7 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "todomvc"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bevy_ecs",
  "chrono",
