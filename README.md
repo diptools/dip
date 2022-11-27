@@ -16,7 +16,7 @@
     </p>
     <br />
     <p>
-        Full-Rust Web3 application toolkit focus<br />on ECS based event-driven development.
+        Full-Rust Web3 application toolkit focus on<br />ECS based event-driven development.
     </p>
     <p>Powered by <a href="https://github.com/bevyengine/bevy" alt="Bevy  website">Bevy</a> game engine.</p>
     <br />
