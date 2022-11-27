@@ -28,25 +28,25 @@ fn install(mut events: EventReader<InstallTools>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let brew = Homebrew::new(config.clone());
         let action = format!("Install {}", &Homebrew::name());
+        let brewfile_path = brew.brewfile_path();
 
-        if brew.brewfile_exists() {
+        if brewfile_path.is_file() {
             let homebrew_path = Homebrew::homebrew_path();
             if homebrew_path.is_file() {
-                println!("🟡 Skip: {}: brew is already installed", &action);
+                println!("🟡 Skip {action}: Homebrew in already installed")
             } else {
-                println!("📌 {}", &action);
+                println!("📌 {action}");
 
                 if let Err(e) = brew.install() {
-                    println!("Failed to run brew install.");
-                    eprintln!("{e}");
+                    eprintln!("❌ Failed: {action}: {e}");
                 } else {
-                    println!("✅ {}", &action);
+                    println!("✅ {action}");
                 }
             }
         } else {
             println!(
-                "🟡 Skip: {}: bundle/homebrew/Brewfile does not exists.",
-                &action
+                "🟡 Skip {action}: {} does not exists",
+                &brewfile_path.display()
             );
         }
     });
@@ -56,24 +56,26 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let brew = Homebrew::new(config.clone());
         let action = format!("Apply {} bundle", &Homebrew::name());
+        let brewfile_path = brew.brewfile_path();
 
-        if brew.brewfile_exists() {
+        if brew.brewfile_path().is_file() {
             let homebrew_path = Homebrew::homebrew_path();
             if homebrew_path.is_file() {
-                println!("📌 {}", &action);
+                println!("📌 {action}");
 
                 if let Err(e) = brew.apply(&brew.brewfile_path()) {
-                    println!("Failed to run brew bundle.");
-                    eprintln!("{e}");
+                    eprintln!("❌ Failed: {action}: {e}");
                 } else {
-                    println!("✅ {}", &action);
+                    println!("✅ {action}");
                 }
             } else {
                 eprintln!("Could not find homebrew binary.");
             }
         } else {
-            println!("🟡 Skip: {}", &action);
-            println!("bundle/homebrew/Brewfile does not exists.");
+            println!(
+                "🟡 Skip {action}: {} does not exists",
+                &brewfile_path.display()
+            );
         }
     });
 }
@@ -109,10 +111,6 @@ impl Homebrew {
 
     fn brewfile_path(&self) -> PathBuf {
         self.bundle_dir().join("Brewfile")
-    }
-
-    fn brewfile_exists(&self) -> bool {
-        self.brewfile_path().is_file()
     }
 
     fn install(&self) -> anyhow::Result<()> {

@@ -30,15 +30,17 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
         let action = format!("Apply {}", &Dotfiles::name());
 
         if dotfiles.bundle_exists() {
-            println!("📌 {}", &action);
+            println!("📌 {action}");
 
             dotfiles.symlinks().for_each(|sym| sym.apply());
         } else {
-            println!("🟡 Skip: {}", &action);
-            println!("bundle/dotfiles directory is empty",);
+            println!(
+                "🟡 Skip {action}: {} directory is empty",
+                &dotfiles.bundle_dir().display()
+            );
         }
 
-        println!("✅ {}", &action);
+        println!("✅ {action}");
     });
 }
 
@@ -48,15 +50,17 @@ fn clean(mut events: EventReader<CleanBundle>, config: Res<BundleConfig>) {
         let action = format!("Apply {}", &Dotfiles::name());
 
         if dotfiles.bundle_exists() {
-            println!("📌 {}", &action);
+            println!("📌 {action}");
 
             dotfiles.symlinks().for_each(|sym| sym.clean());
         } else {
-            println!("🟡 Skip: {}", &action);
-            println!("🟡 Skip {}: bundle/dotfiles directory is empty", &action);
+            println!(
+                "🟡 Skip {action}: {} directory is empty",
+                &dotfiles.bundle_dir().display()
+            );
         }
 
-        println!("✅ {}", &action);
+        println!("✅ {action}");
     });
 }
 
