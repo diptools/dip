@@ -4,13 +4,52 @@
     <br />
 
     <section>
+        <h1><b>dip is a full-Rust Web3 application toolkit focus on ECS based event-driven development.</b></h1>
 
-        <h1>dip is aiming to provide essential tools to build Web3 applications runs everywhere. (desktop, CLI, game etc.)</h1>
+        <br />
+        <p>All plugins are based on <a href="" alt="Bevy website">Bevy game engine</a>.</p>
+        <br />
 
         <br />
 
-        <p>All plugins are based on <a href="https://bevyengine.org/" alt="Bevy" class="underline text-accent" target="_blank">Bevy ECS</a> design pattern.</p>
-        <p>dip plugins are not only compatible with dekstop applications but also games like metaverse.</p>
+        <div>
+            <h3><b>For Desktop</b><h3>
+            <p>
+                Imagine Electron + React but in Rust. It supports declarative UI via
+                <a href="https://tauri.app/" alt="Tauri website" class="underline text-accent" target="_blank">
+                    Tauri
+                </a>
+                and
+                <a href="https://dioxuslabs.com/" alt="Dioxus website" class="underline text-accent" target="_blank">
+                    Dioxus
+                </a>
+                .
+            </p>
+        </div>
+
+        <br />
+
+        <div>
+            <h3><b>For Command Line Interface</b></h3>
+            <p>CliPlugin allows you to build your own CLI easily. It's based on clap-rs.</p>
+        </div>
+
+        <br />
+
+        <div>
+            <h3><b>For Games</b><h3>
+            <p>Web3 toolkit provided for Bevy game engine. Take your custom plugin with your business logic to the metaverse.</p>
+        </div>
+
+        <br />
+
+        <div>
+            <h3><b>Developer Tools</b></h3>
+            <p>`dip` command provides various utilities for developers such as...</p>
+            <p>- Setting up your computer</p>
+            <p>- Compile dip based application</p>
+            <p>- Interacting with hardware wallet etc.</p>
+        </div>
     </section>
 
     <br />
@@ -24,12 +63,14 @@
 
         <ul>
             <li>
+                - 
                 <a href="{{ config.extra.discord }}" alt="Docs Page" class="underline text-accent" target="_blank">
                     Discord
                 </a>
             </li>
 
             <li>
+                - 
                 <a href="{{ config.extra.github.discussions }}" alt="Github Discussions" class="underline text-accent" target="_blank">
                     GitHub Discussions
                 </a>
@@ -39,12 +80,14 @@
             <br/>
 
             <li>
+                - 
                 <a href="{{ get_url(path = "@/docs/_index.md") }}" alt="Docs Page" class="underline text-accent">
                     Docs
                 </a>
             </li>
 
             <li>
+                - 
                 <a href="{{ config.extra.api_reference }}" alt="API Reference" class="underline text-accent" target="_blank">
                     API Reference (docs.rs)
                 </a>
@@ -52,6 +95,7 @@
             </li>
 
             <li>
+                - 
                 <a href="{{ config.extra.github.handbook }}" alt="Handbook" class="underline text-accent" target="_blank">
                     Handbook
                 </a>
@@ -61,30 +105,13 @@
             <br/>
 
             <li>
-                <a href="{{ config.extra.github.projects }}" alt="GitHub Projects" class="underline text-accent" target="_blank">
-                    GitHub Projects
+                - 
+                <a href="{{ config.extra.github.projects }}" alt="GitHub Projects" class="underline text-accent" target="_blank"> GitHub Projects
                 </a>
                 : Milestone, kanban, tasks etc...
             </li>
         </ul>
     </section>
-    
+   
     <br />
-    
-    <section>
-        <h2>Features (Plugins)</h2>
-
-        <br />
-        
-        <ul>
-            <li>dip CLI : Command line tools for dip developers.</li>
-            <li>DesktopPlugin : <a href="https://tauri.app/" alt="Tauri website" class="underline text-accent" target="_blank">Tauri</a> and <a href="https://dioxuslabs.com/" alt="Dioxus website" class="underline text-accent" target="_blank">Dioxus</a> based plugin for Desktop apps. Imagine Electron + React but in Rust.</li>
-            <li>CliPlugin, SubCommandPlugin : <a href="https://github.com/clap-rs/clap" alt="clap GitHub repository" class="underline text-accent" target="_blank">clap</a> based plugin for CLI apps.</li>
-            <li>ConfigPlugin</li>
-            <li>UiStatePlugin, UiActionPlugin : Redux inspired global state management plugin.</li>
-            <li>AsyncActionPlugin</li>
-            <li>BundlePlugin : Dotfiles made easy. One command to setup your laptop.</li>
-            <li>DevicePlugin : I'm experimenting with Ledger devices to manage keys.</li>
-        </ul>
-    </section>
 {% endblock content %}
