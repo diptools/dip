@@ -1,11 +1,13 @@
 [workspace]
 members = [
     "plugins/bundle",
+    "plugins/config",
     "plugins/core",
     "plugins/macro",
     "plugins/task",
     "plugins/ui/cli",
     "plugins/ui/desktop",
+    "plugins/web3/device",
     "examples/todomvc",
 ]
 
@@ -29,13 +31,17 @@ config = "0.13"
 convert_case = "0.5"
 dioxus = { version = "0.2", features = ["fermi"] }
 dip = { version = "0.1", path = ".", features = ["desktop"] }
-dip_bundle = { version = "0.1", path = "./plugins/bundle", features = ["full"] }
+dip_bundle = { version = "0.1", path = "./plugins/bundle" }
+dip_config = { version = "0.1", path = "./plugins/config" }
 dip_core = { version = "0.1", path = "./plugins/core" }
+dip_device = { version = "0.1", path = "./plugins/web3/device" }
 dip_macro = { version = "0.1", path = "./plugins/macro" }
 dip_task = { version = "0.1", path = "./plugins/task" }
 dirs = "4.0"
+flate2 = "1.0"
 pathdiff = "0.2"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
+tar = "0.4"
 tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros", "fs"], default-features = false }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -68,6 +74,7 @@ dip_bundle.workspace = true
 dip_cli = { version = "0.1", path = "./plugins/ui/cli", optional = true }
 dip_core = { version = "0.1", path = "./plugins/core" }
 dip_desktop = { version = "0.1", path = "./plugins/ui/desktop", optional = true }
+dip_device.workspace = true
 dip_macro.workspace = true
 dirs.workspace = true
 reqwest.workspace = true

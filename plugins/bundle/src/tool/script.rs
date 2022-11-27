@@ -1,15 +1,13 @@
+use crate::{ApplyBundle, BundleConfig, BundleStage, Bundler};
 use bevy::{
     app::{App, Plugin},
-    ecs::event::EventReader,
+    ecs::{event::EventReader, system::Res},
 };
 use cmd_lib::spawn_with_output;
-use convert_case::{Case, Casing};
 use std::{
-    io::{self, BufRead, BufReader},
+    io::{BufRead, BufReader},
     path::PathBuf,
 };
-
-use crate::{ApplyBundle, BundleStage};
 
 pub struct ScriptPlugin;
 
@@ -20,91 +18,110 @@ impl Plugin for ScriptPlugin {
     }
 }
 
-fn pre_script(mut events: EventReader<ApplyBundle>) {
-    events.iter().for_each(|e| Script::pre(e.clone()).run());
+fn pre_script(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
+    events.iter().for_each(|_e| {
+        let script = Script::pre(config.clone());
+        let action = "Pre script";
+
+        if script.script_file_path().is_file() {
+            println!("📌 {action}");
+
+            if let Err(e) = script.run() {
+                eprintln!("❌ Failed: {}: {e}", &script.schedule.to_string());
+            } else {
+                println!("✅ {action}");
+            }
+        } else {
+            println!(
+                "🟡 Skip: {action}: {} does not exists",
+                &script.script_file_path().display()
+            );
+        }
+    });
 }
 
-fn post_script(mut events: EventReader<ApplyBundle>) {
-    events.iter().for_each(|e| Script::post(e.clone()).run());
+fn post_script(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
+    events.iter().for_each(|_e| {
+        let script = Script::post(config.clone());
+        let action = "Post script";
+
+        if script.script_file_path().is_file() {
+            println!("📌 {action}");
+
+            if let Err(e) = script.run() {
+                eprintln!("❌ Failed: {}: {e}", script.schedule.to_string());
+            } else {
+                println!("✅ {action}");
+            }
+        } else {
+            println!(
+                "🟡 Skip: {}: {action} does not exists",
+                &script.script_file_path().display()
+            );
+        }
+    });
 }
 
 struct Script {
-    event: ApplyBundle,
+    bundle_config: BundleConfig,
     schedule: ScriptSchedule,
 }
 
 impl Script {
-    fn pre(event: ApplyBundle) -> Self {
+    fn pre(bundle_config: BundleConfig) -> Self {
         Self {
-            event,
+            bundle_config,
             schedule: ScriptSchedule::Pre,
         }
     }
 
-    fn post(event: ApplyBundle) -> Self {
+    fn post(bundle_config: BundleConfig) -> Self {
         Self {
-            event,
+            bundle_config,
             schedule: ScriptSchedule::Post,
         }
     }
 
-    fn run(&self) {
-        match self.find_file() {
-            Ok(file_path) => {
-                println!("📌 {} script", self.schedule.to_upper_camel());
+    fn run(&self) -> anyhow::Result<()> {
+        let file_path_string = &self.script_file_path().display().to_string();
+        let mut script = spawn_with_output!(/bin/bash -C $file_path_string).unwrap();
 
-                let file_path_str = file_path.display();
-                let mut script = spawn_with_output!(/bin/bash -C $file_path_str).unwrap();
+        script.wait_with_pipe(&mut |pipe| {
+            BufReader::new(pipe)
+                .lines()
+                .filter_map(|line| line.ok())
+                .for_each(|f| println!("{f}"));
+        })?;
 
-                let result = script.wait_with_pipe(&mut |pipe| {
-                    BufReader::new(pipe)
-                        .lines()
-                        .filter_map(|line| line.ok())
-                        .for_each(|f| println!("{f}"));
-                });
-
-                if let Err(e) = result {
-                    println!("Failed to run {} script.", self.schedule.to_string());
-                    eprintln!("{e}");
-                } else {
-                    println!("✅ {} script", self.schedule.to_upper_camel());
-                }
-            }
-            Err(_e) => {
-                self.skip();
-            }
-        }
+        Ok(())
     }
 
-    fn skip(&self) {
-        println!("🟡 Skip: {} script", &self.schedule.to_upper_camel());
-        println!("{} does not exists.", &self.file_path().display());
+    fn script_file_path(&self) -> PathBuf {
+        self.bundle_dir().join(&self.script_name())
     }
 
-    fn find_file(&self) -> io::Result<PathBuf> {
-        self.file_path().canonicalize()
-    }
-
-    fn file_path(&self) -> PathBuf {
-        self.event
-            .path
-            .join(format!("bundle/scripts/{}", &self.file_name()))
-    }
-
-    fn file_name(&self) -> String {
+    fn script_name(&self) -> String {
         format!("{}.sh", self.schedule.to_string())
+    }
+}
+
+impl Bundler for Script {
+    fn key() -> &'static str {
+        "scripts"
+    }
+
+    fn name() -> &'static str {
+        "Scripts"
+    }
+
+    fn bundle_config(&self) -> &BundleConfig {
+        &self.bundle_config
     }
 }
 
 enum ScriptSchedule {
     Pre,
     Post,
-}
-
-impl ScriptSchedule {
-    fn to_upper_camel(&self) -> String {
-        self.to_string().to_case(Case::UpperCamel)
-    }
 }
 
 impl ToString for ScriptSchedule {

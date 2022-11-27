@@ -1,43 +1,191 @@
-use bevy::app::{App, Plugin};
+use anyhow::{Context, Result};
+use bevy::{
+    app::{App, Plugin},
+    ecs::system::ResMut,
+    log,
+};
+use config::{
+    builder::{ConfigBuilder, DefaultState},
+    File,
+};
+use dip_core::{config::ConfigPlugin as ConfigPluginRaw, prelude::ConfigStartupStage};
+use reqwest::Url;
+use serde::{de, Deserialize, Deserializer};
 use std::{fs, path::PathBuf};
 
 pub struct BundleConfigPlugin;
 
 impl Plugin for BundleConfigPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<BundleConfig>();
+        app.add_plugin(ConfigPluginRaw::<BundleConfig>::with_default_str(
+            include_str!("config/default.toml"),
+        ))
+        .add_startup_system_to_stage(ConfigStartupStage::Setup, add_sources);
     }
 }
 
-pub struct BundleConfig {
-    app_path: PathBuf,
+fn add_sources(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
+    let config_file_path = BundleConfig::config_file_path();
+
+    *builder = builder
+        .clone()
+        .add_source(File::with_name(&config_file_path.display().to_string()));
 }
 
-impl Default for BundleConfig {
-    fn default() -> Self {
-        Self {
-            app_path: dirs::home_dir().unwrap().join(".dip"),
-        }
-    }
-}
+/// General dip configuration
+// TODO: This struct is not only for bundle feature. Move to somewhere general.
+pub struct Config;
 
-impl BundleConfig {
-    pub fn app_path(&self) -> PathBuf {
-        Self::ensure_dir(&self.app_path);
-
-        self.app_path.clone()
-    }
-
-    pub fn install_path(&self) -> PathBuf {
-        let p = self.app_path().join("installs");
+impl Config {
+    pub fn config_dir() -> PathBuf {
+        let p = dirs::data_dir().unwrap().join("dip");
         Self::ensure_dir(&p);
 
         p
     }
 
-    fn ensure_dir(p: &PathBuf) {
+    pub fn ensure_dir(p: &PathBuf) {
         if !&p.is_dir() {
             fs::create_dir_all(&p).unwrap();
         }
     }
 }
+
+#[derive(Deserialize, Debug, Clone)]
+/// Dip configuration regarding to bundle feature.
+pub struct BundleConfig {
+    /// URL of remote repository
+    #[serde(default)]
+    #[serde(deserialize_with = "ConfigParser::url_from_str")]
+    pub repository: Option<Url>,
+
+    /// Path to local bundle repository.
+    #[serde(deserialize_with = "ConfigParser::path_from_str")]
+    bundle_root: PathBuf,
+
+    /// Section for the Version Manager.
+    vm: VMConfig,
+
+    /// Where all data resides. Runtime installs etc.
+    #[serde(deserialize_with = "ConfigParser::path_from_str")]
+    data_dir: PathBuf,
+}
+
+impl BundleConfig {
+    pub fn config_file_path() -> PathBuf {
+        let p = Config::config_dir().join("bundle");
+        Config::ensure_dir(&p);
+
+        p
+    }
+
+    pub fn bundle_root(&self) -> PathBuf {
+        Config::ensure_dir(&self.bundle_root);
+
+        self.bundle_root.clone()
+    }
+
+    pub fn install_root(&self) -> PathBuf {
+        let p = self.data_dir.join("installs");
+        Config::ensure_dir(&p);
+
+        p
+    }
+
+    pub fn shim_root(&self) -> PathBuf {
+        let p = self.data_dir.join("shims");
+        Config::ensure_dir(&p);
+
+        p
+    }
+
+    pub fn set_bundle_root(&mut self, bundle_root: &String) -> anyhow::Result<()> {
+        self.bundle_root = ConfigParser::to_path(&bundle_root.to_string())?;
+        Ok(())
+    }
+
+    pub fn runtime(&self) -> &VMRuntime {
+        &self.vm.runtime
+    }
+}
+
+struct ConfigParser;
+
+impl ConfigParser {
+    fn url_from_str<'de, D: Deserializer<'de>>(d: D) -> Result<Option<Url>, D::Error> {
+        let s = Deserialize::deserialize(d);
+        match s {
+            Ok(s) => match Url::parse(s) {
+                Ok(url) => Ok(Some(url)),
+                Err(e) => {
+                    log::warn!("{e}");
+                    Ok(None)
+                }
+            },
+            Err(e) => {
+                log::warn!("{e}");
+                Ok(None)
+            }
+        }
+    }
+
+    fn path_from_str<'de, D: Deserializer<'de>>(d: D) -> Result<PathBuf, D::Error> {
+        let s: String = Deserialize::deserialize(d)?;
+
+        match Self::to_path(&s) {
+            Ok(path) => {
+                if path.is_dir() {
+                    Ok(path)
+                } else {
+                    Err(de::Error::custom("Bundle path is not a directory"))
+                }
+            }
+            Err(_e) => Err(de::Error::custom("Failed to parse bundle directory path")),
+        }
+    }
+
+    fn to_path(value: &String) -> Result<PathBuf> {
+        let p = value
+            .replace(
+                "$HOME",
+                dirs::home_dir()
+                    .context("Cannot find home directory.")?
+                    .to_str()
+                    .context("Failed to convert path to string.")?,
+            )
+            .replace(
+                "$CONFIG_DIR",
+                dirs::config_dir()
+                    .context("Cannot find config directory.")?
+                    .to_str()
+                    .context("Failed to convert path to string.")?,
+            )
+            .replace(
+                "$DATA_DIR",
+                dirs::data_dir()
+                    .context("Cannot find data directory.")?
+                    .to_str()
+                    .context("Failed to convert path to string.")?,
+            )
+            .into();
+
+        Ok(p)
+    }
+}
+
+#[derive(Deserialize, Debug, Clone)]
+/// Version Manager related configurations
+pub struct VMConfig {
+    /// All runtime versions
+    pub runtime: VMRuntime,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct VMRuntime {
+    /// [Tailwind CSS](https://tailwindcss.com/)
+    pub tailwindcss: VersionSet,
+    /// [Node.js](https://nodejs.org/)
+    pub nodejs: VersionSet,
+}
+
+pub type VersionSet = Vec<String>;

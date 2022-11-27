@@ -2,6 +2,12 @@
 name = "dip_bundle"
 version.workspace = true
 edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
 
 [dependencies]
 anyhow.workspace = true
@@ -9,15 +15,24 @@ bevy.workspace = true
 dip_core.workspace = true
 dirs.workspace = true
 cmd_lib.workspace = true
+config.workspace = true
 convert_case.workspace = true
+flate2.workspace = true
 pathdiff.workspace = true
 reqwest.workspace = true
+serde.workspace = true
+tar.workspace = true
 tempfile.workspace = true
+tokio.workspace = true
 walkdir.workspace = true
 
 [features]
-# default = ["full"]
-full = ["dotfiles", "brew", "tailwind"]
-dotfiles = []
+default = ["full"]
+full = ["brew", "dotfiles", "nodejs", "scripts", "tailwindcss", "vm"]
+# full = ["vm", "nodejs", "tailwindcss"]
 brew = []
-tailwind = []
+dotfiles = []
+nodejs = []
+scripts = []
+tailwindcss = []
+vm = []

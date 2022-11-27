@@ -1,0 +1,6 @@
+bundle_root = "./bundle"
+data_dir = "$DATA_DIR/dip/bundle"
+
+[vm.runtime]
+tailwindcss = []
+nodejs = []

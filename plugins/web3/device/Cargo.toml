@@ -1,5 +1,5 @@
 [package]
-name = "dip_core"
+name = "dip_device"
 version.workspace = true
 edition.workspace = true
 description.workspace = true
@@ -11,7 +11,8 @@ keywords.workspace = true
 
 [dependencies]
 bevy.workspace = true
-dioxus.workspace = true
-dip_config.workspace = true
-dip_macro.workspace = true
-dip_task.workspace = true
+hidapi = { version = "1.3", features = ["linux-static-hidraw"], default-features = false }
+ledger-transport-hid = "0.10"
+ledger-zondax-generic = "0.10"
+once_cell = "1.16"
+tokio.workspace = true

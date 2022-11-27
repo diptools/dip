@@ -1,7 +1,7 @@
-use crate::{ApplyBundle, BundleStage, CleanBundle};
+use crate::{ApplyBundle, BundleConfig, BundleStage, Bundler, CleanBundle};
 use bevy::{
     app::{App, Plugin},
-    ecs::event::EventReader,
+    ecs::{event::EventReader, system::Res},
 };
 use pathdiff::diff_paths;
 use std::{
@@ -18,67 +18,85 @@ pub struct DotfilesPlugin;
 impl Plugin for DotfilesPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_to_stage(BundleStage::Apply, apply)
-            .add_system_to_stage(BundleStage::Clean, clean);
+            .add_system_to_stage(BundleStage::Apply, clean);
     }
 }
 
 // Systems
 
-fn apply(mut events: EventReader<ApplyBundle>) {
-    events.iter().for_each(|e| {
-        let dotfiles = Dotfiles::from(e.clone());
+fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
+    events.iter().for_each(|_e| {
+        let dotfiles = Dotfiles::new(config.clone());
+        let action = format!("Apply {}", &Dotfiles::name());
 
         if dotfiles.bundle_exists() {
-            println!("📌 Apply dotfiles");
+            println!("📌 {action}");
 
             dotfiles.symlinks().for_each(|sym| sym.apply());
         } else {
-            println!("🟡 Skip: Apply dotfiles");
-            println!("bundle/dotfiles directory is empty",);
+            println!(
+                "🟡 Skip {action}: {} directory is empty",
+                &dotfiles.bundle_dir().display()
+            );
         }
 
-        println!("✅ Apply dotfiles");
+        println!("✅ {action}");
     });
 }
 
-fn clean(mut events: EventReader<CleanBundle>) {
-    events.iter().for_each(|e| {
-        let dotfiles = Dotfiles::from(e.clone());
+fn clean(mut events: EventReader<CleanBundle>, config: Res<BundleConfig>) {
+    events.iter().for_each(|_e| {
+        let dotfiles = Dotfiles::new(config.clone());
+        let action = format!("Apply {}", &Dotfiles::name());
 
         if dotfiles.bundle_exists() {
-            println!("📌 Clean dotfiles");
+            println!("📌 {action}");
 
             dotfiles.symlinks().for_each(|sym| sym.clean());
         } else {
-            println!("🟡 Skip: Clean dotfiles");
-            println!("bundle/dotfiles directory is empty",);
+            println!(
+                "🟡 Skip {action}: {} directory is empty",
+                &dotfiles.bundle_dir().display()
+            );
         }
 
-        println!("✅ Clean dotfiles");
+        println!("✅ {action}");
     });
 }
 
 struct Dotfiles {
-    pub path: PathBuf,
+    bundle_config: BundleConfig,
 }
 
 impl Dotfiles {
-    fn bundle_path(&self) -> PathBuf {
-        self.path.join("bundle/dotfiles")
+    fn new(bundle_config: BundleConfig) -> Self {
+        Self { bundle_config }
+    }
+}
+
+impl Bundler for Dotfiles {
+    fn key() -> &'static str {
+        "dotfiles"
     }
 
-    fn bundle_exists(&self) -> bool {
-        self.bundle_path().is_dir()
+    fn name() -> &'static str {
+        "dotfiles"
     }
 
-    fn symlinks(&self) -> std::boxed::Box<dyn Iterator<Item = Symlink> + '_> {
+    fn bundle_config(&self) -> &BundleConfig {
+        &self.bundle_config
+    }
+}
+
+impl Dotfiles {
+    fn symlinks(&self) -> Box<dyn Iterator<Item = Symlink> + '_> {
         Box::new(
             self.packages()
                 .flat_map(|dir| WalkDir::new(&dir.path().into_iter()))
                 .filter_map(Result::ok)
                 .filter_map(|dir| {
                     let original = dir.path().to_path_buf().canonicalize().unwrap();
-                    let diff = diff_paths(dir.path(), &self.bundle_path()).unwrap();
+                    let diff = diff_paths(dir.path(), &self.bundle_dir()).unwrap();
                     let dotfile_bundle_name = diff.iter().next().unwrap();
                     let stripped = diff.strip_prefix(dotfile_bundle_name).unwrap();
                     let link = dirs::home_dir().unwrap().join(stripped);
@@ -94,23 +112,11 @@ impl Dotfiles {
     }
 
     fn packages(&self) -> std::boxed::Box<dyn Iterator<Item = DirEntry> + '_> {
-        let dir = fs::read_dir(&self.bundle_path())
+        let dir = fs::read_dir(&self.bundle_dir())
             .unwrap()
             .filter_map(Result::ok);
 
         Box::new(dir)
-    }
-}
-
-impl From<ApplyBundle> for Dotfiles {
-    fn from(ApplyBundle { path }: ApplyBundle) -> Self {
-        Self { path }
-    }
-}
-
-impl From<CleanBundle> for Dotfiles {
-    fn from(CleanBundle { path }: CleanBundle) -> Self {
-        Self { path }
     }
 }
 

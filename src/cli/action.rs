@@ -17,6 +17,9 @@ pub enum Action {
 
     #[clap(subcommand)]
     Bundle(BundleAction),
+
+    #[clap(subcommand)]
+    Device(DeviceAction),
 }
 
 #[derive(clap::Args, Clone, Debug)]
@@ -45,12 +48,16 @@ pub enum BundleAction {
 
 #[derive(clap::Args, Clone, Debug)]
 pub struct ApplyBundleArgs {
-    #[clap(short, long, default_value_t = String::from("."))]
-    pub path: String,
+    pub bundle_root: Option<String>,
 }
 
 #[derive(clap::Args, Clone, Debug)]
 pub struct CleanBundleArgs {
-    #[clap(short, long, default_value_t = String::from("."))]
-    pub path: String,
+    pub bundle_root: Option<String>,
+}
+
+#[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
+pub enum DeviceAction {
+    List,
+    Info,
 }

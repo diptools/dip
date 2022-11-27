@@ -5,7 +5,7 @@
 
 ### Overview
 
-![[User Story]]
+![[docs/handbook/Product/Handbook/User Story]]
 
 ![[Features]]
 

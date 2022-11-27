@@ -3,7 +3,7 @@
 ![[🎨 UI Plugins#🎨 UI Plugins]]
 
 - [[Async Action]]
-- [[Configuration]]
+- [[docs/handbook/Product/Framework/Plugins/Configuration]]
 - [[Product/Framework/Plugins/UI/Desktop | Desktop]]
 - [[State Management]]
 ---
