@@ -8,7 +8,7 @@ use bevy::{
     ecs::{event::EventReader, system::Res},
 };
 use reqwest::StatusCode;
-use std::{fs, io::Write, os::unix::fs::PermissionsExt, path::PathBuf};
+use std::{fs, io::Write, os::unix::fs::PermissionsExt};
 
 pub struct TailwindCSSPlugin;
 
@@ -21,7 +21,7 @@ impl Plugin for TailwindCSSPlugin {
 
 fn clean(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        let vm = TailwindCSS::from(config.as_ref());
+        let vm = TailwindCSS::new(config.clone());
         let action = format!("Clean {}", &TailwindCSS::name());
 
         println!("🫧  {}", &action);
@@ -35,7 +35,7 @@ fn clean(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
 
 fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        let vm = TailwindCSS::from(config.as_ref());
+        let vm = TailwindCSS::new(config.clone());
         let action = format!("Apply {}", &TailwindCSS::name());
 
         println!("📌 {}", &action);
@@ -48,11 +48,17 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
 }
 
 struct TailwindCSS {
-    bundle_dir: PathBuf,
-    installs_dir: PathBuf,
-    shims_dir: PathBuf,
-    versions: Vec<String>,
+    bundle_config: BundleConfig,
     platform: Platform,
+}
+
+impl TailwindCSS {
+    fn new(bundle_config: BundleConfig) -> Self {
+        Self {
+            bundle_config,
+            platform: Platform::new(),
+        }
+    }
 }
 
 impl Bundler for TailwindCSS {
@@ -64,22 +70,14 @@ impl Bundler for TailwindCSS {
         "Tailwind CSS"
     }
 
-    fn bundle_dir(&self) -> &PathBuf {
-        &self.bundle_dir
+    fn bundle_config(&self) -> &BundleConfig {
+        &self.bundle_config
     }
 }
 
 impl VersionManager for TailwindCSS {
-    fn installs_dir(&self) -> &PathBuf {
-        &self.installs_dir
-    }
-
-    fn shims_dir(&self) -> &PathBuf {
-        &self.shims_dir
-    }
-
     fn versions(&self) -> &Vec<String> {
-        &self.versions
+        &self.bundle_config().runtime().tailwindcss
     }
 
     fn download_url(&self, version: &String) -> String {
@@ -95,14 +93,17 @@ impl VersionManager for TailwindCSS {
         let download_url = self.download_url(version);
 
         let res = reqwest::blocking::get(&download_url)
-            .with_context(|| format!("Failed to download tool: {}", &Self::key()))?;
+            .context("Failed to download. Check internet connection.")?;
 
         match res.status() {
             StatusCode::NOT_FOUND => {
                 bail!("Download URL not found: {download_url}");
             }
             StatusCode::OK => {
-                let mut file = fs::File::create(self.version_dir(&version).join(Self::key()))
+                let version_dir = self.version_dir(version);
+                fs::create_dir_all(&version_dir)?;
+
+                let mut file = fs::File::create(version_dir.join(Self::key()))
                     .context("Failed to create download target file")?;
                 file.set_permissions(fs::Permissions::from_mode(0o755))
                     .context("Failed to give permission to download target file")?;
@@ -115,6 +116,10 @@ impl VersionManager for TailwindCSS {
                 bail!("Fail to download binary")
             }
         }
+    }
+
+    fn list_shims() -> Vec<&'static str> {
+        vec!["tailwindcss"]
     }
 
     fn shim(&self, version: &String) -> anyhow::Result<()> {
@@ -131,16 +136,13 @@ impl VersionManager for TailwindCSS {
 
         Ok(())
     }
-}
 
-impl From<&BundleConfig> for TailwindCSS {
-    fn from(config: &BundleConfig) -> Self {
-        Self {
-            bundle_dir: config.bundle_root().join(Self::key()),
-            installs_dir: config.install_root().join(Self::key()),
-            shims_dir: config.shim_root(),
-            versions: config.vm.runtime.tailwindcss.clone(),
-            platform: Platform::new(),
+    fn remove_shim(&self) -> anyhow::Result<()> {
+        let shim_path = &self.shims_dir().join(&Self::key());
+        if shim_path.is_file() {
+            fs::remove_file(shim_path)?;
         }
+
+        Ok(())
     }
 }

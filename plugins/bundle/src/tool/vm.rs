@@ -27,9 +27,13 @@ impl Plugin for VersionManagerPlugin {
 }
 
 pub trait VersionManager: Bundler {
-    fn installs_dir(&self) -> &PathBuf;
+    fn installs_dir(&self) -> PathBuf {
+        self.bundle_config().install_root().join(Self::key())
+    }
 
-    fn shims_dir(&self) -> &PathBuf;
+    fn shims_dir(&self) -> PathBuf {
+        self.bundle_config().shim_root()
+    }
 
     fn versions(&self) -> &Vec<String>;
 
@@ -41,8 +45,19 @@ pub trait VersionManager: Bundler {
 
     fn install(&self, version: &String) -> anyhow::Result<()>;
 
+    fn list_shims() -> Vec<&'static str>;
+
+    fn shim_paths(&self) -> Vec<PathBuf> {
+        Self::list_shims()
+            .iter()
+            .map(|bin| self.shims_dir().join(bin))
+            .collect()
+    }
+
     /// Create shim file: e.g. $DATA_DIR/dip/bundle/shims/node
     fn shim(&self, version: &String) -> anyhow::Result<()>;
+
+    fn remove_shim(&self) -> anyhow::Result<()>;
 
     fn format_shim(path: &PathBuf) -> anyhow::Result<String> {
         let sh = format!(
@@ -65,14 +80,8 @@ pub trait VersionManager: Bundler {
                 continue;
             }
 
-            // Ensure install path
-            fs::create_dir_all(&p)?;
-
-            if let Err(e) = self.install(v) {
-                eprintln!("Failed to install {}: {e}", Self::key());
-            } else {
-                println!("Installed: {}", &p.display());
-            };
+            self.install(v)?;
+            println!("Installed: {}", &p.display());
         }
 
         // Create shim with default version
@@ -88,8 +97,7 @@ pub trait VersionManager: Bundler {
     /// Iterate over each versions currently installed but removed from the user bundle config
     fn clean_all(&self) -> anyhow::Result<()> {
         if self.installs_dir().is_dir() {
-            let installs =
-                fs::read_dir(self.installs_dir()).context("Failed to read installs/ directory")?;
+            let installs = fs::read_dir(self.installs_dir())?;
 
             installs
                 .filter_map(Result::ok)
@@ -118,6 +126,8 @@ pub trait VersionManager: Bundler {
                     .context("Failed to clean empty installs directory")?;
             }
         }
+
+        self.remove_shim()?;
 
         Ok(())
     }

@@ -64,11 +64,11 @@ pub struct BundleConfig {
     bundle_root: PathBuf,
 
     /// Section for the Version Manager.
-    pub vm: VMConfig,
+    vm: VMConfig,
 
     /// Where all data resides. Runtime installs etc.
     #[serde(deserialize_with = "ConfigParser::path_from_str")]
-    pub data_dir: PathBuf,
+    data_dir: PathBuf,
 }
 
 impl BundleConfig {
@@ -102,6 +102,10 @@ impl BundleConfig {
     pub fn set_bundle_root(&mut self, bundle_root: &String) -> anyhow::Result<()> {
         self.bundle_root = ConfigParser::to_path(&bundle_root.to_string())?;
         Ok(())
+    }
+
+    pub fn runtime(&self) -> &VMRuntime {
+        &self.vm.runtime
     }
 }
 

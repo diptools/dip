@@ -55,7 +55,11 @@ pub trait Bundler {
 
     fn name() -> &'static str;
 
-    fn bundle_dir(&self) -> &PathBuf;
+    fn bundle_config(&self) -> &BundleConfig;
+
+    fn bundle_dir(&self) -> PathBuf {
+        self.bundle_config().bundle_root().join(Self::key())
+    }
 
     fn bundle_exists(&self) -> bool {
         self.bundle_dir().is_dir()

@@ -26,7 +26,7 @@ impl Plugin for HomebrewPlugin {
 
 fn install(mut events: EventReader<InstallTools>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        let brew = Homebrew::from(config.clone());
+        let brew = Homebrew::new(config.clone());
         let action = format!("Install {}", &Homebrew::name());
 
         if brew.brewfile_exists() {
@@ -54,7 +54,7 @@ fn install(mut events: EventReader<InstallTools>, config: Res<BundleConfig>) {
 
 fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        let brew = Homebrew::from(config.clone());
+        let brew = Homebrew::new(config.clone());
         let action = format!("Apply {} bundle", &Homebrew::name());
 
         if brew.brewfile_exists() {
@@ -79,7 +79,13 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
 }
 
 struct Homebrew {
-    pub bundle_dir: PathBuf,
+    bundle_config: BundleConfig,
+}
+
+impl Homebrew {
+    fn new(bundle_config: BundleConfig) -> Self {
+        Self { bundle_config }
+    }
 }
 
 impl Bundler for Homebrew {
@@ -91,8 +97,8 @@ impl Bundler for Homebrew {
         "Homebrew"
     }
 
-    fn bundle_dir(&self) -> &PathBuf {
-        &self.bundle_dir
+    fn bundle_config(&self) -> &BundleConfig {
+        &self.bundle_config
     }
 }
 
@@ -147,13 +153,5 @@ impl Homebrew {
         })?;
 
         Ok(result)
-    }
-}
-
-impl From<BundleConfig> for Homebrew {
-    fn from(config: BundleConfig) -> Self {
-        Self {
-            bundle_dir: config.bundle_root().join(Self::key()),
-        }
     }
 }

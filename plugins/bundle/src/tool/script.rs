@@ -32,35 +32,21 @@ fn post_script(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) 
 }
 
 struct Script {
-    bundle_dir: PathBuf,
+    bundle_config: BundleConfig,
     schedule: ScriptSchedule,
 }
 
-impl Bundler for Script {
-    fn key() -> &'static str {
-        "scripts"
-    }
-
-    fn name() -> &'static str {
-        "Scripts"
-    }
-
-    fn bundle_dir(&self) -> &PathBuf {
-        &self.bundle_dir
-    }
-}
-
 impl Script {
-    fn pre(config: BundleConfig) -> Self {
+    fn pre(bundle_config: BundleConfig) -> Self {
         Self {
-            bundle_dir: config.bundle_root().join(Self::key()),
+            bundle_config,
             schedule: ScriptSchedule::Pre,
         }
     }
 
-    fn post(config: BundleConfig) -> Self {
+    fn post(bundle_config: BundleConfig) -> Self {
         Self {
-            bundle_dir: config.bundle_root().join(Self::key()),
+            bundle_config,
             schedule: ScriptSchedule::Post,
         }
     }
@@ -105,6 +91,20 @@ impl Script {
 
     fn script_name(&self) -> String {
         format!("{}.sh", self.schedule.to_string())
+    }
+}
+
+impl Bundler for Script {
+    fn key() -> &'static str {
+        "scripts"
+    }
+
+    fn name() -> &'static str {
+        "Scripts"
+    }
+
+    fn bundle_config(&self) -> &BundleConfig {
+        &self.bundle_config
     }
 }
 

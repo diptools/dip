@@ -9,7 +9,7 @@ use bevy::{
 };
 use flate2::read::GzDecoder;
 use reqwest::StatusCode;
-use std::{fs, io::Write, os::unix::fs::PermissionsExt, path::PathBuf};
+use std::{fs, io::Write, os::unix::fs::PermissionsExt};
 use tar::Archive;
 
 pub struct NodeJSPlugin;
@@ -23,7 +23,7 @@ impl Plugin for NodeJSPlugin {
 
 fn clean(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        let vm = NodeJS::from(config.as_ref());
+        let vm = NodeJS::new(config.clone());
         let action = format!("Clean {}", &NodeJS::name());
 
         println!("🫧  {}", &action);
@@ -37,7 +37,7 @@ fn clean(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
 
 fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        let vm = NodeJS::from(config.as_ref());
+        let vm = NodeJS::new(config.clone());
         let action = format!("Apply {}", &NodeJS::name());
 
         println!("📌 {}", &action);
@@ -50,28 +50,18 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
 }
 
 struct NodeJS {
-    bundle_dir: PathBuf,
-    installs_dir: PathBuf,
-    shims_dir: PathBuf,
-    versions: Vec<String>,
+    bundle_config: BundleConfig,
     platform: Platform,
 }
 
-impl Bundler for NodeJS {
-    fn key() -> &'static str {
-        "nodejs"
-    }
-
-    fn name() -> &'static str {
-        "Node.js"
-    }
-
-    fn bundle_dir(&self) -> &PathBuf {
-        &self.bundle_dir
-    }
-}
-
 impl NodeJS {
+    fn new(bundle_config: BundleConfig) -> Self {
+        Self {
+            bundle_config,
+            platform: Platform::new(),
+        }
+    }
+
     fn file_name_without_ext(&self, version: &String) -> String {
         format!(
             "node-v{version}-{name}-{arch}",
@@ -89,17 +79,23 @@ impl NodeJS {
     }
 }
 
+impl Bundler for NodeJS {
+    fn key() -> &'static str {
+        "nodejs"
+    }
+
+    fn name() -> &'static str {
+        "Node.js"
+    }
+
+    fn bundle_config(&self) -> &BundleConfig {
+        &self.bundle_config
+    }
+}
+
 impl VersionManager for NodeJS {
-    fn installs_dir(&self) -> &PathBuf {
-        &self.installs_dir
-    }
-
-    fn shims_dir(&self) -> &PathBuf {
-        &self.shims_dir
-    }
-
     fn versions(&self) -> &Vec<String> {
-        &self.versions
+        &self.bundle_config().runtime().nodejs
     }
 
     fn download_url(&self, version: &String) -> String {
@@ -113,7 +109,7 @@ impl VersionManager for NodeJS {
         let download_url = self.download_url(version);
 
         let res = reqwest::blocking::get(&download_url)
-            .with_context(|| format!("Failed to download tool: {}", &Self::key()))?;
+            .context("Failed to download. Check internet connection.")?;
 
         match res.status() {
             StatusCode::NOT_FOUND => {
@@ -150,31 +146,38 @@ impl VersionManager for NodeJS {
     }
 
     fn shim(&self, version: &String) -> anyhow::Result<()> {
-        let runtime_path = self.version_dir(version).join("bin");
-        for e in fs::read_dir(&runtime_path)?.flat_map(Result::ok) {
-            if e.path().is_file() {
-                let shim_path = &self.shims_dir().join(e.file_name());
+        for (bin_name, bin_path) in Self::list_shims()
+            .iter()
+            .map(|bin_name| {
+                (
+                    bin_name,
+                    self.version_dir(version).join("bin").join(bin_name),
+                )
+            })
+            .filter(|(_bin_name, bin_path)| bin_path.is_file())
+        {
+            let shim_path = &self.shims_dir().join(&bin_name);
 
-                let mut shim_file = fs::File::create(shim_path)?;
-                shim_file
-                    .set_permissions(fs::Permissions::from_mode(0o755))
-                    .context("Failed to give permission to shim")?;
+            let mut shim_file = fs::File::create(shim_path)?;
+            shim_file
+                .set_permissions(fs::Permissions::from_mode(0o755))
+                .context("Failed to give permission to shim")?;
 
-                shim_file.write_all(&Self::format_shim(&e.path())?.as_bytes())?;
-            }
+            shim_file.write_all(&Self::format_shim(&bin_path)?.as_bytes())?;
         }
+
         Ok(())
     }
-}
 
-impl From<&BundleConfig> for NodeJS {
-    fn from(config: &BundleConfig) -> Self {
-        Self {
-            bundle_dir: config.bundle_root().join(Self::key()),
-            installs_dir: config.install_root().join(Self::key()),
-            shims_dir: config.shim_root(),
-            versions: config.vm.runtime.nodejs.clone(),
-            platform: Platform::new(),
+    fn list_shims() -> Vec<&'static str> {
+        vec!["corepack", "node", "npm", "npx"]
+    }
+
+    fn remove_shim(&self) -> anyhow::Result<()> {
+        for p in self.shim_paths().iter().filter(|p| p.is_file()) {
+            fs::remove_file(&p)?;
         }
+
+        Ok(())
     }
 }

@@ -26,7 +26,7 @@ impl Plugin for DotfilesPlugin {
 
 fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        let dotfiles = Dotfiles::from(config.clone());
+        let dotfiles = Dotfiles::new(config.clone());
         let action = format!("Apply {}", &Dotfiles::name());
 
         if dotfiles.bundle_exists() {
@@ -44,7 +44,7 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
 
 fn clean(mut events: EventReader<CleanBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
-        let dotfiles = Dotfiles::from(config.clone());
+        let dotfiles = Dotfiles::new(config.clone());
         let action = format!("Apply {}", &Dotfiles::name());
 
         if dotfiles.bundle_exists() {
@@ -61,7 +61,13 @@ fn clean(mut events: EventReader<CleanBundle>, config: Res<BundleConfig>) {
 }
 
 struct Dotfiles {
-    pub bundle_dir: PathBuf,
+    bundle_config: BundleConfig,
+}
+
+impl Dotfiles {
+    fn new(bundle_config: BundleConfig) -> Self {
+        Self { bundle_config }
+    }
 }
 
 impl Bundler for Dotfiles {
@@ -73,8 +79,8 @@ impl Bundler for Dotfiles {
         "dotfiles"
     }
 
-    fn bundle_dir(&self) -> &PathBuf {
-        &self.bundle_dir
+    fn bundle_config(&self) -> &BundleConfig {
+        &self.bundle_config
     }
 }
 
@@ -107,14 +113,6 @@ impl Dotfiles {
             .filter_map(Result::ok);
 
         Box::new(dir)
-    }
-}
-
-impl From<BundleConfig> for Dotfiles {
-    fn from(config: BundleConfig) -> Self {
-        Self {
-            bundle_dir: config.bundle_root().join(Self::key()),
-        }
     }
 }
 
