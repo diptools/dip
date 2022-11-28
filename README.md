@@ -25,10 +25,10 @@
         <a href="https://discord.gg/4R8AtxAxk3" alt="Discord">
             <img src="https://img.shields.io/badge/Discord-000?style=for-the-badge&logo=discord" />
         </a>
-        <a href="https://www.dip.tools" alt="Website">
+        <a href="https://dip.tools" alt="Website">
             <img src="https://img.shields.io/badge/🌐 Website-000?style=for-the-badge" />
         </a>
-        <a href="https://www.dip.tools/docs/getting-started/overview/" alt="Documentation">
+        <a href="https://dip.tools/docs/getting-started/overview/" alt="Documentation">
             <img src="https://img.shields.io/badge/📕 Docs-000?style=for-the-badge&logo=book" />
         </a>
         <a href="https://docs.rs/dip/latest/dip/" alt="API Refenrence">
