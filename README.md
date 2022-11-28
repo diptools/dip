@@ -27,7 +27,7 @@
         <a href="https://discord.gg/4R8AtxAxk3" alt="Discord">
             <img src="https://img.shields.io/discord/1016712886380400651?color=000&label=discord&logo=discord&style=for-the-badge" />
         </a>
-	
+    </p>
     <p align="center">
         <a href="https://github.com/orgs/diptools/projects/1" alt="Progress">
             <img src="https://img.shields.io/github/milestones/progress/diptools/dip/1?color=000&style=for-the-badge" />
