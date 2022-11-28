@@ -2,18 +2,20 @@
 <div align="center">
     <h1>dip</h1>
     <p align="center">
+        <a href="https://crates.io/crates/dip" alt="Crates.io Page">
+            <img src="https://img.shields.io/crates/v/dip?style=for-the-badge&color=000" />
+        </a>
+        <img src="https://img.shields.io/crates/d/dip?style=for-the-badge&color=000" />
+        <img src="https://img.shields.io/crates/l/dip?style=for-the-badge&color=000" />
+    </p>
+    <p align="center">
         <a href="https://github.com/JunichiSugiura/dip/actions/workflows/rust.yml" alt="Github Actions">
             <img src="https://img.shields.io/github/workflow/status/JunichiSugiura/dip/Rust?style=for-the-badge&logo=github" />
         </a>
         <a href="https://docs.rs/dip/latest/dip/" alt="API Docs">
             <img src="https://img.shields.io/docsrs/dip?style=for-the-badge" />
         </a>
-        <a href="https://crates.io/crates/dip" alt="Crates.io Page">
-            <img src="https://img.shields.io/crates/v/dip?style=for-the-badge" />
-        </a>
-        <img src="https://img.shields.io/crates/d/dip?style=for-the-badge" />
-        <img src="https://img.shields.io/crates/l/dip?style=for-the-badge" />
-    </p>
+	</p>
     <br />
     <p>
         Full-Rust Web3 application toolkit focus on<br />ECS based event-driven development.
@@ -23,8 +25,15 @@
     <br />
     <p align="center">
         <a href="https://discord.gg/4R8AtxAxk3" alt="Discord">
-            <img src="https://img.shields.io/badge/Discord-000?style=for-the-badge&logo=discord" />
+            <img src="https://img.shields.io/discord/1016712886380400651?color=000&label=discord&logo=discord&style=for-the-badge" />
         </a>
+	
+    <p align="center">
+        <a href="https://github.com/orgs/diptools/projects/1" alt="Progress">
+            <img src="https://img.shields.io/github/milestones/progress/diptools/dip/1?color=000&style=for-the-badge" />
+        </a>
+    </p>
+    <p align="center">
         <a href="https://dip.tools" alt="Website">
             <img src="https://img.shields.io/badge/🌐 Website-000?style=for-the-badge" />
         </a>
