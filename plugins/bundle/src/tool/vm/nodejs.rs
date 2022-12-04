@@ -7,10 +7,8 @@ use bevy::{
     app::{App, Plugin},
     ecs::{event::EventReader, system::Res},
 };
-use flate2::read::GzDecoder;
-use reqwest::StatusCode;
+use dip_macro::Installer;
 use std::{fs, io::Write, os::unix::fs::PermissionsExt};
-use tar::Archive;
 
 pub struct NodeJSPlugin;
 
@@ -49,6 +47,7 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     });
 }
 
+#[derive(Installer)]
 struct NodeJS {
     bundle_config: BundleConfig,
     platform: Platform,
@@ -62,20 +61,8 @@ impl NodeJS {
         }
     }
 
-    fn file_name_without_ext(&self, version: &String) -> String {
-        format!(
-            "node-v{version}-{name}-{arch}",
-            name = self.platform.name(),
-            arch = Platform::arch(),
-        )
-    }
-
-    fn file_name(&self, version: &String) -> String {
-        format!(
-            "{}{archive_ext}",
-            self.file_name_without_ext(version),
-            archive_ext = self.platform.archive_ext(),
-        )
+    fn version_url(&self, version: &String) -> String {
+        format!("https://nodejs.org/dist/v{version}")
     }
 }
 
@@ -94,53 +81,57 @@ impl Bundler for NodeJS {
 }
 
 impl VersionManager for NodeJS {
-    fn versions(&self) -> &Vec<String> {
-        &self.bundle_config().runtime().nodejs
+    fn file_name(&self, version: &String) -> String {
+        format!(
+            "{}{archive_ext}",
+            self.file_name_without_ext(version),
+            archive_ext = self.platform.archive_ext(),
+        )
+    }
+
+    fn file_name_without_ext(&self, version: &String) -> String {
+        format!(
+            "node-v{version}-{name}-{arch}",
+            name = self.platform.name(),
+            arch = Platform::arch(),
+        )
+    }
+
+    fn download_file_name(&self, version: &String) -> String {
+        self.file_name_without_ext(version)
     }
 
     fn download_url(&self, version: &String) -> String {
         format!(
-            "https://nodejs.org/dist/v{version}/{file_name}",
+            "{version_url}/{file_name}",
+            version_url = &self.version_url(version),
             file_name = &self.file_name(&version),
         )
     }
 
-    fn install(&self, version: &String) -> anyhow::Result<()> {
-        let download_url = self.download_url(version);
+    fn versions(&self) -> &Vec<String> {
+        &self.bundle_config().runtime().nodejs
+    }
 
-        let res = reqwest::blocking::get(&download_url)
-            .context("Failed to download. Check internet connection.")?;
+    fn checksum(&self, version: &String) -> anyhow::Result<Option<String>> {
+        let url = format!(
+            "{version_url}/SHASUMS256.txt",
+            version_url = &self.version_url(version)
+        );
+        let res = reqwest::blocking::get(&url)
+            .context("Failed to fetch checksum. Check internet connection.")?;
 
-        match res.status() {
-            StatusCode::NOT_FOUND => {
-                bail!("Download URL not found: {download_url}");
+        match res
+            .text()?
+            .lines()
+            .find(|ln| ln.contains(&self.file_name(version)))
+        {
+            Some(ln) => {
+                let checksum = ln.split("  ").next().context("Cannot find checksum")?;
+                Ok(Some(checksum.to_string()))
             }
-            StatusCode::OK => {
-                if res.status() == StatusCode::NOT_FOUND {
-                    bail!("Download URL not found: {download_url}");
-                }
-                let bytes = res.bytes()?;
-
-                if cfg!(unix) {
-                    let tar = GzDecoder::new(&bytes[..]);
-                    let mut archive = Archive::new(tar);
-
-                    archive.unpack(&self.installs_dir())?;
-                    fs::rename(
-                        &self
-                            .installs_dir()
-                            .join(&self.file_name_without_ext(&version)),
-                        &self.installs_dir().join(&version),
-                    )?;
-                } else if cfg!(windows) {
-                    // win: zip
-                    todo!("Implement zip extraction logic for Windows");
-                }
-
-                Ok(())
-            }
-            _ => {
-                bail!("Fail to download binary")
+            None => {
+                bail!("Cannot find checksum");
             }
         }
     }

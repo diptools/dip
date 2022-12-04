@@ -1,10 +1,12 @@
 mod config;
+mod installer;
 mod platform;
 mod schedule;
 mod tool;
 
 pub use crate::{
     config::{BundleConfig, BundleConfigPlugin},
+    installer::Installer,
     schedule::{BundleSchedulePlugin, BundleStage},
     tool::{InstallTools, ToolPlugin},
 };

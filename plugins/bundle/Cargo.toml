@@ -12,15 +12,19 @@ keywords.workspace = true
 [dependencies]
 anyhow.workspace = true
 bevy.workspace = true
+bytes.workspace = true
 dip_core.workspace = true
+dip_macro.workspace = true
 dirs.workspace = true
 cmd_lib.workspace = true
 config.workspace = true
 convert_case.workspace = true
 flate2.workspace = true
+hex.workspace = true
 pathdiff.workspace = true
 reqwest.workspace = true
 serde.workspace = true
+sha2.workspace = true
 tar.workspace = true
 tempfile.workspace = true
 tokio.workspace = true
@@ -29,7 +33,6 @@ walkdir.workspace = true
 [features]
 default = ["full"]
 full = ["brew", "dotfiles", "nodejs", "scripts", "tailwindcss", "vm"]
-# full = ["vm", "nodejs", "tailwindcss"]
 brew = []
 dotfiles = []
 nodejs = []
