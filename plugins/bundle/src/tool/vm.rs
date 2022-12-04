@@ -9,7 +9,7 @@ use nodejs::NodeJSPlugin;
 #[cfg(feature = "tailwindcss")]
 use tailwindcss::TailwindCSSPlugin;
 
-use crate::Bundler;
+use crate::{Bundler, Installer};
 use anyhow::Context;
 use bevy::app::{App, Plugin};
 use std::{fs, path::PathBuf};
@@ -26,7 +26,9 @@ impl Plugin for VersionManagerPlugin {
     }
 }
 
-pub trait VersionManager: Bundler {
+pub trait VersionManager: Bundler + Installer {
+    fn download_url(&self, version: &String) -> String;
+
     fn installs_dir(&self) -> PathBuf {
         self.bundle_config().install_root().join(Self::key())
     }
@@ -41,9 +43,9 @@ pub trait VersionManager: Bundler {
         self.installs_dir().join(version)
     }
 
-    fn download_url(&self, version: &String) -> String;
-
-    fn install(&self, version: &String) -> anyhow::Result<()>;
+    fn install_path(&self, version: &String) -> PathBuf {
+        self.installs_dir().join(version)
+    }
 
     fn list_shims() -> Vec<&'static str>;
 
@@ -80,7 +82,12 @@ pub trait VersionManager: Bundler {
                 continue;
             }
 
-            self.install(v)?;
+            self.install(
+                &self.download_url(v),
+                &self.checksum(v)?,
+                &self.install_path(v),
+                &self.file_name_without_ext(v),
+            )?;
             println!("Installed: {}", &p.display());
         }
 
@@ -93,6 +100,8 @@ pub trait VersionManager: Bundler {
 
         Ok(())
     }
+
+    fn checksum(&self, version: &String) -> anyhow::Result<String>;
 
     /// Iterate over each versions currently installed but removed from the user bundle config
     fn clean_all(&self) -> anyhow::Result<()> {
