@@ -2,13 +2,12 @@ use crate::{
     config::BundleConfig, platform::Platform, schedule::BundleStage, tool::vm::VersionManager,
     ApplyBundle, Bundler,
 };
-use anyhow::{bail, Context};
 use bevy::{
     app::{App, Plugin},
     ecs::{event::EventReader, system::Res},
 };
-use reqwest::StatusCode;
-use std::{fs, io::Write, os::unix::fs::PermissionsExt};
+use dip_macro::Installer;
+use std::{fs, os::unix::fs::PermissionsExt};
 
 pub struct TailwindCSSPlugin;
 
@@ -47,6 +46,7 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     });
 }
 
+#[derive(Installer)]
 struct TailwindCSS {
     bundle_config: BundleConfig,
     platform: Platform,
@@ -76,46 +76,39 @@ impl Bundler for TailwindCSS {
 }
 
 impl VersionManager for TailwindCSS {
+    fn file_name(&self, version: &String) -> String {
+        format!(
+            "{}{optional_ext}",
+            self.file_name_without_ext(version),
+            optional_ext = self.platform.ext(),
+        )
+    }
+
+    fn file_name_without_ext(&self, _version: &String) -> String {
+        format!(
+            "tailwindcss-{target}-{arch}",
+            target = self.platform.to_string(),
+            arch = Platform::arch(),
+        )
+    }
+
+    fn download_file_name(&self, _file_name: &String) -> String {
+        Self::key().to_string()
+    }
+
     fn versions(&self) -> &Vec<String> {
         &self.bundle_config().runtime().tailwindcss
     }
 
     fn download_url(&self, version: &String) -> String {
         format!(
-            "https://github.com/tailwindlabs/tailwindcss/releases/download/v{version}/tailwindcss-{target}-{arch}{optional_ext}",
-            target = self.platform.to_string(),
-            arch = Platform::arch(),
-            optional_ext = self.platform.ext(),
+            "https://github.com/tailwindlabs/tailwindcss/releases/download/v{version}/{file_name}",
+            file_name = &self.file_name(&version),
         )
     }
 
-    fn install(&self, version: &String) -> anyhow::Result<()> {
-        let download_url = self.download_url(version);
-
-        let res = reqwest::blocking::get(&download_url)
-            .context("Failed to download. Check internet connection.")?;
-
-        match res.status() {
-            StatusCode::NOT_FOUND => {
-                bail!("Download URL not found: {download_url}");
-            }
-            StatusCode::OK => {
-                let version_dir = self.version_dir(version);
-                fs::create_dir_all(&version_dir)?;
-
-                let mut file = fs::File::create(version_dir.join(Self::key()))
-                    .context("Failed to create download target file")?;
-                file.set_permissions(fs::Permissions::from_mode(0o755))
-                    .context("Failed to give permission to download target file")?;
-
-                file.write(&res.bytes()?)?;
-
-                Ok(())
-            }
-            _ => {
-                bail!("Fail to download binary")
-            }
-        }
+    fn checksum(&self, _version: &String) -> anyhow::Result<Option<String>> {
+        Ok(None)
     }
 
     fn list_shims() -> Vec<&'static str> {
@@ -127,12 +120,8 @@ impl VersionManager for TailwindCSS {
         let runtime_path = self.version_dir(version).join(&bin_name);
         let shim_path = &self.shims_dir().join(&bin_name);
 
-        let mut shim_file = fs::File::create(shim_path)?;
-        shim_file
-            .set_permissions(fs::Permissions::from_mode(0o755))
-            .context("Failed to give permission to shim")?;
-
-        shim_file.write_all(&Self::format_shim(&runtime_path)?.as_bytes())?;
+        fs::write(&shim_path, &Self::format_shim(&runtime_path)?.as_bytes())?;
+        fs::set_permissions(&shim_path, fs::Permissions::from_mode(0o755))?;
 
         Ok(())
     }

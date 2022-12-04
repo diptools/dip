@@ -27,6 +27,12 @@ impl Plugin for VersionManagerPlugin {
 }
 
 pub trait VersionManager: Bundler + Installer {
+    fn file_name(&self, version: &String) -> String;
+
+    fn file_name_without_ext(&self, version: &String) -> String;
+
+    fn download_file_name(&self, version: &String) -> String;
+
     fn download_url(&self, version: &String) -> String;
 
     fn installs_dir(&self) -> PathBuf {
@@ -84,9 +90,9 @@ pub trait VersionManager: Bundler + Installer {
 
             self.install(
                 &self.download_url(v),
-                &self.checksum(v)?,
                 &self.install_path(v),
-                &self.file_name_without_ext(v),
+                &self.download_file_name(v),
+                self.checksum(v)?.to_owned().as_ref(),
             )?;
             println!("Installed: {}", &p.display());
         }
@@ -101,7 +107,7 @@ pub trait VersionManager: Bundler + Installer {
         Ok(())
     }
 
-    fn checksum(&self, version: &String) -> anyhow::Result<String>;
+    fn checksum(&self, version: &String) -> anyhow::Result<Option<String>>;
 
     /// Iterate over each versions currently installed but removed from the user bundle config
     fn clean_all(&self) -> anyhow::Result<()> {

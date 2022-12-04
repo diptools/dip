@@ -1,9 +1,9 @@
 use anyhow::{bail, Context};
 use bytes::Bytes;
 use flate2::read::GzDecoder;
-use reqwest::StatusCode;
+use reqwest::{header, StatusCode};
 use sha2::{Digest, Sha256};
-use std::{fs, path::PathBuf};
+use std::{fs, os::unix::fs::PermissionsExt, path::PathBuf};
 use tar::Archive;
 
 pub trait Installer {
@@ -13,42 +13,55 @@ pub trait Installer {
     fn install(
         &self,
         download_url: &String,
-        checksum: &String,
         install_path: &PathBuf,
-        file_name_without_ext: &String,
+        file_name: &String,
+        checksum: Option<&String>,
     ) -> anyhow::Result<()> {
         let res = reqwest::blocking::get(download_url)
             .context("Failed to download. Check internet connection.")?;
 
         match res.status() {
             StatusCode::OK => {
-                if res.status() == StatusCode::NOT_FOUND {
-                    bail!("Download URL not found: {download_url}");
+                match res.headers()[header::CONTENT_TYPE].to_str()? {
+                    "application/gzip" => {
+                        let bytes = res.bytes()?;
+
+                        if let Some(checksum) = checksum {
+                            self.verify_checksum(&bytes, checksum)?;
+                        }
+
+                        let mut cloned_path = install_path.clone();
+                        cloned_path.pop();
+
+                        let tar = GzDecoder::new(&bytes[..]);
+                        let mut archive = Archive::new(tar);
+
+                        archive.unpack(&cloned_path)?;
+
+                        fs::rename(
+                            // e.g. /User/Application Support/dip/bundle/installs/nodejs/node-v16.18.1-darwin-arm64
+                            cloned_path.join(&file_name),
+                            // e.g. /User/Application Support/dip/bundle/installs/nodejs/16.18.1/
+                            &install_path,
+                        )?;
+                        Ok(())
+                    }
+                    "application/octet-stream" => {
+                        let file_path = &install_path.join(file_name);
+
+                        fs::create_dir_all(&install_path)?;
+                        fs::write(&file_path, &res.bytes()?)?;
+                        fs::set_permissions(&file_path, fs::Permissions::from_mode(0o755))?;
+
+                        Ok(())
+                    }
+                    unsupported_content_type => {
+                        bail!(
+                            "Content-Type is not supported: {}",
+                            unsupported_content_type
+                        );
+                    }
                 }
-                let bytes = res.bytes()?;
-
-                self.verify_checksum(&bytes, checksum)?;
-                let mut cloned_path = install_path.clone();
-                cloned_path.pop();
-
-                if cfg!(unix) {
-                    let tar = GzDecoder::new(&bytes[..]);
-                    let mut archive = Archive::new(tar);
-
-                    archive.unpack(&cloned_path)?;
-
-                    fs::rename(
-                        // e.g. /User/Application Support/dip/bundle/installs/nodejs/node-v16.18.1-darwin-arm64
-                        cloned_path.join(&file_name_without_ext),
-                        // e.g. /User/Application Support/dip/bundle/installs/nodejs/16.18.1/
-                        &install_path,
-                    )?;
-                } else if cfg!(windows) {
-                    // win: zip
-                    todo!("Implement zip extraction logic for Windows");
-                }
-
-                Ok(())
             }
             StatusCode::NOT_FOUND => {
                 bail!("Download URL not found: {download_url}");
@@ -58,10 +71,6 @@ pub trait Installer {
             }
         }
     }
-
-    fn file_name(&self, version: &String) -> String;
-
-    fn file_name_without_ext(&self, version: &String) -> String;
 
     fn verify_checksum(&self, bytes: &Bytes, checksum: &String) -> anyhow::Result<()> {
         let hash = Sha256::digest(&bytes);

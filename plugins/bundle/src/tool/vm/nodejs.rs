@@ -1,15 +1,14 @@
 use crate::{
     config::BundleConfig, platform::Platform, schedule::BundleStage, tool::vm::VersionManager,
-    ApplyBundle, Bundler, Installer,
+    ApplyBundle, Bundler,
 };
 use anyhow::{bail, Context};
 use bevy::{
     app::{App, Plugin},
     ecs::{event::EventReader, system::Res},
 };
-use sha2::{Digest, Sha256};
+use dip_macro::Installer;
 use std::{fs, io::Write, os::unix::fs::PermissionsExt};
-use tar::Archive;
 
 pub struct NodeJSPlugin;
 
@@ -48,6 +47,7 @@ fn apply(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     });
 }
 
+#[derive(Installer)]
 struct NodeJS {
     bundle_config: BundleConfig,
     platform: Platform,
@@ -80,7 +80,7 @@ impl Bundler for NodeJS {
     }
 }
 
-impl Installer for NodeJS {
+impl VersionManager for NodeJS {
     fn file_name(&self, version: &String) -> String {
         format!(
             "{}{archive_ext}",
@@ -96,9 +96,11 @@ impl Installer for NodeJS {
             arch = Platform::arch(),
         )
     }
-}
 
-impl VersionManager for NodeJS {
+    fn download_file_name(&self, version: &String) -> String {
+        self.file_name_without_ext(version)
+    }
+
     fn download_url(&self, version: &String) -> String {
         format!(
             "{version_url}/{file_name}",
@@ -111,7 +113,7 @@ impl VersionManager for NodeJS {
         &self.bundle_config().runtime().nodejs
     }
 
-    fn checksum(&self, version: &String) -> anyhow::Result<String> {
+    fn checksum(&self, version: &String) -> anyhow::Result<Option<String>> {
         let url = format!(
             "{version_url}/SHASUMS256.txt",
             version_url = &self.version_url(version)
@@ -126,7 +128,7 @@ impl VersionManager for NodeJS {
         {
             Some(ln) => {
                 let checksum = ln.split("  ").next().context("Cannot find checksum")?;
-                Ok(checksum.to_string())
+                Ok(Some(checksum.to_string()))
             }
             None => {
                 bail!("Cannot find checksum");

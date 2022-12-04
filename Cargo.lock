@@ -1316,6 +1316,7 @@ dependencies = [
  "config",
  "convert_case 0.5.0",
  "dip_core",
+ "dip_macro",
  "dirs",
  "flate2",
  "hex",

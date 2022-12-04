@@ -11,6 +11,7 @@ use crate::{
     subcommand::SubcommandParser, ui_state::UiStateParser,
 };
 use proc_macro::TokenStream;
+use quote::quote;
 use syn::{parse_macro_input, ItemEnum, ItemImpl, ItemStruct};
 
 #[proc_macro_attribute]
@@ -53,4 +54,15 @@ pub fn async_action(_attr: TokenStream, tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as ItemImpl);
 
     ActionParser::async_action(input).parse().gen()
+}
+
+#[proc_macro_derive(Installer)]
+pub fn derive_installer(tokens: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(tokens as ItemStruct);
+    let ident = input.ident;
+
+    quote! {
+        impl crate::Installer for #ident {}
+    }
+    .into()
 }
