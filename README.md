@@ -8,7 +8,7 @@
         <img src="https://img.shields.io/crates/d/dip?style=for-the-badge&color=000" />
         <img src="https://img.shields.io/crates/l/dip?style=for-the-badge&color=000" />
         <a href="https://github.com/JunichiSugiura/dip/actions/workflows/rust.yml" alt="Github Actions">
-            <img src="https://img.shields.io/github/workflow/status/JunichiSugiura/dip/Rust?style=for-the-badge&logo=github" />
+            <img src="https://img.shields.io/github/actions/workflow/status/JunichiSugiura/dip/rust.yml?branch=main&style=for-the-badge&logo=github" />
         </a>
         <a href="https://docs.rs/dip/latest/dip/" alt="API Docs">
             <img src="https://img.shields.io/docsrs/dip?style=for-the-badge" />
