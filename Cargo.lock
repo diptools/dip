@@ -951,11 +951,11 @@ dependencies = [
 
 [[package]]
 name = "config"
-version = "0.13.1"
-source = "git+https://github.com/mehcode/config-rs?rev=655a02d575cbf1b6b8c7c228e16dece286b59331#655a02d575cbf1b6b8c7c228e16dece286b59331"
+version = "0.13.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d379af7f68bfc21714c6c7dea883544201741d2ce8274bb12fa54f89507f52a7"
 dependencies = [
  "async-trait",
- "convert_case 0.6.0",
  "json5",
  "lazy_static",
  "nom",
@@ -989,15 +989,6 @@ name = "convert_case"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fb4a24b1aaf0fd0ce8b45161144d6f42cd91677fd5940fd431183eb023b3a2b8"
-
-[[package]]
-name = "convert_case"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
-dependencies = [
- "unicode-segmentation",
-]
 
 [[package]]
 name = "copyless"
@@ -1314,7 +1305,7 @@ dependencies = [
  "bytes",
  "cmd_lib",
  "config",
- "convert_case 0.5.0",
+ "convert_case",
  "dip_core",
  "dip_macro",
  "dirs",
@@ -1401,7 +1392,7 @@ dependencies = [
 name = "dip_macro"
 version = "0.1.1"
 dependencies = [
- "convert_case 0.5.0",
+ "convert_case",
  "dirs",
  "proc-macro2",
  "quote",
@@ -3394,9 +3385,9 @@ dependencies = [
 
 [[package]]
 name = "ron"
-version = "0.8.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "300a51053b1cb55c80b7a9fde4120726ddf25ca241a1cbb926626f62fb136bff"
+checksum = "88073939a61e5b7680558e6be56b419e208420c2adb92be54921fa6b72283f1a"
 dependencies = [
  "base64",
  "bitflags",
