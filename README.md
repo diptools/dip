@@ -79,8 +79,6 @@ fn Root(cx: Scope) -> Element {
 
 > WARNING: `dip` is still in the very early stages of development.
 
-> `main` branch is currently preparing for `v0.2` release.
-
 > `v0.1` is totally a different application. I wanted to make a cross-platform text editor but ended up making this framework.
 
 ## Features

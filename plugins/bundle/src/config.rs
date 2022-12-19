@@ -27,9 +27,11 @@ impl Plugin for BundleConfigPlugin {
 fn add_sources(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
     let config_file_path = BundleConfig::config_file_path();
 
-    *builder = builder
-        .clone()
-        .add_source(File::with_name(&config_file_path.display().to_string()));
+    if config_file_path.is_file() {
+        *builder = builder
+            .clone()
+            .add_source(File::with_name(&config_file_path.display().to_string()));
+    }
 }
 
 /// General dip configuration
@@ -137,7 +139,10 @@ impl ConfigParser {
                 if path.is_dir() {
                     Ok(path)
                 } else {
-                    Err(de::Error::custom("Bundle path is not a directory"))
+                    Err(de::Error::custom(&format!(
+                        "Make sure to create bundle directory: {}",
+                        path.display()
+                    )))
                 }
             }
             Err(_e) => Err(de::Error::custom("Failed to parse bundle directory path")),
