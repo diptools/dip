@@ -8,7 +8,7 @@ use config::{
     builder::{ConfigBuilder, DefaultState},
     File,
 };
-use dip_core::{config::ConfigPlugin as ConfigPluginRaw, prelude::ConfigStartupStage};
+use dip_core::{config::ConfigPlugin, prelude::ConfigStartupStage};
 use reqwest::Url;
 use serde::{de, Deserialize, Deserializer};
 use std::{fs, path::PathBuf};
@@ -17,14 +17,14 @@ pub struct BundleConfigPlugin;
 
 impl Plugin for BundleConfigPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(ConfigPluginRaw::<BundleConfig>::with_default_str(
+        app.add_plugin(ConfigPlugin::<BundleConfig>::with_default_str(
             include_str!("config/default.toml"),
         ))
-        .add_startup_system_to_stage(ConfigStartupStage::Setup, add_sources);
+        .add_startup_system_to_stage(ConfigStartupStage::Setup, add_user_config);
     }
 }
 
-fn add_sources(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
+fn add_user_config(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
     let config_file_path = BundleConfig::config_file_path();
 
     if config_file_path.is_file() {
@@ -75,8 +75,7 @@ pub struct BundleConfig {
 
 impl BundleConfig {
     pub fn config_file_path() -> PathBuf {
-        let p = Config::config_dir().join("bundle");
-        Config::ensure_dir(&p);
+        let p = Config::config_dir().join("bundle.toml");
 
         p
     }
