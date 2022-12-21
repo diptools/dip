@@ -13,7 +13,7 @@ keywords.workspace = true
 approx = "0.5.1"
 bevy.workspace = true
 dioxus.workspace = true
-dioxus-core = { version = "0.2", features = ["serialize"] }
+dioxus-core.workspace = true
 dioxus-html = { version = "0.2", features = ["serialize"] }
 dioxus-interpreter-js = "0.2"
 dip_core.workspace = true

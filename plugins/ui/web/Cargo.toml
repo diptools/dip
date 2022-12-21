@@ -1,5 +1,5 @@
 [package]
-name = "dip_core"
+name = "dip_web"
 version.workspace = true
 edition.workspace = true
 description.workspace = true
@@ -12,8 +12,5 @@ keywords.workspace = true
 [dependencies]
 bevy.workspace = true
 dioxus.workspace = true
-dip_config.workspace = true
-dip_macro.workspace = true
-
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-dip_task.workspace = true
+dioxus-core.workspace = true
+dioxus-web = "0.2"

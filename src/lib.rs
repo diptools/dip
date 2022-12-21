@@ -9,10 +9,15 @@ pub use dip_cli as cli;
 #[cfg(feature = "desktop")]
 pub use dip_desktop as desktop;
 
+#[cfg(feature = "web")]
+pub use dip_web as web;
+
+#[cfg(not(target_arch = "wasm32"))]
 pub use dip_bundle as bundle;
 
 /// Web3 related plugins
 pub mod web3 {
+    #[cfg(not(target_arch = "wasm32"))]
     pub use dip_device as device;
 }
 
@@ -35,4 +40,7 @@ pub mod prelude {
 
     #[cfg(feature = "desktop")]
     pub use dip_desktop::prelude::*;
+
+    #[cfg(feature = "web")]
+    pub use dip_web::prelude::*;
 }

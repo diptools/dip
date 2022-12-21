@@ -7,6 +7,7 @@ members = [
     "plugins/task",
     "plugins/ui/cli",
     "plugins/ui/desktop",
+    "plugins/ui/web",
     "plugins/web3/device",
     "examples/todomvc",
 ]
@@ -31,6 +32,7 @@ cmd_lib = "1"
 config = "0.13"
 convert_case = "0.5"
 dioxus = { version = "0.2", features = ["fermi"] }
+dioxus-core = { version = "0.2", features = ["serialize"] }
 dip = { path = ".", features = ["desktop"] }
 dip_bundle = { version = "0.2", path = "./plugins/bundle" }
 dip_config = { version = "0.2", path = "./plugins/config" }
@@ -44,7 +46,7 @@ hex = "0.4"
 pathdiff = "0.2"
 reqwest = { version = "0.11", features = ["json", "blocking"] }
 tar = "0.4"
-tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros", "fs"], default-features = false }
+tokio = { version = "1.18", features = ["sync", "macros"], default-features = false }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_repr = "0.1"
@@ -73,16 +75,19 @@ bevy.workspace = true
 clap = { version = "3.2", features = ["derive"], optional = true }
 config.workspace = true
 dioxus.workspace = true
-dip_bundle.workspace = true
 dip_cli = { version = "0.2", path = "./plugins/ui/cli", optional = true }
 dip_core.workspace = true
 dip_desktop = { version = "0.2", path = "./plugins/ui/desktop", optional = true }
-dip_device.workspace = true
 dip_macro.workspace = true
+dip_web = { version = "0.2", path = "./plugins/ui/web", optional = true }
 dirs.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 tokio.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+dip_bundle.workspace = true
+dip_device.workspace = true
 
 [dev-dependencies]
 leafwing-input-manager = { version = "0.5", default-features = false }
@@ -92,6 +97,7 @@ serde.workspace = true
 default = ["cli"]
 desktop = ["dip_desktop"]
 cli = ["dip_cli", "clap"]
+web = ["dip_web"]
 
 # CLI
 [[example]]
@@ -121,7 +127,7 @@ path = "examples/desktop/counter.rs"
 required-features = ["desktop"]
 
 [[example]]
-name = "minimum"
+name = "desktop_minimum"
 path = "examples/desktop/minimum.rs"
 required-features = ["desktop"]
 
@@ -177,3 +183,10 @@ required-features = ["desktop"]
 name = "scale_factor_override"
 path = "examples/desktop/window/scale_factor_override.rs"
 required-features = ["desktop"]
+
+# Web
+
+[[example]]
+name = "web_minimum"
+path = "examples/web/minimum.rs"
+required-features = ["web"]
