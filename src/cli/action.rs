@@ -1,7 +1,3 @@
-// mod build;
-
-// pub use build::*;
-
 use dip::cli::{CliPlugin, SubcommandPlugin};
 
 #[derive(CliPlugin, clap::Parser)]
@@ -43,7 +39,7 @@ pub struct BuildArgs {
 #[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
 pub enum BundleAction {
     Apply(ApplyBundleArgs),
-    Clean(CleanBundleArgs),
+    // Clean(CleanBundleArgs),
 }
 
 #[derive(clap::Args, Clone, Debug)]
@@ -51,10 +47,10 @@ pub struct ApplyBundleArgs {
     pub bundle_root: Option<String>,
 }
 
-#[derive(clap::Args, Clone, Debug)]
-pub struct CleanBundleArgs {
-    pub bundle_root: Option<String>,
-}
+// #[derive(clap::Args, Clone, Debug)]
+// pub struct CleanBundleArgs {
+//     pub bundle_root: Option<String>,
+// }
 
 #[derive(SubcommandPlugin, clap::Subcommand, Clone, Debug)]
 pub enum DeviceAction {

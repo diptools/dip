@@ -15,6 +15,9 @@ pub use dip_web as web;
 #[cfg(not(target_arch = "wasm32"))]
 pub use dip_bundle as bundle;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub use dip_builder as builder;
+
 /// Web3 related plugins
 pub mod web3 {
     #[cfg(not(target_arch = "wasm32"))]
