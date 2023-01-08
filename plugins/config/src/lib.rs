@@ -1,65 +1,78 @@
+mod parser;
 mod schedule;
+mod util;
 
-use crate::schedule::ConfigSchedulePlugin;
 use bevy::{
     app::{App, Plugin},
     ecs::system::{Commands, Res, ResMut},
 };
-use config::{builder::DefaultState, ConfigBuilder};
+use config::{Config as ConfigRaw, Environment, File, FileFormat};
 use serde::Deserialize;
-use std::marker::PhantomData;
+use std::path::PathBuf;
 
-pub use crate::schedule::ConfigStartupStage;
+pub use parser::ConfigParser;
+pub use schedule::{ConfigSchedulePlugin, ConfigStartupStage};
+pub use util::ConfigUtil;
 
-#[derive(Debug)]
-pub struct ConfigPlugin<Config> {
-    config: PhantomData<Config>,
-    default_paths: bool,
+pub trait Configurable {}
+
+pub struct ConfigPlugin {
     env_prefix: Option<&'static str>,
     env_separator: &'static str,
-    default_file_str: &'static str,
-    default_file_format: ::config::FileFormat,
+
+    sources: Vec<Box<dyn Configurable + 'static + Send + Sync>>,
 }
 
-impl<Config> Plugin for ConfigPlugin<Config>
-where
-    Config: 'static + Send + Sync + Deserialize<'static>,
-{
+impl Plugin for ConfigPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(ConfigSchedulePlugin)
-            .insert_resource(Self::builder(&self))
-            .add_startup_system_to_stage(ConfigStartupStage::Build, build_config::<Config>);
-    }
-}
+        app.add_plugin(ConfigSchedulePlugin);
 
-impl<Config> Default for ConfigPlugin<Config> {
-    fn default() -> Self {
-        Self {
-            config: PhantomData,
-
-            default_paths: true,
-            env_prefix: None,
-            env_separator: "__",
-            default_file_str: "",
-            default_file_format: ::config::FileFormat::Toml,
+        for s in &self.sources {
+            app.insert_resource(s);
         }
     }
 }
 
-impl<Config> ConfigPlugin<Config> {
+impl Default for ConfigPlugin {
+    fn default() -> Self {
+        Self {
+            env_prefix: None,
+            env_separator: "__",
+
+            sources: vec![],
+        }
+    }
+}
+
+impl ConfigPlugin {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn with_default_str(default_file_str: &'static str) -> Self {
-        Self {
-            default_file_str,
-            ..Default::default()
-        }
-    }
+    pub fn add<Config: 'static + Send + Sync + Deserialize<'static> + Configurable>(
+        mut self,
+        file_path: &PathBuf,
+        default_str: &'static str,
+    ) -> Self {
+        let builder = ConfigRaw::builder()
+            .add_source(File::from_str(default_str, FileFormat::Toml))
+            .add_source(File::with_name(&file_path.display().to_string()).required(false));
 
-    pub fn default_paths(mut self, default_paths: bool) -> Self {
-        self.default_paths = default_paths;
+        let mut env = Environment::default().separator(self.env_separator);
+
+        if let Some(prefix) = &self.env_prefix {
+            env = env.prefix(&prefix);
+        }
+
+        let config = builder
+            .add_source(env)
+            .build()
+            .unwrap()
+            .try_deserialize::<Config>()
+            .unwrap();
+
+        self.sources.push(Box::new(config));
+
         self
     }
 
@@ -71,71 +84,6 @@ impl<Config> ConfigPlugin<Config> {
     pub fn env_separator(mut self, separator: &'static str) -> Self {
         self.env_separator = separator;
         self
-    }
-
-    pub fn default_file_str(mut self, default_str: &'static str) -> Self {
-        self.default_file_str = default_str;
-        self
-    }
-
-    pub fn builder(&self) -> ConfigBuilder<DefaultState> {
-        const PKG_NAME: &str = env!("CARGO_PKG_NAME");
-
-        let home_dir = dirs::home_dir().unwrap();
-        let home_dir_str = home_dir.to_str().unwrap();
-
-        let mut builder = ::config::Config::builder();
-        let mut env = ::config::Environment::default().separator(self.env_separator);
-
-        if let Some(prefix) = &self.env_prefix {
-            env = env.prefix(&prefix);
-        }
-
-        if self.default_paths {
-            builder = builder
-                // default config file in binary
-                .add_source(::config::File::from_str(
-                    self.default_file_str,
-                    self.default_file_format,
-                ))
-                .add_source(
-                    ::config::File::with_name(&format!(
-                        "{home}/.config/{name}",
-                        home = &home_dir_str,
-                        name = PKG_NAME
-                    ))
-                    .required(false),
-                )
-                // $HOME/.config/{CARGO_PKG_NAME}/{CARGO_PKG_NAME}
-                .add_source(
-                    ::config::File::with_name(&format!(
-                        "{home}/.config/{name}/{name}",
-                        home = &home_dir_str,
-                        name = PKG_NAME
-                    ))
-                    .required(false),
-                )
-                // $HOME/.{CARGO_PKG_NAME}
-                .add_source(
-                    ::config::File::with_name(&format!(
-                        "{home}/.{name}",
-                        home = &home_dir_str,
-                        name = PKG_NAME
-                    ))
-                    .required(false),
-                )
-                // ./{CARGO_PKG_NAME}
-                .add_source(
-                    ::config::File::with_name(&format!("{name}", name = PKG_NAME)).required(false),
-                )
-                .add_source(env);
-        }
-
-        if let Ok(name) = std::env::var("CONFIG_PATH") {
-            builder = builder.add_source(::config::File::with_name(&name));
-        }
-
-        builder
     }
 }
 

@@ -1,7 +1,5 @@
 #[cfg(feature = "dotfiles")]
 mod dotfiles;
-#[cfg(feature = "brew")]
-mod homebrew;
 #[cfg(feature = "scripts")]
 mod script;
 #[cfg(target_family = "unix")]
@@ -9,31 +7,28 @@ mod unix;
 #[cfg(feature = "vm")]
 mod vm;
 
-pub use self::unix::UnixToolPlugin;
-use bevy::{
-    app::{App, Plugin},
-    ecs::component::Component,
-};
+use bevy::app::{App, Plugin};
+#[cfg(feature = "dotfiles")]
+use dotfiles::DotfilesPlugin;
+#[cfg(feature = "scripts")]
+use script::ScriptPlugin;
+#[cfg(feature = "vm")]
+use vm::VersionManagerPlugin;
 
-pub struct ToolPlugin;
+#[cfg(target_family = "unix")]
+pub use unix::UnixToolPlugin;
 
-impl ToolPlugin {
-    pub fn new() -> Self {
-        Self
-    }
-}
+pub struct UniversalToolPlugin;
 
-impl Plugin for ToolPlugin {
+impl Plugin for UniversalToolPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<InstallTools>();
+        #[cfg(feature = "dotfiles")]
+        app.add_plugin(DotfilesPlugin);
 
-        #[cfg(target_family = "unix")]
-        app.add_plugin(UnixToolPlugin::new());
+        #[cfg(feature = "scripts")]
+        app.add_plugin(ScriptPlugin);
+
+        #[cfg(feature = "vm")]
+        app.add_plugin(VersionManagerPlugin);
     }
 }
-
-#[derive(Clone)]
-pub struct InstallTools;
-
-#[derive(Component)]
-pub struct Tool;

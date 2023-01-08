@@ -13,12 +13,17 @@ impl Plugin for BuilderSchedulePlugin {
             BuilderStage::First,
             SystemStage::parallel(),
         )
-        .add_stage_before(
+        .add_stage_after(
+            BuilderStage::First,
+            BuilderStage::PreBuild,
+            SystemStage::parallel(),
+        )
+        .add_stage_after(
             BuilderStage::First,
             BuilderStage::BuildApp,
             SystemStage::parallel(),
         )
-        .add_stage_before(
+        .add_stage_after(
             BuilderStage::BuildApp,
             BuilderStage::Last,
             SystemStage::parallel(),
@@ -29,6 +34,7 @@ impl Plugin for BuilderSchedulePlugin {
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
 pub enum BuilderStage {
     First,
+    PreBuild,
     BuildApp,
     Last,
 }

@@ -6,6 +6,7 @@ use bevy::{
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
 pub enum DipStartupStage {
+    Setup,
     /// Place to send cli subcommand
     Action,
 }
@@ -30,6 +31,11 @@ impl Plugin for UiSchedulePlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_stage_after(
             StartupStage::PreStartup,
+            DipStartupStage::Setup,
+            SystemStage::parallel(),
+        )
+        .add_startup_stage_after(
+            DipStartupStage::Setup,
             DipStartupStage::Action,
             SystemStage::parallel(),
         )

@@ -10,7 +10,9 @@ documentation.workspace = true
 keywords.workspace = true
 
 [dependencies]
+anyhow.workspace = true
 bevy.workspace = true
 config.workspace = true
 dirs.workspace = true
+reqwest.workspace = true
 serde.workspace = true

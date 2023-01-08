@@ -29,7 +29,7 @@ fn install_bundle(
     actions.iter().for_each(|a| {
         if let Some(value) = &a.bundle_root {
             config
-                .set_bundle_root(&value)
+                .set_root_dir(&value)
                 .expect("Bundle root is not a directry");
         }
 

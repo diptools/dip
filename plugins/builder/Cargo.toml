@@ -13,3 +13,4 @@ keywords.workspace = true
 anyhow.workspace = true
 bevy.workspace = true
 dip_core.workspace = true
+serde.workspace = true

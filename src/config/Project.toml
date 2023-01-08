@@ -1,0 +1,5 @@
+[builder]
+project_dir = "."
+default_platform = "desktop"
+out_dir = "dist"
+asset_dir = "public"

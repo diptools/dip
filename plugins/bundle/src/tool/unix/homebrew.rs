@@ -1,4 +1,4 @@
-use crate::{tool::InstallTools, ApplyBundle, BundleConfig, BundleStage, Bundler};
+use crate::{ApplyBundle, BundleConfig, BundleStage, Bundler};
 use bevy::{
     app::{App, Plugin},
     ecs::{event::EventReader, system::Res},
@@ -24,7 +24,7 @@ impl Plugin for HomebrewPlugin {
 
 // Systems
 
-fn install(mut events: EventReader<InstallTools>, config: Res<BundleConfig>) {
+fn install(mut events: EventReader<ApplyBundle>, config: Res<BundleConfig>) {
     events.iter().for_each(|_e| {
         let brew = Homebrew::new(config.clone());
         let action = format!("Install {}", &Homebrew::name());

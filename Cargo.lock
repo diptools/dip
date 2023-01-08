@@ -1337,6 +1337,7 @@ dependencies = [
  "anyhow",
  "bevy",
  "dip_core",
+ "serde",
 ]
 
 [[package]]
@@ -1376,9 +1377,11 @@ dependencies = [
 name = "dip_config"
 version = "0.2.1"
 dependencies = [
+ "anyhow",
  "bevy",
  "config",
  "dirs",
+ "reqwest",
  "serde",
 ]
 
