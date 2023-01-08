@@ -1,33 +1,29 @@
-use config::{
-    builder::{ConfigBuilder, DefaultState},
-    File,
-};
 use dip::prelude::*;
 use serde::Deserialize;
+use std::{path::PathBuf, str::FromStr};
 
 fn main() {
+    let config = SimpleConfig::new();
+
     App::new()
-        .add_plugin(ConfigPlugin::<Config>::with_default_str(include_str!(
-            "config/default.toml"
-        )))
-        .add_startup_system_to_stage(ConfigStartupStage::Setup, add_custom_sources)
+        // Provide config struct via type parameter
+        .insert_resource(config.build::<MyConfig>(
+            // Path to a user defined config file
+            &PathBuf::from_str("examples/cli/config/config/development").unwrap(),
+            // Default file to be included in binary
+            include_str!("config/default.toml"),
+        ))
         .add_system(log_config)
         .run();
 }
 
-fn add_custom_sources(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
-    *builder = builder
-        .clone()
-        .add_source(File::with_name("examples/cli/config/config/development"));
-}
-
-fn log_config(config: Res<Config>) {
+fn log_config(config: Res<MyConfig>) {
     println!("{:#?}", *config);
 }
 
 #[derive(Debug, Deserialize)]
 #[allow(dead_code)]
-pub struct Config {
+pub struct MyConfig {
     base_url: String,
     backend: Backend,
 }

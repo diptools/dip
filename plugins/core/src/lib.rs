@@ -9,7 +9,7 @@ pub use dip_task as task;
 
 pub mod prelude {
     pub use crate::{
-        config::{ConfigPlugin, ConfigStartupStage},
+        config::SimpleConfig,
         schedule::{DipStage, DipStartupStage, UiSchedulePlugin},
         ui_state::{NoRootProps, NoUiAction, NoUiState, UiStateHandler},
     };
