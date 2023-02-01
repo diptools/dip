@@ -1,0 +1,19 @@
+[package]
+name = "dip_starknet"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+
+[dependencies]
+bevy.workspace = true
+beerus_core = { version = "0.1.0", git = "https://github.com/keep-starknet-strange/beerus" }
+tokio.workspace = true
+
+# temporary dependencies
+dotenv =  "0.15"
+prettytable-rs = "^0.10"
