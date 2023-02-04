@@ -7,10 +7,7 @@ use beerus_core::{
 };
 use bevy::{
     app::{App, Plugin},
-    ecs::{
-        schedule::ParallelSystemDescriptorCoercion,
-        system::{Commands, Res},
-    },
+    ecs::system::{Commands, Res},
 };
 use dotenv::dotenv;
 use prettytable::{format::consts::FORMAT_BOX_CHARS, table};
@@ -20,7 +17,7 @@ pub struct StarknetLightClientPlugin;
 
 impl Plugin for StarknetLightClientPlugin {
     fn build(&self, app: &mut App) {
-        app.set_runner(runner).add_event::<RpcRequest>();
+        app.add_event::<RpcRequest>();
 
         if dotenv().is_ok() {
             let config = Config::new_from_env().unwrap();
@@ -49,8 +46,6 @@ impl Plugin for StarknetLightClientPlugin {
 
             app.insert_resource(runner).insert_resource(tx);
         }
-
-        app.add_startup_system(test_rpc_request);
     }
 }
 
@@ -81,23 +76,13 @@ impl StarknetLightClientPlugin {
     }
 }
 
-fn runner(mut app: App) {
-    loop {
-        app.update();
-    }
-}
-
-fn test_rpc_request(rpc: Res<Sender<RpcRequest>>) {
-    rpc.try_send(RpcRequest::QueryStateRoot).unwrap();
-}
-
 struct StarketLightClientRunner {
     runtime: Runtime,
 }
 
 #[derive(Debug)]
-enum RpcRequest {
-    QueryStateRoot,
+pub enum RpcRequest {
+    GetBlockNumber,
 }
 
 impl StarketLightClientRunner {
