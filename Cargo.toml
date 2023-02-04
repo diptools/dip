@@ -8,6 +8,7 @@ members = [
     "plugins/ui/cli",
     "plugins/ui/desktop",
     "plugins/web3/device",
+    "plugins/web3/starknet",
     "examples/todomvc",
 ]
 
@@ -36,13 +37,14 @@ dip_bundle = { version = "0.2", path = "./plugins/bundle" }
 dip_config = { version = "0.2", path = "./plugins/config" }
 dip_core = { version = "0.2", path = "./plugins/core" }
 dip_device = { version = "0.2", path = "./plugins/web3/device" }
+dip_starknet = { version = "0.2", path = "./plugins/web3/starknet" }
 dip_macro = { version = "0.2", path = "./plugins/macro" }
 dip_task = { version = "0.2", path = "./plugins/task" }
 dirs = "4.0"
 flate2 = "1.0"
 hex = "0.4"
 pathdiff = "0.2"
-reqwest = { version = "0.11", features = ["json", "blocking"] }
+reqwest = { version = "0.11.13", features = ["json", "blocking"] }
 tar = "0.4"
 tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros", "fs"], default-features = false }
 serde = { version = "1.0", features = ["derive"] }
@@ -79,6 +81,7 @@ dip_core.workspace = true
 dip_desktop = { version = "0.2", path = "./plugins/ui/desktop", optional = true }
 dip_device.workspace = true
 dip_macro.workspace = true
+dip_starknet.workspace = true
 dirs.workspace = true
 reqwest.workspace = true
 serde.workspace = true
@@ -177,3 +180,9 @@ required-features = ["desktop"]
 name = "scale_factor_override"
 path = "examples/desktop/window/scale_factor_override.rs"
 required-features = ["desktop"]
+
+# Web3
+
+[[example]]
+name = "starknet"
+path = "examples/web3/starknet.rs"
