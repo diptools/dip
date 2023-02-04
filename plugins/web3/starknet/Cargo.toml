@@ -11,9 +11,12 @@ keywords.workspace = true
 
 [dependencies]
 bevy.workspace = true
-beerus_core = { version = "0.1.0", git = "https://github.com/keep-starknet-strange/beerus" }
+eyre = "0.6"
+# beerus_core = { git = "https://github.com/keep-starknet-strange/beerus" }
+# beerus_core = { path = "../../../../../JunichiSugiura/beerus/beerus_core" }
+beerus_core = { git = "https://github.com/danilowhk/beerus", branch = "helios_0.2.0_implementation" }
 tokio.workspace = true
 
 # temporary dependencies
 dotenv =  "0.15"
-prettytable-rs = "^0.10"
+prettytable-rs = "0.10"

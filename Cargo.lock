@@ -70,6 +70,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "amcl"
+version = "0.3.0"
+source = "git+https://github.com/Snowfork/milagro_bls#2c9e8b383981308a8b4cbbc19e0b897dcf14534b"
+
+[[package]]
 name = "android_log-sys"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -414,7 +419,7 @@ dependencies = [
 [[package]]
 name = "beerus_core"
 version = "0.1.0"
-source = "git+https://github.com/keep-starknet-strange/beerus#9d9b69f91eb41fec04fdec5053a6b5ee86c9a805"
+source = "git+https://github.com/danilowhk/beerus?branch=helios_0.2.0_implementation#e3befba13afe9d9dc783ea638891d113fde62e8e"
 dependencies = [
  "async-trait",
  "ethers",
@@ -1013,19 +1018,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "blst"
-version = "0.3.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a30d0edd9dd1c60ddb42b80341c7852f6f985279a5c1a83659dcb65899dec99"
-dependencies = [
- "cc",
- "glob",
- "threadpool",
- "which",
- "zeroize",
-]
-
-[[package]]
 name = "bs58"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1282,16 +1274,17 @@ dependencies = [
 
 [[package]]
 name = "client"
-version = "0.1.3"
-source = "git+https://github.com/a16z/helios#604b32598357b5296ad8578697c347c28b759596"
+version = "0.2.0"
+source = "git+https://github.com/a16z/helios#4a84ecabedd30a4a36398609a4a5d9d49f398a9c"
 dependencies = [
  "common",
- "config 0.1.3",
+ "config 0.2.0",
  "consensus",
  "ethers",
  "execution",
  "eyre",
  "futures",
+ "gloo-timers",
  "hex",
  "jsonrpsee",
  "log",
@@ -1299,6 +1292,7 @@ dependencies = [
  "ssz-rs",
  "thiserror",
  "tokio",
+ "wasm-bindgen-futures",
 ]
 
 [[package]]
@@ -1442,8 +1436,8 @@ dependencies = [
 
 [[package]]
 name = "common"
-version = "0.1.3"
-source = "git+https://github.com/a16z/helios#604b32598357b5296ad8578697c347c28b759596"
+version = "0.2.0"
+source = "git+https://github.com/a16z/helios#4a84ecabedd30a4a36398609a4a5d9d49f398a9c"
 dependencies = [
  "ethers",
  "eyre",
@@ -1464,8 +1458,8 @@ dependencies = [
 
 [[package]]
 name = "config"
-version = "0.1.3"
-source = "git+https://github.com/a16z/helios#604b32598357b5296ad8578697c347c28b759596"
+version = "0.2.0"
+source = "git+https://github.com/a16z/helios#4a84ecabedd30a4a36398609a4a5d9d49f398a9c"
 dependencies = [
  "common",
  "ethers",
@@ -1504,29 +1498,28 @@ dependencies = [
 
 [[package]]
 name = "consensus"
-version = "0.1.3"
-source = "git+https://github.com/a16z/helios#604b32598357b5296ad8578697c347c28b759596"
+version = "0.2.0"
+source = "git+https://github.com/a16z/helios#4a84ecabedd30a4a36398609a4a5d9d49f398a9c"
 dependencies = [
  "async-trait",
- "blst",
  "bytes",
  "chrono",
  "common",
- "config 0.1.3",
+ "config 0.2.0",
  "ethers",
  "eyre",
  "hex",
  "log",
+ "milagro_bls",
  "openssl",
  "reqwest",
- "reqwest-middleware",
- "reqwest-retry",
  "serde",
  "serde_json",
  "ssz-rs",
  "thiserror",
  "tokio",
  "toml",
+ "wasm-timer",
 ]
 
 [[package]]
@@ -2100,6 +2093,7 @@ dependencies = [
  "beerus_core",
  "bevy",
  "dotenv",
+ "eyre",
  "prettytable-rs",
  "tokio",
 ]
@@ -2665,8 +2659,8 @@ checksum = "0206175f82b8d6bf6652ff7d71a1e27fd2e4efde587fd368662814d6ec1d9ce0"
 
 [[package]]
 name = "execution"
-version = "0.1.3"
-source = "git+https://github.com/a16z/helios#604b32598357b5296ad8578697c347c28b759596"
+version = "0.2.0"
+source = "git+https://github.com/a16z/helios#4a84ecabedd30a4a36398609a4a5d9d49f398a9c"
 dependencies = [
  "async-trait",
  "bytes",
@@ -3265,12 +3259,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "glob"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
-
-[[package]]
 name = "globset"
 version = "0.4.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3498,6 +3486,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43a3c133739dddd0d2990f9a4bdf8eb4b21ef50e4851ca85ab661199821d510e"
 dependencies = [
  "ahash 0.8.3",
+ "serde",
 ]
 
 [[package]]
@@ -3526,12 +3515,12 @@ checksum = "2540771e65fc8cb83cd6e8a237f70c319bd5c29f78ed1084ba5d50eeac86f7f9"
 
 [[package]]
 name = "helios"
-version = "0.1.3"
-source = "git+https://github.com/a16z/helios#604b32598357b5296ad8578697c347c28b759596"
+version = "0.2.0"
+source = "git+https://github.com/a16z/helios#4a84ecabedd30a4a36398609a4a5d9d49f398a9c"
 dependencies = [
  "client",
  "common",
- "config 0.1.3",
+ "config 0.2.0",
  "consensus",
  "execution",
 ]
@@ -3559,6 +3548,9 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "hexasphere"
@@ -4467,6 +4459,18 @@ dependencies = [
  "foreign-types",
  "log",
  "objc",
+]
+
+[[package]]
+name = "milagro_bls"
+version = "1.5.0"
+source = "git+https://github.com/Snowfork/milagro_bls#2c9e8b383981308a8b4cbbc19e0b897dcf14534b"
+dependencies = [
+ "amcl",
+ "hex",
+ "lazy_static",
+ "rand 0.8.5",
+ "zeroize",
 ]
 
 [[package]]
@@ -5719,7 +5723,6 @@ dependencies = [
  "js-sys",
  "log",
  "mime",
- "mime_guess",
  "native-tls",
  "once_cell",
  "percent-encoding",
@@ -5742,53 +5745,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "reqwest-middleware"
-version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69539cea4148dce683bec9dc95be3f0397a9bb2c248a49c8296a9d21659a8cdd"
-dependencies = [
- "anyhow",
- "async-trait",
- "futures",
- "http",
- "reqwest",
- "serde",
- "task-local-extensions",
- "thiserror",
-]
-
-[[package]]
-name = "reqwest-retry"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce246a729eaa6aff5e215aee42845bf5fed9893cc6cd51aeeb712f34e04dd9f3"
-dependencies = [
- "anyhow",
- "async-trait",
- "chrono",
- "futures",
- "http",
- "hyper",
- "reqwest",
- "reqwest-middleware",
- "retry-policies",
- "task-local-extensions",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "retry-policies"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e09bbcb5003282bcb688f0bae741b278e9c7e8f378f561522c9806c58e075d9b"
-dependencies = [
- "anyhow",
- "chrono",
- "rand 0.8.5",
-]
-
-[[package]]
 name = "revm"
 version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5798,10 +5754,12 @@ dependencies = [
  "auto_impl 1.0.1",
  "bytes",
  "hashbrown 0.13.2",
+ "hex",
  "num_enum",
  "primitive-types 0.12.1",
  "revm_precompiles",
  "rlp 0.5.2",
+ "serde",
  "sha3",
 ]
 
@@ -5813,11 +5771,11 @@ checksum = "0353d456ef3e989dc9190f42c6020f09bc2025930c37895826029304413204b5"
 dependencies = [
  "bytes",
  "hashbrown 0.13.2",
+ "k256",
  "num",
  "once_cell",
  "primitive-types 0.12.1",
  "ripemd",
- "secp256k1",
  "sha2 0.10.6",
  "sha3",
  "substrate-bn",
@@ -6124,24 +6082,6 @@ dependencies = [
  "pkcs8",
  "subtle",
  "zeroize",
-]
-
-[[package]]
-name = "secp256k1"
-version = "0.24.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b1629c9c557ef9b293568b338dddfc8208c98a18c59d722a9d53f859d9c9b62"
-dependencies = [
- "secp256k1-sys",
-]
-
-[[package]]
-name = "secp256k1-sys"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83080e2c2fc1006e625be82e5d1eb6a43b7fd9578b617fcc55814daf286bba4b"
-dependencies = [
- "cc",
 ]
 
 [[package]]
@@ -6544,7 +6484,7 @@ dependencies = [
 [[package]]
 name = "ssz-rs"
 version = "0.8.0"
-source = "git+https://github.com/ralexstokes/ssz-rs?rev=cb08f18ca919cc1b685b861d0fa9e2daabe89737#cb08f18ca919cc1b685b861d0fa9e2daabe89737"
+source = "git+https://github.com/ralexstokes/ssz-rs?rev=d09f55b4f8554491e3431e01af1c32347a8781cd#d09f55b4f8554491e3431e01af1c32347a8781cd"
 dependencies = [
  "bitvec 1.0.1",
  "hex",
@@ -6559,7 +6499,7 @@ dependencies = [
 [[package]]
 name = "ssz-rs-derive"
 version = "0.8.0"
-source = "git+https://github.com/ralexstokes/ssz-rs?rev=cb08f18ca919cc1b685b861d0fa9e2daabe89737#cb08f18ca919cc1b685b861d0fa9e2daabe89737"
+source = "git+https://github.com/ralexstokes/ssz-rs?rev=d09f55b4f8554491e3431e01af1c32347a8781cd#d09f55b4f8554491e3431e01af1c32347a8781cd"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6878,15 +6818,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "task-local-extensions"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4167afbec18ae012de40f8cf1b9bf48420abb390678c34821caa07d924941cc4"
-dependencies = [
- "tokio",
-]
-
-[[package]]
 name = "tempfile"
 version = "3.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6959,15 +6890,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5516c27b78311c50bf42c071425c560ac799b11c30b31f87e3081965fe5e0180"
 dependencies = [
  "once_cell",
-]
-
-[[package]]
-name = "threadpool"
-version = "1.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d050e60b33d41c19108b32cea32164033a9013fe3b46cbd4457559bfbf77afaa"
-dependencies = [
- "num_cpus",
 ]
 
 [[package]]
@@ -7743,17 +7665,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f762cbc08e1a51389859cf9c199c7aef544789cf3510889aab12c607f701604"
 dependencies = [
  "bitflags",
-]
-
-[[package]]
-name = "which"
-version = "4.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2441c784c52b289a054b7201fc93253e288f094e2f4be9058343127c4226a269"
-dependencies = [
- "either",
- "libc",
- "once_cell",
 ]
 
 [[package]]
