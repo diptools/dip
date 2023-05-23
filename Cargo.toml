@@ -6,9 +6,10 @@ members = [
     "plugins/macro",
     "plugins/task",
     "plugins/ui/cli",
-    "plugins/ui/desktop",
+    # "plugins/ui/desktop",
+    "plugins/ui/desktop/next",
     "plugins/web3/device",
-    "examples/todomvc",
+    # "examples/todomvc",
 ]
 
 [workspace.package]
@@ -76,7 +77,7 @@ dioxus.workspace = true
 dip_bundle.workspace = true
 dip_cli = { version = "0.2", path = "./plugins/ui/cli", optional = true }
 dip_core.workspace = true
-dip_desktop = { version = "0.2", path = "./plugins/ui/desktop", optional = true }
+# dip_desktop = { version = "0.2", path = "./plugins/ui/desktop", optional = true }
 dip_device.workspace = true
 dip_macro.workspace = true
 dirs.workspace = true
@@ -90,7 +91,7 @@ serde.workspace = true
 
 [features]
 default = ["cli"]
-desktop = ["dip_desktop"]
+# desktop = ["dip_desktop"]
 cli = ["dip_cli", "clap"]
 
 # CLI

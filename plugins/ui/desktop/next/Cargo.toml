@@ -1,0 +1,43 @@
+[package]
+name = "dip_desktop_next"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+keywords.workspace = true
+
+[dependencies]
+approx = "0.5"
+bevy = { version = "0.10", default-features = false }
+dioxus = "0.3"
+raw-window-handle = "0.5"
+wry = { version = "0.28", default-features = false, features = ["tray"] }
+
+# approx = "0.5.1"
+# bevy.workspace = true
+# dioxus.workspace = true
+# dioxus-core = { version = "0.2", features = ["serialize"] }
+# dioxus-html = { version = "0.2", features = ["serialize"] }
+# dioxus-interpreter-js = "0.2"
+# dip_core.workspace = true
+# dunce = "1.0"
+# futures-channel = "0.3.21"
+# log = "0.4"
+# mime_guess = "2.0"
+# raw-window-handle = "0.4"
+# serde.workspace = true
+# serde_json.workspace = true
+# serde_repr.workspace = true
+# tokio.workspace = true
+# webbrowser = "0.7"
+# wry = "0.19"
+
+# [target.'cfg(target_os = "macos")'.dependencies]
+# core-foundation = "0.9"
+
+# # for examples in docs
+# [dev-dependencies]
+# dip.workspace = true
