@@ -46,7 +46,7 @@ impl SubcommandParser {
         let handler_with_system_order = self.handler_with_system_order();
 
         let gen = quote! {
-            .add_startup_system_to_stage(::dip::core::schedule::DipStartupStage::Action, #handler_with_system_order);
+            .add_systems(::dip::app::Startup, #handler_with_system_order);
         };
 
         gen

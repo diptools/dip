@@ -1,8 +1,12 @@
-// mod action;
-// use crate::cli::action::{
-//     ActionPlugin, ApplyBundleAction, BundleActionPlugin, CleanBundleAction, CliPlugin,
-//     DeviceActionPlugin, InfoDeviceAction, ListDeviceAction,
-// };
+mod action;
+use crate::cli::action::{
+    // ActionPlugin,
+    // ApplyBundleAction,
+    // BundleActionPlugin,
+    // CleanBundleAction,
+    CliPlugin,
+    //     DeviceActionPlugin, InfoDeviceAction, ListDeviceAction,
+};
 
 use dip::{
     bevy::{
@@ -22,8 +26,8 @@ use dip::{
 pub struct DipCliPlugin;
 
 impl Plugin for DipCliPlugin {
-    fn build(&self, _app: &mut App) {
-        // app.add_plugins(CliPlugin::<NoAsyncAction>::oneshot());
+    fn build(&self, app: &mut App) {
+        app.add_plugins(CliPlugin::oneshot());
         // .add_plugins(ActionPlugin)
         // .add_plugin(BundlePlugin)
         // .add_plugin(BundleActionPlugin)
