@@ -1,14 +1,14 @@
 [workspace]
 members = [
-    "plugins/bundle",
-    "plugins/config",
-    "plugins/core",
+    # "plugins/bundle",
+    # "plugins/config",
+    # "plugins/core",
     "plugins/macro",
-    "plugins/task",
+    # "plugins/task",
     "plugins/ui/cli",
-    "plugins/ui/desktop",
-    "plugins/web3/device",
-    "examples/todomvc",
+    # "plugins/ui/desktop",
+    # "plugins/web3/device",
+    # "examples/todomvc",
 ]
 
 [workspace.package]
@@ -23,34 +23,34 @@ documentation = "https://docs.rs/dip/latest/dip/"
 keywords = ["declarative-ui", "ecs", "bevy", "dioxus", "cross-platform"]
 
 [workspace.dependencies]
-anyhow = "1.0"
-bevy = { version = "0.8", default-features = false }
-bevy_ecs = "0.8"
-bytes = "1"
-cmd_lib = "1"
-config = "0.13"
+# anyhow = "1.0"
+bevy = { version = "0.14", default-features = false }
+# bevy_ecs = "0.8"
+# bytes = "1"
+# cmd_lib = "1"
+# config = "0.13"
 convert_case = "0.5"
-dioxus = { version = "0.2", features = ["fermi"] }
-dip = { path = ".", features = ["desktop"] }
-dip_bundle = { version = "0.2", path = "./plugins/bundle" }
-dip_config = { version = "0.2", path = "./plugins/config" }
-dip_core = { version = "0.2", path = "./plugins/core" }
-dip_device = { version = "0.2", path = "./plugins/web3/device" }
+# dioxus = { version = "0.2", features = ["fermi"] }
+# dip = { path = ".", features = ["desktop"] }
+# dip_bundle = { version = "0.2", path = "./plugins/bundle" }
+# dip_config = { version = "0.2", path = "./plugins/config" }
+# dip_core = { version = "0.2", path = "./plugins/core" }
+# dip_device = { version = "0.2", path = "./plugins/web3/device" }
 dip_macro = { version = "0.2", path = "./plugins/macro" }
-dip_task = { version = "0.2", path = "./plugins/task" }
+# dip_task = { version = "0.2", path = "./plugins/task" }
 dirs = "4.0"
-flate2 = "1.0"
-hex = "0.4"
-pathdiff = "0.2"
-reqwest = { version = "0.11", features = ["json", "blocking"] }
-tar = "0.4"
-tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros", "fs"], default-features = false }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde_repr = "0.1"
-sha2 = "0.10"
-tempfile = "3"
-walkdir = "2"
+# flate2 = "1.0"
+# hex = "0.4"
+# pathdiff = "0.2"
+# reqwest = { version = "0.11", features = ["json", "blocking"] }
+# tar = "0.4"
+# tokio = { version = "1.18", features = ["rt-multi-thread", "sync", "macros", "fs"], default-features = false }
+# serde = { version = "1.0", features = ["derive"] }
+# serde_json = "1.0"
+# serde_repr = "0.1"
+# sha2 = "0.10"
+# tempfile = "3"
+# walkdir = "2"
 
 [package]
 name = "dip"
@@ -68,29 +68,29 @@ name = "dip"
 path = "src/main.rs"
 
 [dependencies]
-anyhow.workspace = true
+# anyhow.workspace = true
 bevy.workspace = true
 clap = { version = "3.2", features = ["derive"], optional = true }
-config.workspace = true
-dioxus.workspace = true
-dip_bundle.workspace = true
+# config.workspace = true
+# dioxus.workspace = true
+# dip_bundle.workspace = true
 dip_cli = { version = "0.2", path = "./plugins/ui/cli", optional = true }
-dip_core.workspace = true
-dip_desktop = { version = "0.2", path = "./plugins/ui/desktop", optional = true }
-dip_device.workspace = true
+# dip_core.workspace = true
+# dip_desktop = { version = "0.2", path = "./plugins/ui/desktop", optional = true }
+# dip_device.workspace = true
 dip_macro.workspace = true
-dirs.workspace = true
-reqwest.workspace = true
-serde.workspace = true
-tokio.workspace = true
+# dirs.workspace = true
+# reqwest.workspace = true
+# serde.workspace = true
+# tokio.workspace = true
 
-[dev-dependencies]
-leafwing-input-manager = { version = "0.5", default-features = false }
-serde.workspace = true
+# [dev-dependencies]
+# leafwing-input-manager = { version = "0.5", default-features = false }
+# serde.workspace = true
 
 [features]
 default = ["cli"]
-desktop = ["dip_desktop"]
+# desktop = ["dip_desktop"]
 cli = ["dip_cli", "clap"]
 
 # CLI
@@ -109,71 +109,71 @@ name = "cli_config"
 path = "examples/cli/config/main.rs"
 required-features = ["cli"]
 
-# Desktop
-[[example]]
-name = "desktop_async"
-path = "examples/desktop/async.rs"
-required-features = ["desktop"]
+# # Desktop
+# [[example]]
+# name = "desktop_async"
+# path = "examples/desktop/async.rs"
+# required-features = ["desktop"]
 
-[[example]]
-name = "counter"
-path = "examples/desktop/counter.rs"
-required-features = ["desktop"]
+# [[example]]
+# name = "counter"
+# path = "examples/desktop/counter.rs"
+# required-features = ["desktop"]
 
-[[example]]
-name = "minimum"
-path = "examples/desktop/minimum.rs"
-required-features = ["desktop"]
+# [[example]]
+# name = "minimum"
+# path = "examples/desktop/minimum.rs"
+# required-features = ["desktop"]
 
-[[example]]
-name = "root_props"
-path = "examples/desktop/root_props.rs"
-required-features = ["desktop"]
+# [[example]]
+# name = "root_props"
+# path = "examples/desktop/root_props.rs"
+# required-features = ["desktop"]
 
-# Desktop: keyboard
-[[example]]
-name = "keyboard"
-path = "examples/desktop/keyboard/keyboard_event.rs"
-required-features = ["desktop"]
+# # Desktop: keyboard
+# [[example]]
+# name = "keyboard"
+# path = "examples/desktop/keyboard/keyboard_event.rs"
+# required-features = ["desktop"]
 
-[[example]]
-name = "key_bindings"
-path = "examples/desktop/keyboard/bindings.rs"
-required-features = ["desktop"]
+# [[example]]
+# name = "key_bindings"
+# path = "examples/desktop/keyboard/bindings.rs"
+# required-features = ["desktop"]
 
-# Desktop: state management
-[[example]]
-name = "local_state"
-path = "examples/desktop/state_management/local_state.rs"
-required-features = ["desktop"]
+# # Desktop: state management
+# [[example]]
+# name = "local_state"
+# path = "examples/desktop/state_management/local_state.rs"
+# required-features = ["desktop"]
 
-[[example]]
-name = "global_state"
-path = "examples/desktop/state_management/global_state.rs"
-required-features = ["desktop"]
+# [[example]]
+# name = "global_state"
+# path = "examples/desktop/state_management/global_state.rs"
+# required-features = ["desktop"]
 
-[[example]]
-name = "ecs"
-path = "examples/desktop/state_management/ecs.rs"
-required-features = ["desktop"]
+# [[example]]
+# name = "ecs"
+# path = "examples/desktop/state_management/ecs.rs"
+# required-features = ["desktop"]
 
-# Desktop: window management
-[[example]]
-name = "window_settings"
-path = "examples/desktop/window/settings.rs"
-required-features = ["desktop"]
+# # Desktop: window management
+# [[example]]
+# name = "window_settings"
+# path = "examples/desktop/window/settings.rs"
+# required-features = ["desktop"]
 
-[[example]]
-name = "render_mode"
-path = "examples/desktop/window/render_mode.rs"
-required-features = ["desktop"]
+# [[example]]
+# name = "render_mode"
+# path = "examples/desktop/window/render_mode.rs"
+# required-features = ["desktop"]
 
-[[example]]
-name = "multiple_windows"
-path = "examples/desktop/window/multiple_windows.rs"
-required-features = ["desktop"]
+# [[example]]
+# name = "multiple_windows"
+# path = "examples/desktop/window/multiple_windows.rs"
+# required-features = ["desktop"]
 
-[[example]]
-name = "scale_factor_override"
-path = "examples/desktop/window/scale_factor_override.rs"
-required-features = ["desktop"]
+# [[example]]
+# name = "scale_factor_override"
+# path = "examples/desktop/window/scale_factor_override.rs"
+# required-features = ["desktop"]

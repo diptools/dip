@@ -16,5 +16,5 @@ proc-macro = true
 convert_case.workspace = true
 dirs.workspace = true
 quote = "1.0"
-proc-macro2 = "1.0"
+proc-macro2 = "1.0.89"
 syn = { version = "1.0", features = [ "full", "fold" ]}
