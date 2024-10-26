@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+# Check if the platform is Windows
+if [ "$OSTYPE" == "msys" ] || [ "$OSTYPE" == "cygwin" ]; then
+  echo "Note: Dipin does not support Powershell or Cmd on Windows."
+  echo "Please use Git BASH (https://gitforwindows.org/) or WSL (https://learn.microsoft.com/en-us/windows/wsl/install)."
+fi
+
+set -e
+
+echo Installing dipin...
+
+BASE_DIR=${XDG_CONFIG_HOME:-$HOME}
+DIP_DIR=${DIP_DIR-"$BASE_DIR/.dip"}
+DIP_BIN_DIR="$DIP_DIR/bin"
+
+BIN_URL="https://raw.githubusercontent.com/diptools/dip/main/dipin/dipin"
+BIN_PATH="$DIP_BIN_DIR/dipin"
+
+# Create the .dip bin directory and dipin binary if it doesn't exist.
+mkdir -p "$DIP_BIN_DIR"
+curl -# -L "$BIN_URL" -o "$BIN_PATH"
+chmod +x "$BIN_PATH"
+
+# Store the correct profile file (i.e. .profile for bash or .zshenv for ZSH).
+case $SHELL in
+*/zsh)
+    PROFILE=${ZDOTDIR-"$HOME"}/.zshenv
+    PREF_SHELL=zsh
+    ;;
+*/bash)
+    PROFILE=$HOME/.bashrc
+    PREF_SHELL=bash
+    ;;
+*/fish)
+    PROFILE=$HOME/.config/fish/config.fish
+    PREF_SHELL=fish
+    ;;
+*/ash)
+    PROFILE=$HOME/.profile
+    PREF_SHELL=ash
+    ;;
+*/nu)
+    PROFILE="$HOME/Library/Application Support/nushell/env.nu"
+    PREF_SHELL=nu
+    ;;
+*)
+    echo "dipin: could not detect shell, manually add ${DIP_BIN_DIR} to your PATH."
+    exit 1
+esac
+
+# Only add dipin if it isn't already in PATH.
+case $PREF_SHELL in
+*nu)
+   script=$(cat << EOM
+if not (
+    \$env.path
+    | find '$DIP_BIN_DIR'
+    | length
+    | into bool
+) {
+    echo '\$env.path = (\$env.path | split row (char esep) | append '$DIP_BIN_DIR')'
+    | save '$PROFILE' --append
+}
+EOM
+)
+    nu -c "$script"
+    ;;
+*)
+    if [[ ":$PATH:" != *":${DIP_BIN_DIR}:"* ]]; then
+        echo >> "$PROFILE" && echo "export PATH=\"\$PATH:$DIP_BIN_DIR\"" >> "$PROFILE"
+    fi
+esac
+
+echo && echo "Detected your preferred shell is ${PREF_SHELL} and added dipin to PATH. Run 'source ${PROFILE}' or start a new terminal session to use dipin."
+echo "Then, simply run 'dipin' to install Dip."

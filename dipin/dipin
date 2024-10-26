@@ -1,0 +1,390 @@
+#!/usr/bin/env bash
+
+# Check if the platform is Windows
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+  echo "Note: Dipin does not support Powershell or Cmd on Windows."
+  echo "Please use Git BASH (https://gitforwindows.org/) or WSL (https://learn.microsoft.com/en-us/windows/wsl/install)."
+fi
+
+set -e
+
+BASE_DIR=${XDG_CONFIG_HOME:-$HOME}
+DIP_DIR=${DIP_DIR-"$BASE_DIR/.dip"}
+DIP_BIN_DIR="$DIP_DIR/bin"
+
+BINS=(dip)
+
+export RUSTFLAGS="-C target-cpu=native"
+
+main() {
+  need_cmd git
+  need_cmd curl
+
+  while [[ $1 ]]; do
+    case $1 in
+      --)               shift; break;;
+
+      -r|--repo)        shift; DIPIN_REPO=$1;;
+      -b|--branch)      shift; DIPIN_BRANCH=$1;;
+      -t|--tag)         shift; DIPIN_USER_TAG=$1;;
+      -v|--version)     shift; DIPIN_VERSION=$1;;
+      -p|--path)        shift; DIPIN_LOCAL_REPO=$1;;
+      -P|--pr)          shift; DIPIN_PR=$1;;
+      -c|--commit)      shift; DIPIN_COMMIT=$1;;
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      *)
+        warn "unknown option: $1"
+        usage
+        exit 1
+    esac; shift
+  done
+
+  if [ -n "$DIPIN_BRANCH" ] || [ -n "$DIPIN_USER_TAG" ] || [ -n "$DIPIN_PR" ] || [ -n "$DIPIN_COMMIT" ] || [ -n "$DIPIN_LOCAL_REPO" ] || [ -n "$DIPIN_REPO" ]; then
+    if ! command -v rustc &> /dev/null; then
+      err "Rust is required for building from source. Please install Rust from https://www.rust-lang.org/tools/install."
+    fi
+  fi
+
+  REMOTE_OPTION=$(check_exclusive_options DIPIN_BRANCH DIPIN_USER_TAG DIPIN_PR)
+
+  if [ -n "$REMOTE_OPTION" ]; then
+    if [ "$REMOTE_OPTION" = "DIPIN_PR" ]; then
+      say "Using $REMOTE_OPTION: $DIPIN_PR"
+      DIPIN_BRANCH="refs/pull/$DIPIN_PR/head"
+    else
+      say "Using $REMOTE_OPTION: ${!REMOTE_OPTION}"
+    fi
+  fi
+
+  # Installs dip from a local repository if --path parameter is provided
+  if [[ -n "$DIPIN_LOCAL_REPO" ]]; then
+    need_cmd cargo
+
+    # Ignore branches/versions as we do not want to modify local git state
+    if [ -n "$DIPIN_REPO" ] || [ -n "$DIPIN_BRANCH" ] || [ -n "$DIPIN_VERSION" ]; then
+      warn "--branch, --version, and --repo arguments are ignored during local install"
+    fi
+
+    # Enter local repo and build
+    say "installing from $DIPIN_LOCAL_REPO"
+    cd "$DIPIN_LOCAL_REPO"
+    ensure cargo build --release # need 4 speed
+
+    for bin in "${BINS[@]}"; do
+      # Remove prior installations if they exist
+      rm -f "$DIP_BIN_DIR/$bin"
+      # Symlink from local repo binaries to bin dir
+      ensure ln -s "$PWD/target/release/$bin" "$DIP_BIN_DIR/$bin"
+    done
+
+    say "done"
+    welcome_msg
+    exit 0
+  fi
+
+  DIPIN_REPO=${DIPIN_REPO-diptools/dip}
+
+  # Store user specified version seperately.
+  DIPIN_USER_VERSION=${DIPIN_VERSION}
+
+  # Install by downloading binaries
+  if [[ "$DIPIN_REPO" == "diptools/dip" && -z "$DIPIN_BRANCH" && -z "$DIPIN_COMMIT" ]]; then
+    DIPIN_VERSION=${DIPIN_VERSION-stable}
+
+    if [ -n "$DIPIN_USER_TAG" ]; then
+        DIPIN_TAG=$DIPIN_USER_TAG
+        DIPIN_VERSION=$DIPIN_USER_TAG
+    else
+        DIPIN_TAG=$DIPIN_VERSION
+    fi
+    
+    # Normalize versions (handle channels, versions without v prefix
+    if [[ "$DIPIN_VERSION" == "stable" ]]; then
+      # Fetch the list of releases from the GitHub API and filter out `prerelease`` releases and `alpha`` releases
+      DIPIN_TAG=$(curl -s "https://api.github.com/repos/${DIPIN_REPO}/releases" \
+        | grep -oE '"tag_name": "[^"]*"|"prerelease": (true|false)' \
+        | grep -B1 '"prerelease": false' \
+        | grep '"tag_name":' \
+        | grep -oE '"v[0-9]*\.[0-9]*\.[0-9]*"' \
+        | tr -d '"' \
+        | head -n 1)
+      DIPIN_VERSION=$DIPIN_TAG
+    elif [[ "$DIPIN_VERSION" == [[:digit:]]* ]]; then
+      # Add v prefix
+      DIPIN_VERSION="v${DIPIN_VERSION}"
+      DIPIN_TAG="${DIPIN_VERSION}"
+    fi
+
+    say "installing dip (version ${DIPIN_VERSION}, tag ${DIPIN_TAG})"
+
+    PLATFORM="$(uname -s)"
+    EXT="tar.gz"
+    case $PLATFORM in
+      Linux)
+        PLATFORM="linux"
+        ;;
+      Darwin)
+        PLATFORM="darwin"
+        ;;
+      MINGW*)
+        EXT="zip"
+        PLATFORM="win32"
+        ;;
+      *)
+        err "unsupported platform: $PLATFORM"
+        ;;
+    esac
+
+    ARCHITECTURE="$(uname -m)"
+    if [ "${ARCHITECTURE}" = "x86_64" ]; then
+      # Redirect stderr to /dev/null to avoid printing errors if non Rosetta.
+      if [ "$(sysctl -n sysctl.proc_translated 2>/dev/null)" = "1" ]; then
+        ARCHITECTURE="arm64" # Rosetta.
+      else
+        ARCHITECTURE="amd64" # Intel.
+      fi
+    elif [ "${ARCHITECTURE}" = "arm64" ] ||[ "${ARCHITECTURE}" = "aarch64" ] ; then
+      ARCHITECTURE="arm64" # Arm.
+    else
+      ARCHITECTURE="amd64" # Amd.
+    fi
+
+    # Compute the URL of the release tarball in the Dip repository.
+    RELEASE_URL="https://github.com/${DIPIN_REPO}/releases/download/${DIPIN_TAG}/"
+    BIN_ARCHIVE_URL="${RELEASE_URL}dip${DIPIN_VERSION}_${PLATFORM}_${ARCHITECTURE}.$EXT"
+
+    # Check if the version mentioned by user exists in the Dip repository.
+    if ! curl --output /dev/null --silent --head --fail "$BIN_ARCHIVE_URL"; then
+      say "Version ${DIPIN_VERSION} does not match any release listed at https://github.com/diptools/dip/releases."
+      say "Please specify a valid version, or omit -v to install the latest stable version automatically."
+      err "Aborting installation."
+    fi
+
+    echo "$BIN_ARCHIVE_URL"
+
+    # Display message only if version is not mentioned by user.
+    if [ -z "$DIPIN_USER_VERSION" ] && [ -z "$DIPIN_USER_TAG" ]; then
+      say "downloading latest dip"
+    fi
+
+    # Download and extract the binaries archive
+    if [ "$PLATFORM" = "win32" ]; then
+      tmp="$(mktemp -d 2>/dev/null || echo ".")/dip.zip"
+      ensure download "$BIN_ARCHIVE_URL" "$tmp"
+      ensure unzip "$tmp" -d "$DIP_BIN_DIR"
+      rm -f "$tmp"
+    else
+      ensure download "$BIN_ARCHIVE_URL" | ensure tar -xzC "$DIP_BIN_DIR"
+    fi
+
+    for bin in "${BINS[@]}"; do
+      bin_path="$DIP_BIN_DIR/$bin"
+
+      # Print installed msg
+      say "installed - $(ensure "$bin_path" --version)"
+
+      # Check if the default path of the binary is not in DIP_BIN_DIR
+      which_path="$(which "$bin")"
+      if [ "$which_path" != "$bin_path" ]; then
+        warn ""
+        cat 1>&2 <<EOF
+There are multiple binaries with the name '$bin' present in your 'PATH'.
+This may be the result of installing '$bin' using another method,
+like Cargo or other package managers.
+You may need to run 'rm $which_path' or move '$DIP_BIN_DIR'
+in your 'PATH' to allow the newly installed version to take precedence!
+
+EOF
+      fi
+    done
+
+    # Extracting the scarb version from the output of 'sozo --version'
+    scarb_version=$(echo "$(sozo --version)" | grep -o 'scarb: [0-9.]*' | cut -d ' ' -f 2)
+
+    # Check if scarb is already installed
+    if [ "$(scarb --version 2>/dev/null)" != "scarb $scarb_version" ]; then
+      # Check if scarb is managed by asdf
+      if command -v asdf &> /dev/null; then
+        if asdf list | grep -q "scarb"; then
+          # Check if default version is set
+          if ! asdf current scarb &> /dev/null; then
+            asdf global scarb $scarb_version
+          fi
+        else
+          # Install scarb using asdf
+          asdf plugin add scarb
+          asdf install scarb $scarb_version
+        fi
+      else
+        # Install scarb using the install script
+        curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | sh -s -- -v $scarb_version
+      fi
+    fi
+
+    say "done!"
+    welcome_msg
+
+  # Install by cloning the repo with the provided branch/tag
+  else
+    need_cmd cargo
+    DIPIN_BRANCH=${DIPIN_BRANCH-main}
+    REPO_PATH="$DIP_DIR/$DIPIN_REPO"
+
+    # If repo path does not exist, grab the author from the repo, make a directory in .dip, cd to it and clone.
+    if [ ! -d "$REPO_PATH" ]; then
+      AUTHOR="$(echo "$DIPIN_REPO" | cut -d'/' -f1 -)"
+      ensure mkdir -p "$DIP_DIR/$AUTHOR"
+      cd "$DIP_DIR/$AUTHOR"
+      ensure git clone "https://github.com/$DIPIN_REPO"
+    fi
+
+    # Force checkout, discarding any local changes
+    cd "$REPO_PATH"
+    ensure git fetch origin "${DIPIN_BRANCH}:remotes/origin/${DIPIN_BRANCH}"
+    ensure git checkout "origin/${DIPIN_BRANCH}"
+
+    # If set, checkout specific commit from branch
+    if [ -n "$DIPIN_COMMIT" ]; then
+      say "installing at commit $DIPIN_COMMIT"
+      ensure git checkout "$DIPIN_COMMIT"
+    fi
+
+    for bin in "${BINS[@]}"; do
+	    # Build the repo and install the binaries locally to the .dip bin directory.
+	    # --root appends /bin to the directory it is given, so we pass DIP_DIR.
+	    ensure cargo install --path ./bin/$bin $bin --locked --force --root "$DIP_DIR"
+    done
+
+    say "done"
+    welcome_msg
+  fi
+}
+
+usage() {
+  cat 1>&2 <<'EOF'
+The installer for Dip.
+
+Update or revert to a specific Dip version with ease.
+
+USAGE:
+    dipin <OPTIONS>
+
+OPTIONS:
+    -h, --help      Print help information
+    -v, --version   Install a specific version (e.g., `dipin --version nightly`)
+    -b, --branch    Install a specific branch (e.g., `dipin --branch release/0.1.0`)
+    -P, --pr        Install a specific Pull Request (e.g., `dipin --pr 1071`)
+    -c, --commit    Install a specific commit (e.g., `dipin -c 94bfdb2`)
+    -r, --repo      Install from a remote GitHub repo (uses default branch if no other options are set) (e.g., `dipin --repo JunichiSugiura/dip`)
+    -p, --path      Install a local repository (e.g., `dipin --path ./git/dip`)
+EOF
+}
+
+say() {
+  printf "dipin: %s\n" "$1"
+}
+
+warn() {
+  say "warning: ${1}" >&2
+}
+
+err() {
+  say "$1" >&2
+  exit 1
+}
+
+need_cmd() {
+  if ! check_cmd "$1"; then
+    err "need '$1' (command not found)"
+  fi
+}
+
+check_cmd() {
+  command -v "$1" &>/dev/null
+}
+
+# Run a command that should never fail. If the command fails execution
+# will immediately terminate with an error showing the failing
+# command.
+ensure() {
+  if ! "$@"; then err "command failed: $*"; fi
+}
+
+# Downloads $1 into $2 or stdout
+download() {
+  if [ "$2" ]; then
+    # output into $2
+    if check_cmd curl; then
+      curl -#o "$2" -L "$1"
+    else
+      wget --show-progress -qO "$2" "$1"
+    fi
+  else
+    # output to stdout
+    if check_cmd curl; then
+      curl -#L "$1"
+    else
+      wget --show-progress -qO- "$1"
+    fi
+  fi
+}
+
+# Function to check mutual exclusivity of options.
+check_exclusive_options() {
+  local options=("$@")
+  local count=0
+  local set_option=""
+
+  for option in "${options[@]}"; do
+    if [ -n "${!option}" ]; then
+      ((count++))
+      set_option="$option"
+    fi
+  done
+
+  if [ "$count" -gt 1 ]; then
+    err "only one of ${options[*]} can be specified"
+  elif [ "$count" -eq 1 ]; then
+    echo "$set_option"
+  fi
+}
+
+# Welcome message printed after having installed Dip.
+welcome_msg() {
+  dip='\033[1;34m'
+  title='\033[0;32m'
+  emphasis='\033[0;34m'
+  command='\033[0;31m'
+  clear='\033[0m'
+
+  printf "
+═════════════════════════════════════════════════════════════════════════
+ 
+
+    ██████╗ ██╗██████╗     ████████╗ ██████╗  ██████╗ ██╗     ███████╗
+    ██╔══██╗██║██╔══██╗    ╚══██╔══╝██╔═══██╗██╔═══██╗██║     ██╔════╝
+    ██║  ██║██║██████╔╝       ██║   ██║   ██║██║   ██║██║     ███████╗
+    ██║  ██║██║██╔═══╝        ██║   ██║   ██║██║   ██║██║     ╚════██║
+    ██████╔╝██║██║            ██║   ╚██████╔╝╚██████╔╝███████╗███████║
+    ╚═════╝ ╚═╝╚═╝            ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝
+                                 
+
+
+              Repo : https://github.com/diptools/dip
+              Book : https://dip.tools/
+              Chat : https://discord.gg/4R8AtxAxk3
+
+Congratulations on successfully installing ${dip}Dip${clear} ${DIPIN_VERSION}! 🥷
+
+For more info on how to get started, check out the Dip Getting Started Guide: https://dip.tools/getting-started/quick-start
+
+═════════════════════════════════════════════════════════════════════════
+
+"
+}
+
+main "$@" || exit 1
+
