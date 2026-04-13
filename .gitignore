@@ -23,3 +23,5 @@ tarpaulin-report.html
 !.obsidian/plugins/obsidian-git/data.json
 !.obsidian/plugins/obsidian-linter/data.json
 
+
+.env

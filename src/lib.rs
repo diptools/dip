@@ -14,6 +14,7 @@ pub use dip_bundle as bundle;
 /// Web3 related plugins
 pub mod web3 {
     pub use dip_device as device;
+    pub use dip_starknet as starknet;
 }
 
 pub use bevy;
