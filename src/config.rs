@@ -23,24 +23,26 @@ impl Plugin for ConfigPlugin {
 fn add_sources(mut builder: ResMut<ConfigBuilder<DefaultState>>) {
     *builder = builder
         .clone()
-        .add_source(File::with_name("src/config/default"));
+        .add_source(File::with_name("plugins/bundle/src/config/default"));
 }
 
 #[derive(Deserialize, Debug)]
 #[allow(dead_code)]
 pub struct DipConfig {
-    bundle: Bundle,
+    bundle_root: String,
+    data_dir: String,
+    vm: VMConfig,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Bundle {
-    vm: VersionManager,
+#[allow(dead_code)]
+pub struct VMConfig {
+    runtime: VMRuntime,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct VersionManager {
-    tailwindcss: VersionList,
-    nodejs: VersionList,
+#[allow(dead_code)]
+pub struct VMRuntime {
+    tailwindcss: Vec<String>,
+    nodejs: Vec<String>,
 }
-
-pub type VersionList = Vec<String>;

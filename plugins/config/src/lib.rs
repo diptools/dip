@@ -149,9 +149,9 @@ pub fn build_config<Config>(
     let c = builder
         .clone()
         .build()
-        .unwrap()
+        .expect("Failed to build config")
         .try_deserialize::<'static, Config>()
-        .expect("Failed to parse config");
+        .expect("Failed to deserialize config");
 
     if config.is_none() {
         commands.insert_resource(c);

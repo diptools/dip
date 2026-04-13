@@ -135,14 +135,8 @@ impl ConfigParser {
 
         match Self::to_path(&s) {
             Ok(path) => {
-                if path.is_dir() {
-                    Ok(path)
-                } else {
-                    Err(de::Error::custom(&format!(
-                        "Make sure to create bundle directory: {}",
-                        path.display()
-                    )))
-                }
+                Config::ensure_dir(&path);
+                Ok(path)
             }
             Err(_e) => Err(de::Error::custom("Failed to parse bundle directory path")),
         }
